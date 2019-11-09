@@ -1,0 +1,56 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: no-commit-to-branch
+        args: [--branch, master]
+        language_version: python3
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-yaml
+        args: [--unsafe]
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.4.1
+    hooks:
+      - id: python-check-blanket-noqa
+      - id: python-check-mock-methods
+      - id: python-no-eval
+      - id: python-no-log-warn
+      - id: python-use-type-annotations
+      - id: rst-backticks
+  - repo: local
+    hooks:
+      - id: check-black
+        name: check-black
+        description: The uncompromising code checker.
+        entry: .venv/bin/black --check --diff --quiet
+        types: [python]
+        language: system
+      - id: flake8
+        name: flake8
+        description: the modular source code checker
+        entry: .venv/bin/flake8
+        types: [python]
+        language: system
+      - id: check-isort
+        name: check-isort
+        description: check all imports of all python files
+        entry: .venv/bin/isort --diff -c
+        types: [python]
+        language: system
+      - id: black
+        name: black
+        description: The uncompromising code formatter.
+        entry: .venv/bin/black --safe --quiet
+        types: [python]
+        language: system
+      - id: isort
+        name: isort
+        description: sort all imports of all python files
+        entry: .venv/bin/isort -y
+        types: [python]
+        language: system
