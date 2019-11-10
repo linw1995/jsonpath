@@ -1,5 +1,9 @@
 # Standard Library
+from contextvars import ContextVar
 from typing import Any, Dict, Optional, Tuple
+
+
+var_root = ContextVar("root")
 
 
 class ExprMeta(type):
@@ -17,6 +21,8 @@ class Expr(metaclass=ExprMeta):
     def find(self, element: Any) -> Any:
         if self.left is not None:
             element = self.left.find(element)
+        else:
+            var_root.set(element)
 
         return element
 
@@ -36,8 +42,8 @@ class Expr(metaclass=ExprMeta):
 
 class Root(Expr):
     def find(self, element):
-        element = super().find(element)
-        return element
+        super().find(element)
+        return var_root.get()
 
 
 class Name(Expr):
