@@ -68,14 +68,43 @@ class Name(Expr):
 
 class Array(Expr):
     def __init__(self, idx):
+        super().__init__()
         self.idx = idx
 
     def find(self, element):
         element = super().find(element)
-        if isinstance(element, list) and self.idx < len(element):
-            return element[self.idx]
+        if isinstance(self.idx, int):
+            if isinstance(element, list) and self.idx < len(element):
+                return element[self.idx]
+        elif isinstance(self.idx, Slice):
+            return self.idx.find(element)
 
         return []
 
 
-__all__ = ("Expr", "ExprMeta", "Name", "Root", "Array")
+class Slice(Expr):
+    def __init__(self, start=None, end=None, step=1):
+        super().__init__()
+        self.start = start
+        self.end = end
+        self.step = step
+
+    def find(self, element):
+        element = super().find(element)
+        if isinstance(element, list):
+            start = self.start
+            end = self.end
+            step = self.step
+            if start is None:
+                start = 0
+            if end is None:
+                end = len(element)
+            if step is None:
+                step = 1
+
+            return element[start:end:step]
+
+        return []
+
+
+__all__ = ("Expr", "ExprMeta", "Name", "Root", "Array", "Slice")

@@ -1,5 +1,5 @@
 # Local Folder
-from .core import Array, Expr, ExprMeta, Name, Root
+from .core import Array, Expr, ExprMeta, Name, Root, Slice
 from .sly import JSONPathLexer, JSONPathParser
 
 
@@ -10,6 +10,7 @@ def parse(expr):
 __all__ = (
     "Array",
     "Expr",
+    "Slice",
     "ExprMeta",
     "Root",
     "Name",
