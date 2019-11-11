@@ -161,4 +161,20 @@ class Slice(Expr):
         raise FindError()
 
 
+class Brace(Expr):
+    def __init__(self, expr: Expr):
+        super().__init__()
+        self.expr = expr
+
+    def find(self, element):
+        if isinstance(self.expr, Expr):
+            token = var_finding.set(False)
+            try:
+                return [self.expr.find(element)]
+            finally:
+                var_finding.reset(token)
+
+        raise FindError()
+
+
 __all__ = ("Expr", "ExprMeta", "Name", "Root", "Array", "Slice")

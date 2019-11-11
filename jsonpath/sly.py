@@ -3,12 +3,12 @@ from sly import Lexer, Parser
 from sly.yacc import YaccProduction
 
 # Local Folder
-from .core import Array, Name, Root, Slice, chain
+from .core import Array, Brace, Name, Root, Slice, chain
 
 
 class JSONPathLexer(Lexer):
     tokens = {"ID", "DOT", "STAR", "INT", "ROOT", "COLON"}
-    literals = {"$", ".", "*", "[", "]", ":"}
+    literals = {"$", ".", "*", "[", "]", ":", "(", ")"}
 
     ID = r"[a-zA-Z_][a-zA-Z0-9_\-]*"
     DOT = r"\."
@@ -55,6 +55,10 @@ class JSONPathParser(Parser):
             return Slice(p[0], p[2])
         elif len(p) == 5:
             return Slice(p[0], p[2], p[4])
+
+    @_("'(' expr ')'")  # noqa: F8
+    def expr(self, p: YaccProduction):  # noqa: F8
+        return Brace(p.expr)
 
     @_("ROOT")  # noqa: F8
     def expr(self, p: YaccProduction):  # noqa: F8
