@@ -30,8 +30,12 @@ class JSONPathParser(Parser):
 
     @_("expr '[' idx ']'")  # noqa: F8
     @_("expr '[' slice ']'")  # noqa: F8
+    @_("expr '[' STAR ']'")  # noqa: F8
     def expr(self, p: YaccProduction):  # noqa: F8
-        rv = Array(p[2])
+        if p[2] == "*":
+            rv = Array()
+        else:
+            rv = Array(p[2])
         chain(pre=p.expr, current=rv)
         return rv
 

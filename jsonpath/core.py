@@ -123,14 +123,19 @@ class Name(Expr):
 
 
 class Array(Expr):
-    def __init__(self, idx):
+    def __init__(self, idx=None):
         super().__init__()
         self.idx = idx
 
     def find(self, element):
-        if isinstance(self.idx, int):
-            if isinstance(element, list) and self.idx < len(element):
-                return [element[self.idx]]
+        if self.idx is None and isinstance(element, list):
+            return element
+        elif (
+            isinstance(self.idx, int)
+            and isinstance(element, list)
+            and self.idx < len(element)
+        ):
+            return [element[self.idx]]
         elif isinstance(self.idx, Slice):
             return self.idx.find(element)
 
