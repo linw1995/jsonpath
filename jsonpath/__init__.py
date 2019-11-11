@@ -1,5 +1,16 @@
 # Local Folder
-from .core import Array, Expr, ExprMeta, Name, Root, Slice
+from .core import (
+    Array,
+    Brace,
+    Expr,
+    ExprMeta,
+    Name,
+    Root,
+    Search,
+    Slice,
+    chain,
+    recusive_find,
+)
 from .sly import JSONPathLexer, JSONPathParser
 
 
@@ -17,4 +28,8 @@ __all__ = (
     "JSONPathLexer",
     "JSONPathParser",
     "parse",
+    "Search",
+    "Brace",
+    "chain",
+    "recusive_find",
 )

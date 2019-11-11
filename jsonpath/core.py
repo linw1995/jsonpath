@@ -3,7 +3,7 @@ import weakref
 
 from abc import abstractmethod
 from contextvars import ContextVar
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from weakref import ReferenceType
 
 
@@ -24,6 +24,21 @@ def chain(pre, current):
     pre.ref_right = weakref.ref(current)
 
 
+def dfs_find(expr, elements, rv):
+    if expr is None:
+        rv.extend(elements)
+    else:
+        for element in elements:
+            try:
+                dfs_find(
+                    expr.ref_right() if expr.ref_right else None,
+                    expr.find(element),
+                    rv,
+                )
+            except FindError:
+                pass
+
+
 class ExprMeta(type):
     _exprs = {}
 
@@ -32,20 +47,6 @@ class ExprMeta(type):
         cls._exprs[name] = cls
 
         actual_find = cls.find
-
-        def recusive_find(expr, elements, rv):
-            if expr is None:
-                rv.extend(elements)
-            else:
-                for element in elements:
-                    try:
-                        recusive_find(
-                            expr.ref_right() if expr.ref_right else None,
-                            expr.find(element),
-                            rv,
-                        )
-                    except FindError:
-                        pass
 
         def begin_to_find(self, element):
             if var_finding.get():
@@ -66,7 +67,7 @@ class ExprMeta(type):
             token_root = var_root.set(element)
             token_finding = var_finding.set(True)
             try:
-                recusive_find(expr, [element], rv)
+                dfs_find(expr, [element], rv)
                 return rv
             finally:
                 var_finding.reset(token_finding)
@@ -182,4 +183,41 @@ class Brace(Expr):
         raise FindError()
 
 
-__all__ = ("Expr", "ExprMeta", "Name", "Root", "Array", "Slice")
+def recusive_find(expr: Expr, element: Any, rv: List[Any]):
+    try:
+        find_rv = expr.find(element)
+        rv.extend(find_rv)
+    except FindError:
+        pass
+    if isinstance(element, list):
+        for item in element:
+            recusive_find(expr, item, rv)
+    elif isinstance(element, dict):
+        for item in element.values():
+            recusive_find(expr, item, rv)
+
+
+class Search(Expr):
+    def __init__(self, expr):
+        super().__init__()
+        self.expr = expr
+
+    def find(self, element):
+        if isinstance(self.expr, (Name, Array)):
+            rv = []
+            recusive_find(self.expr, element, rv)
+            return rv
+
+
+__all__ = (
+    "Expr",
+    "ExprMeta",
+    "Name",
+    "Root",
+    "Array",
+    "Slice",
+    "Search",
+    "Brace",
+    "chain",
+    "recusive_find",
+)

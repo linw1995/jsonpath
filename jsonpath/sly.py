@@ -3,14 +3,15 @@ from sly import Lexer, Parser
 from sly.yacc import YaccProduction
 
 # Local Folder
-from .core import Array, Brace, Name, Root, Slice, chain
+from .core import Array, Brace, Name, Root, Search, Slice, chain
 
 
 class JSONPathLexer(Lexer):
-    tokens = {"ID", "DOT", "STAR", "INT", "ROOT", "COLON"}
+    tokens = {"ID", "DOT", "STAR", "INT", "ROOT", "COLON", "DOUBLEDOT"}
     literals = {"$", ".", "*", "[", "]", ":", "(", ")"}
 
     ID = r"[a-zA-Z_][a-zA-Z0-9_\-]*"
+    DOUBLEDOT = r"\.\."
     DOT = r"\."
     STAR = r"\*"
     INT = r"-?\d+"
@@ -21,10 +22,29 @@ class JSONPathLexer(Lexer):
 class JSONPathParser(Parser):
     tokens = JSONPathLexer.tokens
 
-    precedence = [("left", "DOT")]
+    precedence = [("left", "DOUBLEDOT"), ("left", "DOT")]
+
+    @_("expr DOUBLEDOT expr")  # noqa: F8
+    def expr(self, p: YaccProduction):  # noqa: F8
+        search = Search(p[2])
+        chain(pre=p[0], current=search)
+        return search
+
+    @_("expr DOUBLEDOT '[' idx ']'")  # noqa: F8
+    @_("expr DOUBLEDOT '[' slice ']'")  # noqa: F8
+    @_("expr DOUBLEDOT '[' STAR ']'")  # noqa: F8
+    def expr(self, p: YaccProduction):  # noqa: F8
+        if p[3] == "*":
+            arr = Array()
+        else:
+            arr = Array(p[3])
+
+        search = Search(arr)
+        chain(pre=p.expr, current=search)
+        return search
 
     @_("expr DOT expr")  # noqa: F8
-    def expr(self, p: YaccProduction):
+    def expr(self, p: YaccProduction):  # noqa: F8
         chain(pre=p[0], current=p[2])
         return p[2]
 
