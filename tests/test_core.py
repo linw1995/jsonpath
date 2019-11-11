@@ -10,7 +10,7 @@ from jsonpath.core import Name, Root, Slice
 
 @pytest.mark.parametrize(
     "name,data,expect",
-    [("boo", {"boo": 1}, 1), (None, {"boo": 1, "bar": 2}, [1, 2])],
+    [("boo", {"boo": 1}, [1]), (None, {"boo": 1, "bar": 2}, [1, 2])],
     ids=reprlib.repr,
 )
 def test_name_find(name, data, expect):
@@ -20,8 +20,8 @@ def test_name_find(name, data, expect):
 @pytest.mark.parametrize(
     "names,data,expect",
     [
-        (["boo", "bar"], {"boo": {"bar": 1}}, 1),
-        (["boo", "bar", "boo"], {"boo": {"bar": {"boo": 1}}}, 1),
+        (["boo", "bar"], {"boo": {"bar": 1}}, [1]),
+        (["boo", "bar", "boo"], {"boo": {"bar": {"boo": 1}}}, [1]),
         (
             ["boo", None, "boo"],
             {"boo": {"boo": {"boo": 1}, "bar": {"boo": 2}}},

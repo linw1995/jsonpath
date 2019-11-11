@@ -3,7 +3,7 @@ from sly import Lexer, Parser
 from sly.yacc import YaccProduction
 
 # Local Folder
-from .core import Array, Name, Root, Slice
+from .core import Array, Name, Root, Slice, chain
 
 
 class JSONPathLexer(Lexer):
@@ -25,14 +25,14 @@ class JSONPathParser(Parser):
 
     @_("expr DOT expr")  # noqa: F8
     def expr(self, p: YaccProduction):
-        p[2].left = p[0]
+        chain(pre=p[0], current=p[2])
         return p[2]
 
     @_("expr '[' idx ']'")  # noqa: F8
     @_("expr '[' slice ']'")  # noqa: F8
     def expr(self, p: YaccProduction):  # noqa: F8
         rv = Array(p[2])
-        rv.left = p.expr
+        chain(pre=p.expr, current=rv)
         return rv
 
     @_("INT")  # noqa: F8
