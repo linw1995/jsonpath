@@ -43,6 +43,7 @@ from jsonpath import parse
             {"boo": [{"boo": [1, 2, 3, 4, 5]}, 1]},
             [{"boo": [1, 2, 3, 4, 5]}, 1, 3],
         ),
+        ("@", "abc", ["abc"]),
     ],
     ids=reprlib.repr,
 )

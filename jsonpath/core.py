@@ -209,6 +209,11 @@ class Search(Expr):
             return rv
 
 
+class Self(Expr):
+    def find(self, element):
+        return [element]
+
+
 __all__ = (
     "Expr",
     "ExprMeta",
@@ -217,6 +222,7 @@ __all__ = (
     "Array",
     "Slice",
     "Search",
+    "Self",
     "Brace",
     "chain",
     "recusive_find",
