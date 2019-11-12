@@ -44,6 +44,14 @@ from jsonpath import parse
             [{"boo": [1, 2, 3, 4, 5]}, 1, 3],
         ),
         ("@", "abc", ["abc"]),
+        ("$[@.price]", [{"price": 100}, {}], [{"price": 100}]),
+        (
+            "$[@.*]",
+            [{"price": 100}, {"isbn": ""}, {}],
+            [{"price": 100}, {"isbn": ""}],
+        ),
+        ("$[price]", [{"price": 100}, {}], [{"price": 100}]),
+        ("$[price]", {"bookA": {"price": 100}, "bookB": {}}, [{"price": 100}]),
     ],
     ids=reprlib.repr,
 )

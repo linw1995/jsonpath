@@ -139,6 +139,23 @@ class Array(Expr):
             return [element[self.idx]]
         elif isinstance(self.idx, Slice):
             return self.idx.find(element)
+        elif isinstance(self.idx, Expr):
+            filtered_items = []
+            if isinstance(element, list):
+                items = element
+            elif isinstance(element, dict):
+                items = element.values()
+            else:
+                raise FindError()
+
+            for item in items:
+                try:
+                    rv = self.idx.find(item)
+                    if rv:
+                        filtered_items.append(item)
+                except FindError:
+                    pass
+            return filtered_items
 
         raise FindError()
 
