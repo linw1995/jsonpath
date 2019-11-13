@@ -8,6 +8,7 @@ from weakref import ReferenceType
 
 
 var_root = ContextVar("root")
+var_self = ContextVar("self")
 var_finding = ContextVar("finding", default=False)
 
 
@@ -28,6 +29,9 @@ def dfs_find(expr, elements, rv):
     if expr is None:
         rv.extend(elements)
     else:
+        if isinstance(elements, dict):
+            elements = elements.values()
+
         for element in elements:
             try:
                 dfs_find(
@@ -64,14 +68,25 @@ class ExprMeta(type):
                 expr = self.ref_begin()
 
             rv = []
-            token_root = var_root.set(element)
+            token_root = None
+            token_self = None
+
+            try:
+                var_root.get()
+                token_self = var_self.set(element)
+            except LookupError:
+                token_root = var_root.set(element)
+
             token_finding = var_finding.set(True)
             try:
                 dfs_find(expr, [element], rv)
                 return rv
             finally:
                 var_finding.reset(token_finding)
-                var_root.reset(token_root)
+                if token_root:
+                    var_root.reset(token_root)
+                if token_self:
+                    var_self.reset(token_self)
 
         cls.find = begin_to_find
 
@@ -98,6 +113,24 @@ class Expr(metaclass=ExprMeta):
             return expr
 
         return _expr_cls
+
+    def __lt__(self, value):
+        return self.LessThan(value)
+
+    def __le__(self, value):
+        return self.LessEqual(value)
+
+    def __eq__(self, value):
+        return self.Equal(value)
+
+    def __ge__(self, value):
+        return self.GreaterEqual(value)
+
+    def __gt__(self, value):
+        return self.GreaterThan(value)
+
+    def __ne__(self, value):
+        return self.NotEqual(value)
 
 
 class Root(Expr):
@@ -150,8 +183,16 @@ class Array(Expr):
 
             for item in items:
                 try:
-                    rv = self.idx.find(item)
+                    token = var_finding.set(False)
+                    try:
+                        rv = self.idx.find(item)
+                    finally:
+                        var_finding.reset(token)
                     if rv:
+                        if isinstance(self.idx, Compare):
+                            if not rv[0]:
+                                continue
+
                         filtered_items.append(item)
                 except FindError:
                     pass
@@ -228,7 +269,43 @@ class Search(Expr):
 
 class Self(Expr):
     def find(self, element):
-        return [element]
+        return [var_self.get(element)]
+
+
+class Compare(Expr):
+    def __init__(self, target):
+        super().__init__()
+        self.target = target
+
+
+class LessThan(Compare):
+    def find(self, element):
+        return [element < self.target]
+
+
+class LessEqual(Compare):
+    def find(self, element):
+        return [element <= self.target]
+
+
+class Equal(Compare):
+    def find(self, element):
+        return [element == self.target]
+
+
+class GreaterEqual(Compare):
+    def find(self, element):
+        return [element >= self.target]
+
+
+class GreaterThan(Compare):
+    def find(self, element):
+        return [element > self.target]
+
+
+class NotEqual(Compare):
+    def find(self, element):
+        return [element != self.target]
 
 
 __all__ = (
@@ -243,4 +320,11 @@ __all__ = (
     "Brace",
     "chain",
     "recusive_find",
+    "Compare",
+    "LessThan",
+    "LessEqual",
+    "Equal",
+    "GreaterEqual",
+    "GreaterThan",
+    "NotEqual",
 )
