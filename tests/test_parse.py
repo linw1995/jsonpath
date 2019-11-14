@@ -75,6 +75,30 @@ from jsonpath import parse
         ),
         ("$[price]", [{"price": 100}, {}], [{"price": 100}]),
         ("$[price]", {"bookA": {"price": 100}, "bookB": {}}, [{"price": 100}]),
+        (
+            "$..[result]",
+            [{"result": {"result": "result"}}],
+            [{"result": {"result": "result"}}, {"result": "result"}],
+        ),
+        (
+            "$..[price>100]",
+            {
+                "price": 200,
+                "charpter": [{"price": 100}, {"price": 200}, {"price": 300}],
+            },
+            [
+                {
+                    "price": 200,
+                    "charpter": [
+                        {"price": 100},
+                        {"price": 200},
+                        {"price": 300},
+                    ],
+                },
+                {"price": 200},
+                {"price": 300},
+            ],
+        ),
     ],
     ids=reprlib.repr,
 )

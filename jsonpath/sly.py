@@ -72,8 +72,10 @@ class JSONPathParser(Parser):
     @_("expr DOUBLEDOT '[' integer ']'")  # noqa: F8
     @_("expr DOUBLEDOT '[' slice ']'")  # noqa: F8
     @_("expr DOUBLEDOT '[' STAR ']'")  # noqa: F8
+    @_("expr DOUBLEDOT '[' comparation ']'")  # noqa: F8
+    @_("expr DOUBLEDOT '[' expr ']'")  # noqa: F8
     def expr(self, p: YaccProduction):  # noqa: F8
-        if isinstance(p[3], (Slice, int)):
+        if isinstance(p[3], (Expr, int)):
             arr = Array(p[3])
         elif p[3] == "*":
             arr = Array()
@@ -81,7 +83,7 @@ class JSONPathParser(Parser):
             assert 0
 
         search = Search(arr)
-        chain(pre=p.expr, current=search)
+        chain(pre=p[0], current=search)
         return search
 
     @_("expr DOT expr")  # noqa: F8

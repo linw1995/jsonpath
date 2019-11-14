@@ -263,7 +263,10 @@ class Search(Expr):
     def find(self, element):
         if isinstance(self.expr, (Name, Array)):
             rv = []
-            recusive_find(self.expr, element, rv)
+            if isinstance(self.expr, Array) and isinstance(self.expr.idx, Expr):
+                recusive_find(self.expr, [element], rv)
+            else:
+                recusive_find(self.expr, element, rv)
             return rv
 
 
