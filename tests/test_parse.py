@@ -99,6 +99,7 @@ from jsonpath import parse
                 {"price": 300},
             ],
         ),
+        ("$[price>100.5]", [{"price": 100}, {"price": 200}], [{"price": 200}],),
     ],
     ids=reprlib.repr,
 )

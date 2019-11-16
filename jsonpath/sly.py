@@ -25,6 +25,7 @@ from .core import (
 class JSONPathLexer(Lexer):
     tokens = {
         "ID",
+        "FLOAT",
         "DOT",
         "STAR",
         "INT",
@@ -43,6 +44,7 @@ class JSONPathLexer(Lexer):
     ignore = " \t"
 
     ID = r"[a-zA-Z_][a-zA-Z0-9_\-]*"
+    FLOAT = r"-?\d+\.\d+"
     DOUBLEDOT = r"\.\."
     DOT = r"\."
     STAR = r"\*"
@@ -107,7 +109,12 @@ class JSONPathParser(Parser):
         chain(pre=p[0], current=rv)
         return rv
 
+    @_("float")  # noqa: F8
     @_("integer")  # noqa: F8
+    def number(self, p: YaccProduction):
+        return p[0]
+
+    @_("number")  # noqa: F8
     @_("expr")  # noqa: F8
     def expr_or_value(self, p: YaccProduction):
         return p[0]
@@ -138,6 +145,10 @@ class JSONPathParser(Parser):
     @_("INT")  # noqa: F8
     def integer(self, p: YaccProduction):
         return int(p[0])
+
+    @_("FLOAT")  # noqa: F8
+    def float(self, p: YaccProduction):
+        return float(p[0])
 
     @_("")  # noqa: F8
     def empty(self, p: YaccProduction):
