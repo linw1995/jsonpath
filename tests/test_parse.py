@@ -100,6 +100,9 @@ from jsonpath import parse
             ],
         ),
         ("$[price>100.5]", [{"price": 100}, {"price": 200}], [{"price": 200}],),
+        ("$[on=null]", [{"on": None}, {"on": False}], [{"on": None}],),
+        ("$[on=true]", [{"on": True}, {"on": False}], [{"on": True}],),
+        ("$[on=false]", [{"on": True}, {"on": False}], [{"on": False}],),
     ],
     ids=reprlib.repr,
 )

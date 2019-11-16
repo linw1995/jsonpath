@@ -24,6 +24,9 @@ from .core import (
 
 class JSONPathLexer(Lexer):
     tokens = {
+        "TRUE",
+        "FALSE",
+        "NULL",
         "ID",
         "FLOAT",
         "DOT",
@@ -43,6 +46,9 @@ class JSONPathLexer(Lexer):
     literals = {"$", ".", "*", "[", "]", ":", "(", ")", "@"}
     ignore = " \t"
 
+    TRUE = "true"
+    FALSE = "false"
+    NULL = "null"
     ID = r"[a-zA-Z_][a-zA-Z0-9_\-]*"
     FLOAT = r"-?\d+\.\d+"
     DOUBLEDOT = r"\.\."
@@ -114,6 +120,9 @@ class JSONPathParser(Parser):
     def number(self, p: YaccProduction):
         return p[0]
 
+    @_("false")  # noqa: F8
+    @_("true")  # noqa: F8
+    @_("null")  # noqa: F8
     @_("number")  # noqa: F8
     @_("expr")  # noqa: F8
     def expr_or_value(self, p: YaccProduction):
@@ -149,6 +158,18 @@ class JSONPathParser(Parser):
     @_("FLOAT")  # noqa: F8
     def float(self, p: YaccProduction):
         return float(p[0])
+
+    @_("TRUE")  # noqa: F8
+    def true(self, p: YaccProduction):
+        return True
+
+    @_("FALSE")  # noqa: F8
+    def false(self, p: YaccProduction):
+        return False
+
+    @_("NULL")  # noqa: F8
+    def null(self, p: YaccProduction):
+        return None
 
     @_("")  # noqa: F8
     def empty(self, p: YaccProduction):
