@@ -321,6 +321,7 @@ test_get_expression = pytest.mark.parametrize(
             Name("list").Array(Name("abc") < Root().Name("abc")),
             "list[abc < $.abc]",
         ),
+        (Root().Array(Name("name") == "name"), "$[name = 'name']"),
     ],
     ids=reprlib.repr,
 )(test_get_expression)

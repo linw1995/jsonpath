@@ -24,6 +24,7 @@ from .core import (
 
 class JSONPathLexer(Lexer):
     tokens = {
+        "STRING",
         "TRUE",
         "FALSE",
         "NULL",
@@ -64,6 +65,14 @@ class JSONPathLexer(Lexer):
     EQ = r"="
     LT = r"<"
     GT = r">"
+
+    STRING = "|".join(
+        [
+            r"""`([^`\\]|\\.)*?`""",
+            r"""'([^'\\]|\\.)*?'""",
+            r'''"([^"\\]|\\.)*?"''',
+        ]
+    )
 
 
 class JSONPathParser(Parser):
@@ -124,6 +133,7 @@ class JSONPathParser(Parser):
     @_("true")  # noqa: F8
     @_("null")  # noqa: F8
     @_("number")  # noqa: F8
+    @_("string")  # noqa: F8
     @_("expr")  # noqa: F8
     def expr_or_value(self, p: YaccProduction):
         return p[0]
@@ -204,9 +214,14 @@ class JSONPathParser(Parser):
     def expr(self, p: YaccProduction):  # noqa: F8
         return Self()
 
+    @_("string")  # noqa: F8
     @_("ID")  # noqa: F8
     def expr(self, p: YaccProduction):  # noqa: F8
-        return Name(p.ID)
+        return Name(p[0])
+
+    @_("STRING")  # noqa: F8
+    def string(self, p: YaccProduction):
+        return p[0][1:-1]
 
 
 __all__ = ("JSONPathLexer", "JSONPathParser")

@@ -117,6 +117,36 @@ test_find = pytest.mark.parametrize(
             {"systems": [{"on": True}, {"on": False}], "on": False},
             [],
         ),
+        (
+            "$[name='john']",
+            [{"name": "jack"}, {"name": "john"}],
+            [{"name": "john"}],
+        ),
+        (
+            '$[name="john"]',
+            [{"name": "jack"}, {"name": "john"}],
+            [{"name": "john"}],
+        ),
+        (
+            """$[name='"john"']""",
+            [{"name": "jack"}, {"name": '"john"'}],
+            [{"name": '"john"'}],
+        ),
+        (
+            """$[name="'john'"]""",
+            [{"name": "jack"}, {"name": "'john'"}],
+            [{"name": "'john'"}],
+        ),
+        (
+            """$[name=`john'`]""",
+            [{"name": "jack"}, {"name": "john'"}],
+            [{"name": "john'"}],
+        ),
+        (
+            """$[*].'name'""",
+            [{"name": "jack"}, {"name": "john"}],
+            ["jack", "john"],
+        ),
     ],
     ids=reprlib.repr,
 )(test_find)

@@ -357,6 +357,12 @@ class Compare(Expr):
         super().__init__()
         self.target = target
 
+    def _get_target_expression(self):
+        if isinstance(self.target, Expr):
+            return self.target.get_expression()
+        else:
+            return repr(self.target)
+
     def get_target_value(self):
         if isinstance(self.target, Expr):
             try:
@@ -375,7 +381,7 @@ class Compare(Expr):
 
 class LessThan(Compare):
     def _get_partial_expression(self):
-        return f" < {self.target}"
+        return f" < {self._get_target_expression()}"
 
     def find(self, element):
         return [element < self.get_target_value()]
@@ -383,7 +389,7 @@ class LessThan(Compare):
 
 class LessEqual(Compare):
     def _get_partial_expression(self):
-        return f" <= {self.target}"
+        return f" <= {self._get_target_expression()}"
 
     def find(self, element):
         return [element <= self.get_target_value()]
@@ -391,7 +397,7 @@ class LessEqual(Compare):
 
 class Equal(Compare):
     def _get_partial_expression(self):
-        return f" = {self.target}"
+        return f" = {self._get_target_expression()}"
 
     def find(self, element):
         return [element == self.get_target_value()]
@@ -399,7 +405,7 @@ class Equal(Compare):
 
 class GreaterEqual(Compare):
     def _get_partial_expression(self):
-        return f" >= {self.target}"
+        return f" >= {self._get_target_expression()}"
 
     def find(self, element):
         return [element >= self.get_target_value()]
@@ -407,7 +413,7 @@ class GreaterEqual(Compare):
 
 class GreaterThan(Compare):
     def _get_partial_expression(self):
-        return f" > {self.target}"
+        return f" > {self._get_target_expression()}"
 
     def find(self, element):
         return [element > self.get_target_value()]
@@ -415,7 +421,7 @@ class GreaterThan(Compare):
 
 class NotEqual(Compare):
     def _get_partial_expression(self):
-        return f" != {self.target}"
+        return f" != {self._get_target_expression()}"
 
     def find(self, element):
         return [element != self.get_target_value()]
