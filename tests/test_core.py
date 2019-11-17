@@ -317,6 +317,10 @@ test_get_expression = pytest.mark.parametrize(
         (Root().Array(Name("abc").LessEqual(1)), "$[abc <= 1]"),
         (Root().Array(Name("abc").LessThan(1)), "$[abc < 1]"),
         (Root().Array(Self().Name("abc").LessThan(1)), "$[@.abc < 1]"),
+        (
+            Name("list").Array(Name("abc") < Root().Name("abc")),
+            "list[abc < $.abc]",
+        ),
     ],
     ids=reprlib.repr,
 )(test_get_expression)
