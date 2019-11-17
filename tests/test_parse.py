@@ -8,7 +8,11 @@ import pytest
 from jsonpath import parse
 
 
-@pytest.mark.parametrize(
+def test_find(expr, data, expect):
+    assert parse(expr).find(data) == expect
+
+
+test_find = pytest.mark.parametrize(
     "expr,data,expect",
     [
         ("boo", {"boo": 1}, [1]),
@@ -103,9 +107,16 @@ from jsonpath import parse
         ("$[on=null]", [{"on": None}, {"on": False}], [{"on": None}],),
         ("$[on=true]", [{"on": True}, {"on": False}], [{"on": True}],),
         ("$[on=false]", [{"on": True}, {"on": False}], [{"on": False}],),
+        (
+            "$.systems[on=$.on]",
+            {"systems": [{"on": True}, {"on": False}], "on": False},
+            [{"on": False}],
+        ),
+        (
+            "$.systems[on=$.notexists]",
+            {"systems": [{"on": True}, {"on": False}], "on": False},
+            [],
+        ),
     ],
     ids=reprlib.repr,
-)
-def test_find(expr, data, expect):
-    jp = parse(expr)
-    assert jp.find(data) == expect
+)(test_find)

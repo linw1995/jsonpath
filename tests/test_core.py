@@ -161,7 +161,7 @@ def test_slice(start, end, step, data, expect):
     ],
     ids=reprlib.repr,
 )
-def test_comparation(expr, data, expect):
+def test_comparison(expr, data, expect):
     assert expr.find(data) == expect
 
 
@@ -253,7 +253,7 @@ def test_comparation(expr, data, expect):
     ],
     ids=reprlib.repr,
 )
-def test_comparation_in_search(expr, data, expect):
+def test_comparison_in_search(expr, data, expect):
     assert expr.find(data) == expect
 
 

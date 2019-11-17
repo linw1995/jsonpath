@@ -357,13 +357,28 @@ class Compare(Expr):
         super().__init__()
         self.target = target
 
+    def get_target_value(self):
+        if isinstance(self.target, Expr):
+            try:
+                token = var_finding.set(False)
+                rv = self.target.find(var_self.get())
+                if not rv:
+                    raise FindError()
+
+                return rv[0]
+            finally:
+                var_finding.reset(token)
+
+        else:
+            return self.target
+
 
 class LessThan(Compare):
     def _get_partial_expression(self):
         return f" < {self.target}"
 
     def find(self, element):
-        return [element < self.target]
+        return [element < self.get_target_value()]
 
 
 class LessEqual(Compare):
@@ -371,7 +386,7 @@ class LessEqual(Compare):
         return f" <= {self.target}"
 
     def find(self, element):
-        return [element <= self.target]
+        return [element <= self.get_target_value()]
 
 
 class Equal(Compare):
@@ -379,7 +394,7 @@ class Equal(Compare):
         return f" = {self.target}"
 
     def find(self, element):
-        return [element == self.target]
+        return [element == self.get_target_value()]
 
 
 class GreaterEqual(Compare):
@@ -387,7 +402,7 @@ class GreaterEqual(Compare):
         return f" >= {self.target}"
 
     def find(self, element):
-        return [element >= self.target]
+        return [element >= self.get_target_value()]
 
 
 class GreaterThan(Compare):
@@ -395,7 +410,7 @@ class GreaterThan(Compare):
         return f" > {self.target}"
 
     def find(self, element):
-        return [element > self.target]
+        return [element > self.get_target_value()]
 
 
 class NotEqual(Compare):
@@ -403,7 +418,7 @@ class NotEqual(Compare):
         return f" != {self.target}"
 
     def find(self, element):
-        return [element != self.target]
+        return [element != self.get_target_value()]
 
 
 __all__ = (

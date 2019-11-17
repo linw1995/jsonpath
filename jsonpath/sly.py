@@ -80,7 +80,7 @@ class JSONPathParser(Parser):
     @_("expr DOUBLEDOT '[' integer ']'")  # noqa: F8
     @_("expr DOUBLEDOT '[' slice ']'")  # noqa: F8
     @_("expr DOUBLEDOT '[' STAR ']'")  # noqa: F8
-    @_("expr DOUBLEDOT '[' comparation ']'")  # noqa: F8
+    @_("expr DOUBLEDOT '[' comparison ']'")  # noqa: F8
     @_("expr DOUBLEDOT '[' expr ']'")  # noqa: F8
     def expr(self, p: YaccProduction):  # noqa: F8
         if isinstance(p[3], (Expr, int)):
