@@ -97,6 +97,40 @@ class Expr(metaclass=ExprMeta):
         self.ref_right: Optional[ReferenceType[Expr]] = None
         self.ref_begin: Optional[ReferenceType[Expr]] = None
 
+    def __repr__(self):
+        return f"JSONPath({str(self)!r})"
+
+    def __str__(self):
+        return self.get_expression()
+
+    def get_expression(self):
+        if self.ref_begin is None:
+            expr = self
+        else:
+            expr = self.ref_begin()
+
+        parts = []
+        while expr:
+            part = expr._get_partial_expression()
+            if isinstance(expr, (Array, Search, Compare)):
+                if parts:
+                    parts[-1] += part
+                else:
+                    parts.append(part)
+            else:
+                parts.append(part)
+
+            if expr.ref_right:
+                expr = expr.ref_right()
+            else:
+                expr = None
+
+        return ".".join(parts)
+
+    @abstractmethod
+    def _get_partial_expression(self):
+        raise NotImplementedError
+
     @abstractmethod
     def find(self, element):
         raise NotImplementedError
@@ -134,6 +168,9 @@ class Expr(metaclass=ExprMeta):
 
 
 class Root(Expr):
+    def _get_partial_expression(self):
+        return "$"
+
     def find(self, element):
         return [var_root.get(element)]
 
@@ -142,6 +179,12 @@ class Name(Expr):
     def __init__(self, name=None):
         super().__init__()
         self.name = name
+
+    def _get_partial_expression(self):
+        if self.name is None:
+            return "*"
+
+        return self.name
 
     def find(self, element):
         if not isinstance(element, dict):
@@ -160,6 +203,14 @@ class Array(Expr):
     def __init__(self, idx=None):
         super().__init__()
         self.idx = idx
+
+    def _get_partial_expression(self):
+        if self.idx is None:
+            idx = "*"
+        else:
+            idx = self.idx
+
+        return f"[{idx!s}]"
 
     def find(self, element):
         if self.idx is None and isinstance(element, list):
@@ -202,11 +253,28 @@ class Array(Expr):
 
 
 class Slice(Expr):
-    def __init__(self, start=None, end=None, step=1):
+    def __init__(self, start=None, end=None, step=None):
         super().__init__()
         self.start = start
         self.end = end
         self.step = step
+
+    def _get_partial_expression(self):
+        parts = []
+        if self.start:
+            parts.append(str(self.start))
+        else:
+            parts.append("")
+
+        if self.end:
+            parts.append(str(self.end))
+        else:
+            parts.append("")
+
+        if self.step:
+            parts.append(str(self.step))
+
+        return ":".join(parts)
 
     def find(self, element):
         if isinstance(element, list):
@@ -229,6 +297,9 @@ class Brace(Expr):
     def __init__(self, expr: Expr):
         super().__init__()
         self.expr = expr
+
+    def _get_partial_expression(self):
+        return f"({self.expr!s})"
 
     def find(self, element):
         if isinstance(self.expr, Expr):
@@ -260,6 +331,9 @@ class Search(Expr):
         super().__init__()
         self.expr = expr
 
+    def _get_partial_expression(self):
+        return f"..{self.expr!s}"
+
     def find(self, element):
         if isinstance(self.expr, (Name, Array)):
             rv = []
@@ -271,6 +345,9 @@ class Search(Expr):
 
 
 class Self(Expr):
+    def _get_partial_expression(self):
+        return "@"
+
     def find(self, element):
         return [var_self.get(element)]
 
@@ -282,31 +359,49 @@ class Compare(Expr):
 
 
 class LessThan(Compare):
+    def _get_partial_expression(self):
+        return f" < {self.target}"
+
     def find(self, element):
         return [element < self.target]
 
 
 class LessEqual(Compare):
+    def _get_partial_expression(self):
+        return f" <= {self.target}"
+
     def find(self, element):
         return [element <= self.target]
 
 
 class Equal(Compare):
+    def _get_partial_expression(self):
+        return f" = {self.target}"
+
     def find(self, element):
         return [element == self.target]
 
 
 class GreaterEqual(Compare):
+    def _get_partial_expression(self):
+        return f" >= {self.target}"
+
     def find(self, element):
         return [element >= self.target]
 
 
 class GreaterThan(Compare):
+    def _get_partial_expression(self):
+        return f" > {self.target}"
+
     def find(self, element):
         return [element > self.target]
 
 
 class NotEqual(Compare):
+    def _get_partial_expression(self):
+        return f" != {self.target}"
+
     def find(self, element):
         return [element != self.target]
 

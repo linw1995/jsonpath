@@ -5,7 +5,7 @@ import reprlib
 import pytest
 
 # First Party Library
-from jsonpath.core import Array, Brace, Name, Root, Slice
+from jsonpath.core import Array, Brace, Name, Root, Self, Slice
 
 
 @pytest.mark.parametrize(
@@ -251,6 +251,7 @@ def test_comparation(expr, data, expect):
             ],
         ),
     ],
+    ids=reprlib.repr,
 )
 def test_comparation_in_search(expr, data, expect):
     assert expr.find(data) == expect
@@ -285,3 +286,37 @@ def test_comparation_in_search(expr, data, expect):
 )
 def test_others(expr, data, expect):
     assert expr.find(data) == expect
+
+
+def test_get_expression(expr, expect):
+    assert str(expr) == expect
+
+
+test_get_expression = pytest.mark.parametrize(
+    "expr,expect",
+    [
+        (Name("abc").Name("def"), "abc.def"),
+        (Name("abc").Name().Name("ghi"), "abc.*.ghi"),
+        (Name("abc").Array(1), "abc[1]"),
+        (Name("abc").Array(), "abc[*]"),
+        (Name("abc").Array(Slice()), "abc[:]"),
+        (Name("abc").Array(Slice(1)), "abc[1:]"),
+        (Name("abc").Array(Slice(None, 1)), "abc[:1]"),
+        (Name("abc").Array(Slice(1, -1)), "abc[1:-1]"),
+        (Name("abc").Array(Slice(1, -1, 2)), "abc[1:-1:2]"),
+        (Name("abc").Array(Slice(step=2)), "abc[::2]"),
+        (Root().Array(), "$[*]"),
+        (Root().Name(), "$.*"),
+        (Brace(Root().Name("abc")).Array(1), "($.abc)[1]"),
+        (Root().Search(Name("abc")).Array(1), "$..abc[1]"),
+        (Root().Search(Array()), "$..[*]"),
+        (Root().Array(Name("abc").GreaterThan(1)), "$[abc > 1]"),
+        (Root().Array(Name("abc").GreaterEqual(1)), "$[abc >= 1]"),
+        (Root().Array(Name("abc").Equal(1)), "$[abc = 1]"),
+        (Root().Array(Name("abc").NotEqual(1)), "$[abc != 1]"),
+        (Root().Array(Name("abc").LessEqual(1)), "$[abc <= 1]"),
+        (Root().Array(Name("abc").LessThan(1)), "$[abc < 1]"),
+        (Root().Array(Self().Name("abc").LessThan(1)), "$[@.abc < 1]"),
+    ],
+    ids=reprlib.repr,
+)(test_get_expression)
