@@ -10,6 +10,7 @@ from .core import (
     Expr,
     GreaterEqual,
     GreaterThan,
+    Key,
     LessEqual,
     LessThan,
     Name,
@@ -44,7 +45,7 @@ class JSONPathLexer(Lexer):
         "GT",
         "NE",
     }
-    literals = {"$", ".", "*", "[", "]", ":", "(", ")", "@"}
+    literals = {"$", ".", "*", "[", "]", ":", "(", ")", "@", ","}
     ignore = " \t"
 
     TRUE = "true"
@@ -222,6 +223,25 @@ class JSONPathParser(Parser):
     @_("STRING")  # noqa: F8
     def string(self, p: YaccProduction):
         return p[0][1:-1]
+
+    @_("")  # noqa: F8
+    def expr_list(self, p):  # noqa: F8
+        return []
+
+    @_("expr")  # noqa: F8
+    def expr_list(self, p):  # noqa: F8
+        return [p.expr]
+
+    @_("expr_list ',' expr")  # noqa: F8
+    def expr_list(self, p):  # noqa: F8
+        return p.expr_list + [p.expr]
+
+    @_("ID '(' expr_list ')'")  # noqa: F8
+    def expr(self, p: YaccProduction):  # noqa: F8
+        if p.ID == "key":
+            return Key(*p.expr_list)
+        else:
+            raise SyntaxError(f"Function {p.ID} not exists")
 
 
 __all__ = ("JSONPathLexer", "JSONPathParser")

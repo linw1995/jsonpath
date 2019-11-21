@@ -147,6 +147,12 @@ test_find = pytest.mark.parametrize(
             [{"name": "jack"}, {"name": "john"}],
             ["jack", "john"],
         ),
+        (
+            "$[key()='bookA']",
+            {"bookA": {"price": 100}, "bookB": {}},
+            [{"price": 100}],
+        ),
+        ("$[key()=0]", [{"price": 100}, {"price": 200}], [{"price": 100}],),
     ],
     ids=reprlib.repr,
 )(test_find)

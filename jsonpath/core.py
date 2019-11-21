@@ -69,11 +69,8 @@ class ExprMeta(type):
 
             rv = []
             token_root = None
-            token_self = None
-
             try:
                 var_root.get()
-                token_self = var_self.set(element)
             except LookupError:
                 token_root = var_root.set(element)
 
@@ -85,8 +82,6 @@ class ExprMeta(type):
                 var_finding.reset(token_finding)
                 if token_root:
                     var_root.reset(token_root)
-                if token_self:
-                    var_self.reset(token_self)
 
         cls.find = begin_to_find
 
@@ -226,27 +221,29 @@ class Array(Expr):
         elif isinstance(self.idx, Expr):
             filtered_items = []
             if isinstance(element, list):
-                items = element
+                items = enumerate(element)
             elif isinstance(element, dict):
-                items = element.values()
+                items = element.items()
             else:
                 raise FindError()
 
             for item in items:
+                token_self = var_self.set(item)
+                token_finding = var_finding.set(False)
+                _, value = item
                 try:
-                    token = var_finding.set(False)
-                    try:
-                        rv = self.idx.find(item)
-                    finally:
-                        var_finding.reset(token)
+                    rv = self.idx.find(value)
                     if rv:
                         if isinstance(self.idx, Compare):
                             if not rv[0]:
                                 continue
 
-                        filtered_items.append(item)
+                        filtered_items.append(value)
                 except FindError:
                     pass
+                finally:
+                    var_finding.reset(token_finding)
+                    var_self.reset(token_self)
             return filtered_items
 
         raise FindError()
@@ -349,7 +346,11 @@ class Self(Expr):
         return "@"
 
     def find(self, element):
-        return [var_self.get(element)]
+        try:
+            _, value = var_self.get()
+            return [value]
+        except LookupError:
+            return [element]
 
 
 class Compare(Expr):
@@ -427,6 +428,29 @@ class NotEqual(Compare):
         return [element != self.get_target_value()]
 
 
+class Function(Expr):
+    def __init__(self, *args):
+        super().__init__()
+        self.args = args
+
+    @abstractmethod
+    def find(self, element):
+        raise NotImplementedError
+
+
+class Key(Function):
+    def __init__(self, *args):
+        super().__init__(*args)
+        assert not self.args
+
+    def find(self, element):
+        try:
+            key, _ = var_self.get()
+            return [key]
+        except LookupError:
+            return None
+
+
 __all__ = (
     "Expr",
     "ExprMeta",
@@ -446,4 +470,5 @@ __all__ = (
     "GreaterEqual",
     "GreaterThan",
     "NotEqual",
+    "Key",
 )

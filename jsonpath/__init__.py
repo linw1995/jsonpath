@@ -8,6 +8,7 @@ from .core import (
     ExprMeta,
     GreaterEqual,
     GreaterThan,
+    Key,
     LessEqual,
     LessThan,
     Name,
@@ -48,4 +49,5 @@ __all__ = (
     "GreaterEqual",
     "GreaterThan",
     "NotEqual",
+    "Key",
 )
