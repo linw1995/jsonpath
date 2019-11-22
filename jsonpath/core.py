@@ -234,7 +234,7 @@ class Array(Expr):
                 try:
                     rv = self.idx.find(value)
                     if rv:
-                        if isinstance(self.idx, Compare):
+                        if isinstance(self.idx, (Compare, Contains)):
                             if not rv[0]:
                                 continue
 
@@ -454,7 +454,47 @@ class Key(Function):
             return None
 
 
+class Contains(Function):
+    def __init__(self, *args):
+        super().__init__(*args)
+        assert len(self.args) == 2
+
+    def _get_partial_expression(self):
+        def arg_expression(arg):
+            if isinstance(arg, Expr):
+                return arg.get_expression()
+            else:
+                return repr(arg)
+
+        args_list = (
+            f"{arg_expression(self.args[0])}, {arg_expression(self.args[1])}"
+        )
+        return f"contains({args_list})"
+
+    def find(self, element):
+        root_arg, target_arg = self.args
+        if isinstance(root_arg, Expr):
+            rv = root_arg.find(element)
+            if not rv:
+                return []
+            root_arg = rv[0]
+        if isinstance(target_arg, Expr):
+            token = var_finding.set(False)
+            try:
+                rv = target_arg.find(element)
+            finally:
+                var_finding.reset(token)
+
+            if not rv:
+                return []
+
+            target_arg = rv[0]
+
+        return [target_arg in root_arg]
+
+
 __all__ = (
+    "Contains",
     "Expr",
     "ExprMeta",
     "Name",

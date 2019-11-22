@@ -6,6 +6,7 @@ from sly.yacc import YaccProduction
 from .core import (
     Array,
     Brace,
+    Contains,
     Equal,
     Expr,
     GreaterEqual,
@@ -232,14 +233,16 @@ class JSONPathParser(Parser):
     def expr_list(self, p):  # noqa: F8
         return [p.expr]
 
-    @_("expr_list ',' expr")  # noqa: F8
+    @_("expr_list ',' expr_or_value")  # noqa: F8
     def expr_list(self, p):  # noqa: F8
-        return p.expr_list + [p.expr]
+        return p.expr_list + [p.expr_or_value]
 
     @_("ID '(' expr_list ')'")  # noqa: F8
     def expr(self, p: YaccProduction):  # noqa: F8
         if p.ID == "key":
             return Key(*p.expr_list)
+        elif p.ID == "contains":
+            return Contains(*p.expr_list)
         else:
             raise SyntaxError(f"Function {p.ID} not exists")
 

@@ -3,6 +3,7 @@ from .core import (
     Array,
     Brace,
     Compare,
+    Contains,
     Equal,
     Expr,
     ExprMeta,
@@ -29,6 +30,7 @@ def parse(expr):
 
 __all__ = (
     "Array",
+    "Contains",
     "Expr",
     "Slice",
     "ExprMeta",

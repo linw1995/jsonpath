@@ -153,6 +153,37 @@ test_find = pytest.mark.parametrize(
             [{"price": 100}],
         ),
         ("$[key()=0]", [{"price": 100}, {"price": 200}], [{"price": 100}],),
+        (
+            "$[contains(key(),'book')]",
+            {"bookA": {"price": 100}, "bookB": {"price": 200}, "pictureA": {}},
+            [{"price": 100}, {"price": 200}],
+        ),
+        (
+            "$[contains(@.category,'book')]",
+            [
+                {"price": 100, "category": "Comic book"},
+                {"price": 200, "category": "magazine"},
+                {"price": 200, "no category": ""},
+            ],
+            [{"price": 100, "category": "Comic book"}],
+        ),
+        (
+            "$.goods[contains(@.category, $.targetCategory)]",
+            {
+                "goods": [
+                    {"price": 100, "category": "Comic book"},
+                    {"price": 200, "category": "magazine"},
+                    {"price": 200, "no category": ""},
+                ],
+                "targetCategory": "book",
+            },
+            [{"price": 100, "category": "Comic book"}],
+        ),
+        (
+            "$[contains(@.category,$.targetCategory)]",
+            [{"price": 100, "category": "Comic book"}],
+            [],
+        ),
     ],
     ids=reprlib.repr,
 )(test_find)
