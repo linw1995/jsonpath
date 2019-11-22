@@ -5,7 +5,7 @@ import reprlib
 import pytest
 
 # First Party Library
-from jsonpath.core import Array, Brace, Name, Root, Self, Slice
+from jsonpath.core import Array, Brace, Key, Name, Root, Self, Slice
 
 
 @pytest.mark.parametrize(
@@ -322,6 +322,7 @@ test_get_expression = pytest.mark.parametrize(
             "list[abc < $.abc]",
         ),
         (Root().Array(Name("name") == "name"), "$[name = 'name']"),
+        (Root().Array(Key() == "bookA"), "$[key() = 'bookA']"),
     ],
     ids=reprlib.repr,
 )(test_get_expression)

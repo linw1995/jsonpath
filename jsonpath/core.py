@@ -443,6 +443,9 @@ class Key(Function):
         super().__init__(*args)
         assert not self.args
 
+    def _get_partial_expression(self):
+        return "key()"
+
     def find(self, element):
         try:
             key, _ = var_self.get()
