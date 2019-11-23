@@ -11,6 +11,7 @@ from .core import (
     Expr,
     GreaterEqual,
     GreaterThan,
+    JSONPathSyntaxError,
     Key,
     LessEqual,
     LessThan,
@@ -245,6 +246,9 @@ class JSONPathParser(Parser):
             return Contains(*p.expr_list)
         else:
             raise SyntaxError(f"Function {p.ID} not exists")
+
+    def error(self, t):
+        raise JSONPathSyntaxError
 
 
 __all__ = ("JSONPathLexer", "JSONPathParser")

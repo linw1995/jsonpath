@@ -9,6 +9,9 @@ from .core import (
     ExprMeta,
     GreaterEqual,
     GreaterThan,
+    JSONPathError,
+    JSONPathFindError,
+    JSONPathSyntaxError,
     Key,
     LessEqual,
     LessThan,
@@ -52,4 +55,7 @@ __all__ = (
     "GreaterThan",
     "NotEqual",
     "Key",
+    "JSONPathError",
+    "JSONPathSyntaxError",
+    "JSONPathFindError",
 )

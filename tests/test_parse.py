@@ -5,7 +5,7 @@ import reprlib
 import pytest
 
 # First Party Library
-from jsonpath import parse
+from jsonpath import JSONPathSyntaxError, parse
 
 
 def test_find(expr, data, expect):
@@ -187,3 +187,9 @@ test_find = pytest.mark.parametrize(
     ],
     ids=reprlib.repr,
 )(test_find)
+
+
+@pytest.mark.parametrize("expr", ["array[]", "$*", "[*]"])
+def test_syntax_error(expr):
+    with pytest.raises(JSONPathSyntaxError):
+        parse(expr)

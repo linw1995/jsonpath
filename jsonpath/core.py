@@ -12,7 +12,15 @@ var_self = ContextVar("self")
 var_finding = ContextVar("finding", default=False)
 
 
-class FindError(Exception):
+class JSONPathError(Exception):
+    pass
+
+
+class JSONPathSyntaxError(JSONPathError, SyntaxError):
+    pass
+
+
+class JSONPathFindError(JSONPathError):
     pass
 
 
@@ -39,7 +47,7 @@ def dfs_find(expr, elements, rv):
                     expr.find(element),
                     rv,
                 )
-            except FindError:
+            except JSONPathFindError:
                 pass
 
 
@@ -56,7 +64,7 @@ class ExprMeta(type):
             if var_finding.get():
                 try:
                     return actual_find(self, element)
-                except FindError:
+                except JSONPathFindError:
                     if self.ref_begin is None:
                         raise
 
@@ -183,13 +191,13 @@ class Name(Expr):
 
     def find(self, element):
         if not isinstance(element, dict):
-            raise FindError()
+            raise JSONPathFindError
 
         if self.name is None:
             return list(element.values())
 
         if self.name not in element:
-            raise FindError()
+            raise JSONPathFindError
 
         return [element[self.name]]
 
@@ -225,7 +233,7 @@ class Array(Expr):
             elif isinstance(element, dict):
                 items = element.items()
             else:
-                raise FindError()
+                raise JSONPathFindError
 
             for item in items:
                 token_self = var_self.set(item)
@@ -239,14 +247,14 @@ class Array(Expr):
                                 continue
 
                         filtered_items.append(value)
-                except FindError:
+                except JSONPathFindError:
                     pass
                 finally:
                     var_finding.reset(token_finding)
                     var_self.reset(token_self)
             return filtered_items
 
-        raise FindError()
+        raise JSONPathFindError
 
 
 class Slice(Expr):
@@ -287,7 +295,7 @@ class Slice(Expr):
 
             return element[start:end:step]
 
-        raise FindError()
+        raise JSONPathFindError
 
 
 class Brace(Expr):
@@ -306,14 +314,14 @@ class Brace(Expr):
             finally:
                 var_finding.reset(token)
 
-        raise FindError()
+        raise JSONPathFindError
 
 
 def recusive_find(expr: Expr, element: Any, rv: List[Any]):
     try:
         find_rv = expr.find(element)
         rv.extend(find_rv)
-    except FindError:
+    except JSONPathFindError:
         pass
     if isinstance(element, list):
         for item in element:
@@ -370,7 +378,7 @@ class Compare(Expr):
                 token = var_finding.set(False)
                 rv = self.target.find(var_self.get())
                 if not rv:
-                    raise FindError()
+                    raise JSONPathFindError
 
                 return rv[0]
             finally:
