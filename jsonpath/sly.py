@@ -1,3 +1,6 @@
+# Standard Library
+from contextvars import ContextVar
+
 # Third Party Library
 from sly import Lexer, Parser
 from sly.yacc import YaccProduction
@@ -248,7 +251,16 @@ class JSONPathParser(Parser):
             raise SyntaxError(f"Function {p.ID} not exists")
 
     def error(self, t):
-        raise JSONPathSyntaxError
+        expr = var_expr.get()
+        raise JSONPathSyntaxError(expr)
 
 
-__all__ = ("JSONPathLexer", "JSONPathParser")
+var_expr = ContextVar("expr")
+
+
+def parse(expr):
+    var_expr.set(expr)
+    return JSONPathParser().parse(JSONPathLexer().tokenize(expr))
+
+
+__all__ = ("JSONPathLexer", "JSONPathParser", "parse")

@@ -24,11 +24,7 @@ from .core import (
     chain,
     recusive_find,
 )
-from .sly import JSONPathLexer, JSONPathParser
-
-
-def parse(expr):
-    return JSONPathParser().parse(JSONPathLexer().tokenize(expr))
+from .sly import JSONPathLexer, JSONPathParser, parse
 
 
 __all__ = (

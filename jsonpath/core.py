@@ -17,7 +17,14 @@ class JSONPathError(Exception):
 
 
 class JSONPathSyntaxError(JSONPathError, SyntaxError):
-    pass
+    def __init__(self, expr: str):
+        self.expr = expr
+
+    def __str__(self) -> str:
+        return f"{self.expr!r} is not a valid JSONPath expression."
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.expr!r})"
 
 
 class JSONPathFindError(JSONPathError):
