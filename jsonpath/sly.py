@@ -7,6 +7,7 @@ from sly.yacc import YaccProduction
 
 # Local Folder
 from .core import (
+    And,
     Array,
     Brace,
     Contains,
@@ -20,6 +21,7 @@ from .core import (
     LessThan,
     Name,
     NotEqual,
+    Or,
     Root,
     Search,
     Self,
@@ -49,6 +51,8 @@ class JSONPathLexer(Lexer):
         "GE",
         "GT",
         "NE",
+        "AND",
+        "OR",
     }
     literals = {"$", ".", "*", "[", "]", ":", "(", ")", "@", ","}
     ignore = " \t"
@@ -56,6 +60,8 @@ class JSONPathLexer(Lexer):
     TRUE = "true"
     FALSE = "false"
     NULL = "null"
+    AND = "and"
+    OR = "or"
     ID = r"[a-zA-Z_][a-zA-Z0-9_\-]*"
     FLOAT = r"-?\d+\.\d+"
     DOUBLEDOT = r"\.\."
@@ -84,7 +90,11 @@ class JSONPathLexer(Lexer):
 class JSONPathParser(Parser):
     tokens = JSONPathLexer.tokens
 
-    precedence = [("left", "DOUBLEDOT"), ("left", "DOT")]
+    precedence = [
+        ("left", "NE", "GE", "LE", "EQ", "LT", "GT"),
+        ("left", "AND", "OR"),
+        ("left", "DOUBLEDOT", "DOT"),
+    ]
 
     @_("expr DOUBLEDOT expr")  # noqa: F8
     def expr(self, p: YaccProduction):  # noqa: F8
@@ -165,6 +175,25 @@ class JSONPathParser(Parser):
             rv = NotEqual(p[2])
 
         chain(pre=p[0], current=rv)
+        return rv
+
+    @_("comparison")  # noqa: F8
+    @_("expr_or_value")  # noqa: F8
+    def comparison_or_expr_or_value(self, p: YaccProduction):
+        return p[0]
+
+    @_(  # noqa: F8
+        "comparison_or_expr_or_value AND comparison_or_expr_or_value"
+    )
+    def expr(self, p: YaccProduction):  # noqa: F8
+        rv = And(p[2])
+        chain(p[0], rv)
+        return rv
+
+    @_("comparison_or_expr_or_value OR comparison_or_expr_or_value")  # noqa: F8
+    def expr(self, p: YaccProduction):  # noqa: F8
+        rv = Or(p[2])
+        chain(p[0], rv)
         return rv
 
     @_("INT")  # noqa: F8

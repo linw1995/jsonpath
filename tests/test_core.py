@@ -321,6 +321,20 @@ test_get_expression = pytest.mark.parametrize(
             Name("list").Array(Name("abc") < Root().Name("abc")),
             "list[abc < $.abc]",
         ),
+        (
+            Name("list").Array(Name("abc").And(Root().Name("abc"))),
+            "list[abc and $.abc]",
+        ),
+        (
+            Name("list").Array(Name("abc").Or(Root().Name("abc"))),
+            "list[abc or $.abc]",
+        ),
+        (
+            Name("list").Array(
+                Name("abc").Or(Root().Name("abc")).Or(Name("def"))
+            ),
+            "list[abc or $.abc or def]",
+        ),
         (Root().Array(Name("name") == "name"), "$[name = 'name']"),
         (Root().Array(Key() == "bookA"), "$[key() = 'bookA']"),
         (Root().Array(Contains(Key(), "book")), "$[contains(key(), 'book')]"),

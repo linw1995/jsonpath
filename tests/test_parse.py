@@ -1,4 +1,5 @@
 # Standard Library
+import json
 import reprlib
 
 # Third Party Library
@@ -184,8 +185,53 @@ test_find = pytest.mark.parametrize(
             [{"price": 100, "category": "Comic book"}],
             [],
         ),
+        (
+            "$[type='book' and price > 100]",
+            [
+                {"type": "book", "price": 100},
+                {"type": "book", "price": 200},
+                {"type": "video", "price": 200},
+            ],
+            [{"type": "book", "price": 200}],
+        ),
+        (
+            "$[(type='book' or type='video') and price > 100]",
+            [
+                {"type": "book", "price": 100},
+                {"type": "book", "price": 200},
+                {"type": "video", "price": 200},
+            ],
+            [{"type": "book", "price": 200}, {"type": "video", "price": 200}],
+        ),
+        (
+            "$[type='book' or type='video']",
+            [
+                {"type": "book", "price": 100},
+                {"type": "book", "price": 200},
+                {"type": "video", "price": 200},
+                {"type": "audio", "price": 100},
+            ],
+            [
+                {"type": "book", "price": 100},
+                {"type": "book", "price": 200},
+                {"type": "video", "price": 200},
+            ],
+        ),
+        (
+            "$[type='book' or type='video' or type='audio']",
+            [
+                {"type": "book", "price": 200},
+                {"type": "video", "price": 200},
+                {"type": "audio", "price": 100},
+            ],
+            [
+                {"type": "book", "price": 200},
+                {"type": "video", "price": 200},
+                {"type": "audio", "price": 100},
+            ],
+        ),
     ],
-    ids=reprlib.repr,
+    ids=lambda x: reprlib.repr(json.dumps(x)),
 )(test_find)
 
 

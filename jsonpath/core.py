@@ -444,6 +444,22 @@ class NotEqual(Compare):
         return [element != self.get_target_value()]
 
 
+class And(Compare):
+    def _get_partial_expression(self):
+        return f" and {self._get_target_expression()}"
+
+    def find(self, element):
+        return [element and self.get_target_value()]
+
+
+class Or(Compare):
+    def _get_partial_expression(self):
+        return f" or {self._get_target_expression()}"
+
+    def find(self, element):
+        return [element or self.get_target_value()]
+
+
 class Function(Expr):
     def __init__(self, *args):
         super().__init__()
