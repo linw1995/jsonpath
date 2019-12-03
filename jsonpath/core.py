@@ -383,7 +383,8 @@ class Compare(Expr):
         if isinstance(self.target, Expr):
             try:
                 token = var_finding.set(False)
-                rv = self.target.find(var_self.get())
+                _, value = var_self.get()
+                rv = self.target.find(value)
                 if not rv:
                     raise JSONPathFindError
 
