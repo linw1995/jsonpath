@@ -20,6 +20,7 @@ from .core import (
     LessEqual,
     LessThan,
     Name,
+    Not,
     NotEqual,
     Or,
     Root,
@@ -276,6 +277,8 @@ class JSONPathParser(Parser):
             return Key(*p.expr_list)
         elif p.ID == "contains":
             return Contains(*p.expr_list)
+        elif p.ID == "not":
+            return Not(*p.expr_list)
         else:
             raise SyntaxError(f"Function {p.ID} not exists")
 

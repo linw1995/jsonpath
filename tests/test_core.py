@@ -5,7 +5,17 @@ import reprlib
 import pytest
 
 # First Party Library
-from jsonpath.core import Array, Brace, Contains, Key, Name, Root, Self, Slice
+from jsonpath.core import (
+    Array,
+    Brace,
+    Contains,
+    Key,
+    Name,
+    Not,
+    Root,
+    Self,
+    Slice,
+)
 
 
 @pytest.mark.parametrize(
@@ -338,6 +348,10 @@ test_get_expression = pytest.mark.parametrize(
         (Root().Array(Name("name") == "name"), "$[name = 'name']"),
         (Root().Array(Key() == "bookA"), "$[key() = 'bookA']"),
         (Root().Array(Contains(Key(), "book")), "$[contains(key(), 'book')]"),
+        (
+            Root().Array(Not(Contains(Key(), "book"))),
+            "$[not(contains(key(), 'book'))]",
+        ),
     ],
     ids=reprlib.repr,
 )(test_get_expression)

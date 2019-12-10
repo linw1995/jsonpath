@@ -521,6 +521,34 @@ class Contains(Function):
         return [target_arg in root_arg]
 
 
+class Not(Function):
+    def __init__(self, *args):
+        super().__init__(*args)
+        assert len(self.args) == 1
+
+    def _get_partial_expression(self):
+        target = self.args[0]
+        if isinstance(target, Expr):
+            target_expression = target.get_expression()
+        else:
+            target_expression = repr(target)
+
+        return f"not({target_expression})"
+
+    def find(self, element):
+        target = self.args[0]
+        if isinstance(target, Expr):
+            token = var_finding.set(False)
+            try:
+                rv = target.find(element)
+            finally:
+                var_finding.reset(token)
+        else:
+            rv = [target]
+
+        return [not v for v in rv]
+
+
 __all__ = (
     "Contains",
     "Expr",
@@ -541,5 +569,6 @@ __all__ = (
     "GreaterEqual",
     "GreaterThan",
     "NotEqual",
+    "Not",
     "Key",
 )
