@@ -19,6 +19,7 @@ class JSONPathError(Exception):
 class JSONPathSyntaxError(JSONPathError, SyntaxError):
     def __init__(self, expr: str):
         self.expr = expr
+        super().__init__(str(self))
 
     def __str__(self) -> str:
         return f"{self.expr!r} is not a valid JSONPath expression."
