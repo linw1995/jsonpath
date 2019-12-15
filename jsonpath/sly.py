@@ -1,8 +1,12 @@
 # Standard Library
+import typing
+
 from contextvars import ContextVar
+from typing import Any, Callable, Dict, List, NoReturn, Tuple, Union
 
 # Third Party Library
 from sly import Lexer, Parser
+from sly.lex import Token
 from sly.yacc import YaccProduction
 
 # Local Folder
@@ -10,9 +14,11 @@ from .core import (
     And,
     Array,
     Brace,
+    Compare,
     Contains,
     Equal,
     Expr,
+    Function,
     GreaterEqual,
     GreaterThan,
     JSONPathSyntaxError,
@@ -29,6 +35,13 @@ from .core import (
     Slice,
     chain,
 )
+
+
+if hasattr(typing, "Literal"):
+    LiteralTrue = typing.Literal[True]  # noqa
+    LiteralFalse = typing.Literal[False]  # noqa
+else:
+    LiteralTrue = LiteralFalse = bool
 
 
 class JSONPathLexer(Lexer):
@@ -92,11 +105,16 @@ class JSONPathParser(Parser):
     _built = False
 
     @classmethod
-    def _build(cls, definitions):
+    def _build(
+        cls,
+        definitions: List[
+            Tuple[str, Callable[["JSONPathParser", YaccProduction], Any]]
+        ],
+    ) -> None:
         pass
 
     @classmethod
-    def build(cls):
+    def build(cls) -> None:
         if cls._built:
             return
 
@@ -104,21 +122,28 @@ class JSONPathParser(Parser):
         super()._build(reversed(list(cls.rules.items())))
         cls._built = True
 
-    rules = {}
+    rules: Dict[str, Callable[["JSONPathParser", YaccProduction], Any]] = {}
 
     @classmethod
-    def rule(cls, *rules, name=None):
+    def rule(
+        cls, *rules: str, name: str = None
+    ) -> Callable[
+        [Callable[["JSONPathParser", YaccProduction], Any]],
+        Callable[["JSONPathParser", YaccProduction], Any],
+    ]:
         assert rules
 
-        def wrapper(func):
+        def wrapper(
+            func: Callable[[JSONPathParser, YaccProduction], Any]
+        ) -> Callable[[JSONPathParser, YaccProduction], Any]:
             nonlocal name
             if name is None:
                 name = func.__name__
 
             func.__name__ = name
-            func.rules = rules
+            func.rules = rules  # type: ignore
             if name in cls.rules:
-                func.next_func = cls.rules[name]
+                func.next_func = cls.rules[name]  # type: ignore
 
             cls.rules[name] = func
             return func
@@ -135,23 +160,25 @@ class JSONPathParser(Parser):
 
     start = "expr"
 
-    def error(self, t):
+    def error(self, t: Token) -> NoReturn:
         expr = var_expr.get()
         raise JSONPathSyntaxError(expr)
 
 
 @JSONPathParser.rule("INT")
-def integer(parser: JSONPathParser, p: YaccProduction):
+def integer(parser: JSONPathParser, p: YaccProduction) -> int:
     return int(p[0])
 
 
 @JSONPathParser.rule("")
-def empty(parser: JSONPathParser, p: YaccProduction):
+def empty(parser: JSONPathParser, p: YaccProduction) -> None:
     return None
 
 
 @JSONPathParser.rule("empty", "integer")
-def empty_or_integer(parser: JSONPathParser, p: YaccProduction):
+def empty_or_integer(
+    parser: JSONPathParser, p: YaccProduction
+) -> Union[None, int]:
     return p[0]
 
 
@@ -159,70 +186,77 @@ def empty_or_integer(parser: JSONPathParser, p: YaccProduction):
     "empty_or_integer COLON empty_or_integer",
     "empty_or_integer COLON empty_or_integer COLON empty_or_integer",
 )
-def slice(parser: JSONPathParser, p: YaccProduction):
+def slice(parser: JSONPathParser, p: YaccProduction) -> Slice:
+    rv: Slice
     if len(p) == 3:
-        return Slice(p[0], p[2])
+        rv = Slice(p[0], p[2])
     elif len(p) == 5:
-        return Slice(p[0], p[2], p[4])
+        rv = Slice(p[0], p[2], p[4])
+
+    return rv
 
 
 @JSONPathParser.rule("FLOAT", name="float")
-def float_(parser: JSONPathParser, p: YaccProduction):
+def float_(parser: JSONPathParser, p: YaccProduction) -> float:
     return float(p[0])
 
 
 @JSONPathParser.rule("float", "integer")
-def number(parser: JSONPathParser, p: YaccProduction):
+def number(parser: JSONPathParser, p: YaccProduction) -> Union[int, float]:
     return p[0]
 
 
 @JSONPathParser.rule("TRUE")
-def true(parser: JSONPathParser, p: YaccProduction):
+def true(parser: JSONPathParser, p: YaccProduction) -> LiteralTrue:
     return True
 
 
 @JSONPathParser.rule("FALSE")
-def false(parser: JSONPathParser, p: YaccProduction):
+def false(parser: JSONPathParser, p: YaccProduction) -> LiteralFalse:
     return False
 
 
 @JSONPathParser.rule("NULL")
-def null(parser: JSONPathParser, p: YaccProduction):
+def null(parser: JSONPathParser, p: YaccProduction) -> None:
     return None
 
 
 @JSONPathParser.rule("STRING")
-def string(parser: JSONPathParser, p: YaccProduction):
+def string(parser: JSONPathParser, p: YaccProduction) -> str:
     return p[0][1:-1]
 
 
 @JSONPathParser.rule("number", "true", "false", "null", "string")
-def value(parser: JSONPathParser, p: YaccProduction):
+def value(
+    parser: JSONPathParser, p: YaccProduction
+) -> Union[int, float, bool, None]:
     return p[0]
 
 
 @JSONPathParser.rule("ID", "string", name="expr")
-def name_expr(parser: JSONPathParser, p: YaccProduction):
+def name_expr(parser: JSONPathParser, p: YaccProduction) -> Name:
     return Name(p[0])
 
 
 @JSONPathParser.rule("ROOT", name="expr")
-def root_expr(parser: JSONPathParser, p: YaccProduction):
+def root_expr(parser: JSONPathParser, p: YaccProduction) -> Root:
     return Root()
 
 
 @JSONPathParser.rule("STAR", name="expr")
-def star_expr(parser: JSONPathParser, p: YaccProduction):
+def star_expr(parser: JSONPathParser, p: YaccProduction) -> Name:
     return Name()
 
 
 @JSONPathParser.rule("AT", name="expr")
-def self_expr(parser: JSONPathParser, p: YaccProduction):
+def self_expr(parser: JSONPathParser, p: YaccProduction) -> Self:
     return Self()
 
 
 @JSONPathParser.rule("expr", "value")
-def expr_or_value(parser: JSONPathParser, p: YaccProduction):
+def expr_or_value(
+    parser: JSONPathParser, p: YaccProduction
+) -> Union[Expr, int, float, bool, None]:
     return p[0]
 
 
@@ -234,7 +268,8 @@ def expr_or_value(parser: JSONPathParser, p: YaccProduction):
     "expr NE expr_or_value",
     "expr EQ expr_or_value",
 )
-def comparison(parser: JSONPathParser, p: YaccProduction):
+def comparison(parser: JSONPathParser, p: YaccProduction) -> Compare:
+    rv: Compare
     if p[1] == "<":
         rv = LessThan(p[2])
     elif p[1] == "<=":
@@ -253,7 +288,9 @@ def comparison(parser: JSONPathParser, p: YaccProduction):
 
 
 @JSONPathParser.rule("comparison", "expr_or_value")
-def comparison_or_expr_or_value(parser: JSONPathParser, p: YaccProduction):
+def comparison_or_expr_or_value(
+    parser: JSONPathParser, p: YaccProduction
+) -> Union[Expr, int, float, bool, None]:
     return p[0]
 
 
@@ -262,7 +299,8 @@ def comparison_or_expr_or_value(parser: JSONPathParser, p: YaccProduction):
     "comparison_or_expr_or_value OR comparison_or_expr_or_value",
     name="comparison",
 )
-def boolean_op_expr(parser: JSONPathParser, p: YaccProduction):
+def boolean_op_expr(parser: JSONPathParser, p: YaccProduction) -> Compare:
+    rv: Compare
     if p[1] == "and":
         rv = And(p[2])
     elif p[1] == "or":
@@ -280,7 +318,9 @@ def boolean_op_expr(parser: JSONPathParser, p: YaccProduction):
     "expr DOUBLEDOT '[' expr ']'",
     name="expr",
 )
-def conditional_search_expr(parser: JSONPathParser, p: YaccProduction):
+def conditional_search_expr(
+    parser: JSONPathParser, p: YaccProduction
+) -> Search:
     if isinstance(p[3], (Expr, int)):
         arr = Array(p[3])
     elif p[3] == "*":
@@ -294,7 +334,7 @@ def conditional_search_expr(parser: JSONPathParser, p: YaccProduction):
 
 
 @JSONPathParser.rule("expr DOUBLEDOT expr", name="expr")
-def search_expr(parser: JSONPathParser, p: YaccProduction):
+def search_expr(parser: JSONPathParser, p: YaccProduction) -> Search:
     search = Search(p[2])
     chain(pre=p[0], current=search)
     return search
@@ -308,7 +348,7 @@ def search_expr(parser: JSONPathParser, p: YaccProduction):
     "expr '[' expr ']'",
     name="expr",
 )
-def conditional_expr(parser: JSONPathParser, p: YaccProduction):
+def conditional_expr(parser: JSONPathParser, p: YaccProduction) -> Array:
     if isinstance(p[2], (Expr, int)):
         rv = Array(p[2])
     elif p[2] == "*":
@@ -321,33 +361,39 @@ def conditional_expr(parser: JSONPathParser, p: YaccProduction):
 
 
 @JSONPathParser.rule("expr DOT expr", name="expr")
-def chained_expr(parser: JSONPathParser, p: YaccProduction):
+def chained_expr(parser: JSONPathParser, p: YaccProduction) -> Expr:
     chain(pre=p[0], current=p[2])
     return p[2]
 
 
 @JSONPathParser.rule("'(' expr ')'", "'(' comparison ')'", name="expr")
-def braced_expr(parser: JSONPathParser, p: YaccProduction):
+def braced_expr(parser: JSONPathParser, p: YaccProduction) -> Brace:
     return Brace(p[1])
 
 
 @JSONPathParser.rule("empty", name="args")
-def no_args(parser: JSONPathParser, p: YaccProduction):
+def no_args(
+    parser: JSONPathParser, p: YaccProduction
+) -> List[Union[Expr, int, float, bool, None]]:
     return []
 
 
 @JSONPathParser.rule("comparison_or_expr_or_value", name="args")
-def arg(parser: JSONPathParser, p: YaccProduction):
+def arg(
+    parser: JSONPathParser, p: YaccProduction
+) -> List[Union[Expr, int, float, bool, None]]:
     return [p.comparison_or_expr_or_value]
 
 
 @JSONPathParser.rule("args ',' comparison_or_expr_or_value")
-def args(parser: JSONPathParser, p: YaccProduction):
+def args(
+    parser: JSONPathParser, p: YaccProduction
+) -> List[Union[Expr, int, float, bool, None]]:
     return p.args + [p.comparison_or_expr_or_value]
 
 
 @JSONPathParser.rule("ID '(' args ')'", name="expr")
-def function(parser: JSONPathParser, p: YaccProduction):
+def function(parser: JSONPathParser, p: YaccProduction) -> Function:
     if p.ID == "key":
         return Key(*p.args)
     elif p.ID == "contains":
@@ -358,10 +404,10 @@ def function(parser: JSONPathParser, p: YaccProduction):
         raise SyntaxError(f"Function {p.ID} not exists")
 
 
-var_expr = ContextVar("expr")
+var_expr: ContextVar[str] = ContextVar("expr")
 
 
-def parse(expr):
+def parse(expr: str) -> Expr:
     JSONPathParser.build()
     var_expr.set(expr)
     return JSONPathParser().parse(JSONPathLexer().tokenize(expr))
