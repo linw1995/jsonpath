@@ -3,8 +3,8 @@ all: test
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
-POETRY_VERSION = 0.12.17
-POETRY_EXTRAS = linting test
+POETRY_VERSION = 1.0.0
+POETRY_EXTRAS = lint test
 POETRY_EXTRAS_ARGS = $(if $(POETRY_EXTRAS),-E,) $(subst $(SPACE),$(SPACE)-E$(SPACE),$(POETRY_EXTRAS))
 
 init_by_venv:
@@ -49,6 +49,9 @@ black:
 
 check-black:
 	@.venv/bin/pre-commit run check-black
+
+mypy:
+	@.venv/bin/pre-commit run mypy
 
 check:
 	@.venv/bin/pre-commit run --hook-stage push
@@ -101,11 +104,12 @@ cov: _stash
 
 clean:
 	@rm -f .coverage
+	@rm -rf .mypy_cache
 	@rm -rf .pytest_cache
 	@rm -rf htmlcov
 	@rm -rf *.egg-info
 	@rm -rf dist
 
 .PHONY: all init_by_venv init_by_poetry isort check-isort flake8 black \
-	check-black check check-all format-code fc _stash _unstash _finally _test \
+	check-black check check-all format-code fc mypy _stash _unstash _finally _test \
 	test _vtest vtest _cov cov clean

@@ -1,6 +1,4 @@
 # Standard Library
-import typing
-
 from contextvars import ContextVar
 from typing import Any, Callable, Dict, List, NoReturn, Tuple, Union
 
@@ -8,6 +6,7 @@ from typing import Any, Callable, Dict, List, NoReturn, Tuple, Union
 from sly import Lexer, Parser
 from sly.lex import Token
 from sly.yacc import YaccProduction
+from typing_extensions import Literal
 
 # Local Folder
 from .core import (
@@ -37,11 +36,8 @@ from .core import (
 )
 
 
-if hasattr(typing, "Literal"):
-    LiteralTrue = typing.Literal[True]  # noqa
-    LiteralFalse = typing.Literal[False]  # noqa
-else:
-    LiteralTrue = LiteralFalse = bool
+LiteralTrue = Literal[True]
+LiteralFalse = Literal[False]
 
 
 class JSONPathLexer(Lexer):
