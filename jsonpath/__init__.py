@@ -22,8 +22,6 @@ from .core import (
     Search,
     Self,
     Slice,
-    chain,
-    recusive_find,
 )
 from .sly import JSONPathLexer, JSONPathParser, parse
 
@@ -42,8 +40,6 @@ __all__ = (
     "Search",
     "Self",
     "Brace",
-    "chain",
-    "recusive_find",
     "Compare",
     "LessThan",
     "LessEqual",

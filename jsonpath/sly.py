@@ -32,7 +32,6 @@ from .core import (
     Search,
     Self,
     Slice,
-    chain,
 )
 
 
@@ -279,8 +278,7 @@ def comparison(parser: JSONPathParser, p: YaccProduction) -> Compare:
     elif p[1] == "!=":
         rv = NotEqual(p[2])
 
-    chain(pre=p[0], current=rv)
-    return rv
+    return p[0].chain(rv)
 
 
 @JSONPathParser.rule("comparison", "expr_or_value")
@@ -302,8 +300,7 @@ def boolean_op_expr(parser: JSONPathParser, p: YaccProduction) -> Compare:
     elif p[1] == "or":
         rv = Or(p[2])
 
-    chain(p[0], rv)
-    return rv
+    return p[0].chain(rv)
 
 
 @JSONPathParser.rule(
@@ -325,15 +322,13 @@ def conditional_search_expr(
         assert 0
 
     search = Search(arr)
-    chain(pre=p[0], current=search)
-    return search
+    return p[0].chain(search)
 
 
 @JSONPathParser.rule("expr DOUBLEDOT expr", name="expr")
 def search_expr(parser: JSONPathParser, p: YaccProduction) -> Search:
     search = Search(p[2])
-    chain(pre=p[0], current=search)
-    return search
+    return p[0].chain(search)
 
 
 @JSONPathParser.rule(
@@ -352,14 +347,12 @@ def conditional_expr(parser: JSONPathParser, p: YaccProduction) -> Array:
     else:
         assert 0
 
-    chain(pre=p[0], current=rv)
-    return rv
+    return p[0].chain(rv)
 
 
 @JSONPathParser.rule("expr DOT expr", name="expr")
 def chained_expr(parser: JSONPathParser, p: YaccProduction) -> Expr:
-    chain(pre=p[0], current=p[2])
-    return p[2]
+    return p[0].chain(p[2])
 
 
 @JSONPathParser.rule("'(' expr ')'", "'(' comparison ')'", name="expr")

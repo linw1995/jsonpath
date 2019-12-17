@@ -3,8 +3,14 @@ import weakref
 
 from abc import abstractmethod
 from contextvars import ContextVar
-from typing import Any, Dict, List, Optional, Tuple, Iterable, Union, Callable
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 from weakref import ReferenceType
+
+
+var_root: ContextVar[Any] = ContextVar("root")
+SelfValue = Union[Tuple[int, Any], Tuple[str, Any]]
+var_self: ContextVar[SelfValue] = ContextVar("self")
+var_finding: ContextVar[bool] = ContextVar("finding", default=False)
 
 
 class JSONPathError(Exception):
@@ -27,17 +33,37 @@ class JSONPathFindError(JSONPathError):
     pass
 
 
+def _dfs_find(
+    expr: Optional["Expr"], elements: List[Any], rv: List[Any]
+) -> None:
+    """
+    use DFS to find all target elements.
+    the next expr finds in the result found by the current expr.
+    """
+    if expr is None:
+        rv.extend(elements)
+    else:
+        for element in elements:
+            try:
+                _dfs_find(
+                    expr.get_next(), expr.find(element), rv,
+                )
+            except JSONPathFindError:
+                pass
+
+
 class ExprMeta(type):
-    _exprs: Dict[str, "ExprMeta"] = {}
+    _expr_classes: Dict[str, "ExprMeta"] = {}
 
     def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
         super().__init__(name, bases, attr_dict)
-        cls._exprs[name] = cls
+        cls._expr_classes[name] = cls
 
         actual_find = cls.find
 
-        def begin_to_find(self: "Expr", element: Any) -> List[Any]:
+        def find(self: "Expr", element: Any) -> List[Any]:
             if var_finding.get():
+                # the chained expr in the finding process
                 try:
                     return actual_find(self, element)
                 except JSONPathFindError:
@@ -46,31 +72,30 @@ class ExprMeta(type):
 
                     return []
 
-            expr: Optional[Expr]
-            if self.ref_begin is None:
-                expr = self
-            else:
-                expr = self.ref_begin()
-
-            assert expr
+            # the chained expr begins to find
+            begin = self.get_begin()
 
             rv: List[Any] = []
             token_root = None
             try:
                 var_root.get()
             except LookupError:
+                # set the root element when the chained expr begins to find.
+                # the partial exprs of the nested expr
+                # can execute find method many times
+                # but only the first times finding can set the root element.
                 token_root = var_root.set(element)
 
             token_finding = var_finding.set(True)
             try:
-                dfs_find(expr, [element], rv)
+                _dfs_find(begin, [element], rv)
                 return rv
             finally:
                 var_finding.reset(token_finding)
                 if token_root:
                     var_root.reset(token_root)
 
-        cls.find = begin_to_find
+        cls.find = find
 
 
 class Expr(metaclass=ExprMeta):
@@ -86,12 +111,7 @@ class Expr(metaclass=ExprMeta):
         return self.get_expression()
 
     def get_expression(self) -> str:
-        expr: Optional[Expr]
-        if self.ref_begin is None:
-            expr = self
-        else:
-            expr = self.ref_begin()
-
+        expr: Optional[Expr] = self.get_begin()
         parts: List[str] = []
         while expr:
             part = expr._get_partial_expression()
@@ -118,22 +138,48 @@ class Expr(metaclass=ExprMeta):
     def find(self, element: Any) -> List[Any]:
         raise NotImplementedError
 
-    def __getattr__(
-        self, name: str
-    ) -> Callable[..., "Expr"]:
-        if name not in Expr._exprs:
+    def get_begin(self) -> "Expr":
+        if self.ref_begin is None:
+            # the unchained expr's ref_begin is None
+            return self
+        else:
+            begin = self.ref_begin()
+            assert begin, "the chained expr must have a beginning expr"
+            return begin
+
+    def get_next(self) -> Optional["Expr"]:
+        return self.ref_right() if self.ref_right else None
+
+    def chain(self, next_expr: "Expr") -> "Expr":
+        if self.ref_begin is None:
+            # the unchained expr become the first expr in chain
+            self.ref_begin = weakref.ref(self)
+
+        next_expr.ref_begin = self.ref_begin
+        # it return next expr,
+        # so need to keep the current expr's ref into next expr's left.
+        # keeping the next expr's weak ref into current expr's ref_right
+        # helps to find target elements in sequential.
+        next_expr.left = self
+        self.ref_right = weakref.ref(next_expr)
+        return next_expr
+
+    def __getattr__(self, name: str) -> Callable[..., "Expr"]:
+        """
+        create expr in a serial of chain class creations like Root().Name("*").
+        """
+        if name not in Expr._expr_classes:
             raise AttributeError
 
-        expr_cls = Expr._exprs[name]
+        expr_cls = Expr._expr_classes[name]
 
-        def _expr_cls(*args: Any, **kwargs: Any) -> Expr:
+        def expr_cls_(*args: Any, **kwargs: Any) -> Expr:
             expr = expr_cls(*args, **kwargs)
-            chain(pre=self, current=expr)
-            return expr
+            return self.chain(next_expr=expr)
 
-        return _expr_cls
+        return expr_cls_
 
-    def __lt__(self, value: Any) -> 'Expr':
+    def __lt__(self, value: Any) -> "Expr":
         return self.LessThan(value)
 
     def __le__(self, value: Any) -> "Expr":
@@ -152,44 +198,12 @@ class Expr(metaclass=ExprMeta):
         return self.NotEqual(value)
 
 
-var_root: ContextVar[Any] = ContextVar("root")
-var_self: ContextVar[Any] = ContextVar("self")
-var_finding: ContextVar[bool] = ContextVar("finding", default=False)
-
-
-def chain(pre: Expr, current: Expr) -> None:
-    if pre.ref_begin is None:
-        pre.ref_begin = weakref.ref(pre)
-
-    current.ref_begin = pre.ref_begin
-    current.left = pre
-    pre.ref_right = weakref.ref(current)
-
-
-def dfs_find(expr: Optional[Expr], elements: List[Any], rv: List[Any]) -> None:
-    if expr is None:
-        rv.extend(elements)
-    else:
-        if isinstance(elements, dict):
-            elements = elements.values()
-
-        for element in elements:
-            try:
-                dfs_find(
-                    expr.ref_right() if expr.ref_right else None,
-                    expr.find(element),
-                    rv,
-                )
-            except JSONPathFindError:
-                pass
-
-
 class Root(Expr):
     def _get_partial_expression(self) -> str:
         return "$"
 
     def find(self, element: Any) -> List[Any]:
-        return [var_root.get(element)]
+        return [var_root.get()]
 
 
 class Name(Expr):
@@ -241,31 +255,38 @@ class Array(Expr):
         elif isinstance(self.idx, Slice):
             return self.idx.find(element)
         elif isinstance(self.idx, Expr):
-            filtered_items = []
-            items: Union[Iterable[Tuple[int, Any]], Iterable[Tuple[str, Any]]]
-            if isinstance(element, list):
-                items = enumerate(element)
-            elif isinstance(element, dict):
-                items = element.items()
-            else:
-                raise JSONPathFindError
-
-            for item in items:
-                token_self = var_self.set(item)
-                token_finding = var_finding.set(False)
-                _, value = item
-                try:
-                    rv = self.idx.find(value)
-                    if any(rv):
-                        filtered_items.append(value)
-                except JSONPathFindError:
-                    pass
-                finally:
-                    var_finding.reset(token_finding)
-                    var_self.reset(token_self)
-            return filtered_items
+            return self._filtering_find(element)
 
         raise JSONPathFindError
+
+    def _filtering_find(self, element: Any) -> List[Any]:
+        assert isinstance(self.idx, Expr)
+        filtered_items = []
+        items: Union[Iterable[Tuple[int, Any]], Iterable[Tuple[str, Any]]]
+        if isinstance(element, list):
+            items = enumerate(element)
+        elif isinstance(element, dict):
+            items = element.items()
+        else:
+            raise JSONPathFindError
+
+        for item in items:
+            # save the current item into var_self for Self()
+            token_self = var_self.set(item)
+            # set var_finding False to
+            # start new finding process for the nested expr: self.idx
+            token_finding = var_finding.set(False)
+            _, value = item
+            try:
+                rv = self.idx.find(value)
+                if any(rv):
+                    filtered_items.append(value)
+            except JSONPathFindError:
+                pass
+            finally:
+                var_finding.reset(token_finding)
+                var_self.reset(token_self)
+        return filtered_items
 
 
 class Slice(Expr):
@@ -324,6 +345,8 @@ class Brace(Expr):
 
     def find(self, element: Any) -> List[Any]:
         if isinstance(self.expr, Expr):
+            # set var_finding False to
+            # start new finding process for the nested expr: self.expr
             token = var_finding.set(False)
             try:
                 return [self.expr.find(element)]
@@ -333,7 +356,10 @@ class Brace(Expr):
         raise JSONPathFindError
 
 
-def recusive_find(expr: Expr, element: Any, rv: List[Any]) -> None:
+def _recursive_find(expr: Expr, element: Any, rv: List[Any]) -> None:
+    """
+    recursive find in every node.
+    """
     try:
         find_rv = expr.find(element)
         rv.extend(find_rv)
@@ -341,14 +367,14 @@ def recusive_find(expr: Expr, element: Any, rv: List[Any]) -> None:
         pass
     if isinstance(element, list):
         for item in element:
-            recusive_find(expr, item, rv)
+            _recursive_find(expr, item, rv)
     elif isinstance(element, dict):
         for item in element.values():
-            recusive_find(expr, item, rv)
+            _recursive_find(expr, item, rv)
 
 
 class Search(Expr):
-    def __init__(self, expr: Any) -> None:
+    def __init__(self, expr: Expr) -> None:
         super().__init__()
         self.expr = expr
 
@@ -356,12 +382,13 @@ class Search(Expr):
         return f"..{self.expr!s}"
 
     def find(self, element: Any) -> List[Any]:
-        if isinstance(self.expr, (Name, Array)):
+        if isinstance(self.expr, Expr):
             rv: List[Any] = []
             if isinstance(self.expr, Array) and isinstance(self.expr.idx, Expr):
-                recusive_find(self.expr, [element], rv)
+                # filtering find needs to begin on the current element
+                _recursive_find(self.expr, [element], rv)
             else:
-                recusive_find(self.expr, element, rv)
+                _recursive_find(self.expr, element, rv)
             return rv
 
         raise RuntimeError
@@ -393,7 +420,11 @@ class Compare(Expr):
     def get_target_value(self) -> Any:
         if isinstance(self.target, Expr):
             try:
+                # set var_finding False to
+                # start new finding process for the nested expr: self.target
                 token = var_finding.set(False)
+                # multiple exprs begins on self-value in filtering find,
+                # except the self.target expr starts with root-value.
                 _, value = var_self.get()
                 rv = self.target.find(value)
                 if not rv:
@@ -489,7 +520,7 @@ class Key(Function):
     def _get_partial_expression(self) -> str:
         return "key()"
 
-    def find(self, element: Any) -> List[str]:
+    def find(self, element: Any) -> List[Union[int, str]]:
         try:
             key, _ = var_self.get()
             return [key]
@@ -522,6 +553,8 @@ class Contains(Function):
                 return []
             root_arg = rv[0]
         if isinstance(target_arg, Expr):
+            # set var_finding False to
+            # start new finding process for the nested expr: target_arg
             token = var_finding.set(False)
             try:
                 rv = target_arg.find(element)
@@ -531,6 +564,7 @@ class Contains(Function):
             if not rv:
                 return []
 
+            # use the first value of results as target
             target_arg = rv[0]
 
         return [target_arg in root_arg]
@@ -553,6 +587,8 @@ class Not(Function):
     def find(self, element: Any) -> List[bool]:
         target = self.args[0]
         if isinstance(target, Expr):
+            # set var_finding False to
+            # start new finding process for the nested expr: target
             token = var_finding.set(False)
             try:
                 rv = target.find(element)
@@ -575,8 +611,6 @@ __all__ = (
     "Search",
     "Self",
     "Brace",
-    "chain",
-    "recusive_find",
     "Compare",
     "LessThan",
     "LessEqual",

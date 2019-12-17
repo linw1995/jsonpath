@@ -41,6 +41,11 @@ test_find = pytest.mark.parametrize(
             {"boo": {"boo": {"boo": 1}, "bar": {"boo": 2}}},
             [{"boo": {"boo": 1}, "bar": {"boo": 2}}, {"boo": 1}, 1, 2],
         ),
+        (
+            "$..boo.bar",
+            {"boo": {"boo": {"boo": 1}, "bar": {"boo": 2}}},
+            [{"boo": 2}],
+        ),
         ("$..[0]", {"boo": [{"boo": [1]}]}, [{"boo": [1]}, 1]),
         ("$..[*]", {"boo": [{"boo": [1, 2]}]}, [{"boo": [1, 2]}, 1, 2]),
         (
@@ -88,6 +93,11 @@ test_find = pytest.mark.parametrize(
         (
             "$..[result]",
             [{"result": {"result": "result"}}],
+            [{"result": {"result": "result"}}, {"result": "result"}],
+        ),
+        (
+            "$..[result]",
+            {"result": {"result": "result"}},
             [{"result": {"result": "result"}}, {"result": "result"}],
         ),
         (
