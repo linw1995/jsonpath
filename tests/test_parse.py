@@ -86,7 +86,7 @@ test_find = pytest.mark.parametrize(
         (
             "$[@.*]",
             [{"price": 100}, {"isbn": ""}, {"isbn": "", "price": 100}],
-            [{"price": 100}, {"isbn": "", "price": 100}],
+            [{"price": 100}],
         ),
         ("$[price]", [{"price": 100}, {}], [{"price": 100}]),
         ("$[price]", {"bookA": {"price": 100}, "bookB": {}}, [{"price": 100}]),

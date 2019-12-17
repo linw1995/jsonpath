@@ -279,7 +279,7 @@ class Array(Expr):
             _, value = item
             try:
                 rv = self.idx.find(value)
-                if any(rv):
+                if rv and rv[0]:
                     filtered_items.append(value)
             except JSONPathFindError:
                 pass
