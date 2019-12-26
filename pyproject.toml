@@ -1,9 +1,28 @@
 [tool.poetry]
-name = "jsonpath"
+name = "jsonpath-extractor"
 version = "0.1.0"
-description = ""
-authors = ["林玮 <linw1995@icloud.com>"]
 license = "MIT"
+description = "A selector expression for extracting data from JSON."
+authors = ["林玮 <linw1995@icloud.com>"]
+readme = "README.rst"
+homepage = "https://github.com/linw1995/jsonpath"
+repository = "https://github.com/linw1995/jsonpath"
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Development Status :: 4 - Beta",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+]
+include = ["LICENSE"]
+packages = [
+  { include = "jsonpath" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"
