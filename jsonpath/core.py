@@ -502,6 +502,13 @@ class Or(Compare):
         return [element or self.get_target_value()]
 
 
+def _get_expression(target: Any) -> str:
+    if isinstance(target, Expr):
+        return target.get_expression()
+    else:
+        return repr(target)
+
+
 class Function(Expr):
     def __init__(self, *args: Any) -> None:
         super().__init__()
@@ -534,14 +541,8 @@ class Contains(Function):
         assert len(self.args) == 2
 
     def _get_partial_expression(self) -> str:
-        def arg_expression(arg: Any) -> str:
-            if isinstance(arg, Expr):
-                return arg.get_expression()
-            else:
-                return repr(arg)
-
         args_list = (
-            f"{arg_expression(self.args[0])}, {arg_expression(self.args[1])}"
+            f"{_get_expression(self.args[0])}, {_get_expression(self.args[1])}"
         )
         return f"contains({args_list})"
 
@@ -577,12 +578,7 @@ class Not(Function):
 
     def _get_partial_expression(self) -> str:
         target = self.args[0]
-        if isinstance(target, Expr):
-            target_expression = target.get_expression()
-        else:
-            target_expression = repr(target)
-
-        return f"not({target_expression})"
+        return f"not({_get_expression(target)})"
 
     def find(self, element: Any) -> List[bool]:
         target = self.args[0]
