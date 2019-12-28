@@ -304,25 +304,25 @@ def boolean_op_expr(parser: JSONPathParser, p: YaccProduction) -> Compare:
 
 
 @JSONPathParser.rule(
-    "expr DOUBLEDOT '[' integer ']'",
-    "expr DOUBLEDOT '[' slice ']'",
-    "expr DOUBLEDOT '[' STAR ']'",
-    "expr DOUBLEDOT '[' comparison ']'",
-    "expr DOUBLEDOT '[' expr ']'",
-    name="expr",
+    "'[' integer ']'", "'[' slice ']'", "'[' comparison ']'", "'[' expr ']'",
+)
+def conditional(parser: JSONPathParser, p: YaccProduction) -> Array:
+    if isinstance(p[1], Name) and p[1].name is None and p[1].ref_begin is None:
+        # handle expr which contains '[*]'
+        return Array()
+    elif isinstance(p[1], (Expr, int)):
+        return Array(p[1])
+    else:
+        assert 0
+
+
+@JSONPathParser.rule(
+    "expr DOUBLEDOT conditional", name="expr",
 )
 def conditional_search_expr(
     parser: JSONPathParser, p: YaccProduction
 ) -> Search:
-    if isinstance(p[3], (Expr, int)):
-        arr = Array(p[3])
-    elif p[3] == "*":
-        arr = Array()
-    else:
-        assert 0
-
-    search = Search(arr)
-    return p[0].chain(search)
+    return p[0].chain(Search(p[2]))
 
 
 @JSONPathParser.rule("expr DOUBLEDOT expr", name="expr")
@@ -332,22 +332,10 @@ def search_expr(parser: JSONPathParser, p: YaccProduction) -> Search:
 
 
 @JSONPathParser.rule(
-    "expr '[' integer ']'",
-    "expr '[' slice ']'",
-    "expr '[' STAR ']'",
-    "expr '[' comparison ']'",
-    "expr '[' expr ']'",
-    name="expr",
+    "expr conditional", name="expr",
 )
 def conditional_expr(parser: JSONPathParser, p: YaccProduction) -> Array:
-    if isinstance(p[2], (Expr, int)):
-        rv = Array(p[2])
-    elif p[2] == "*":
-        rv = Array()
-    else:
-        assert 0
-
-    return p[0].chain(rv)
+    return p[0].chain(p[1])
 
 
 @JSONPathParser.rule("expr DOT expr", name="expr")
