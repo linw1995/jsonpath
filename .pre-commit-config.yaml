@@ -62,3 +62,10 @@ repos:
         exclude: (tests|docs)/
         language: system
         pass_filenames: false
+      - id: requirement
+        name: requirement
+        description: create requirement file for python
+        entry: ./scripts/export_requirements_txt.sh
+        files: (pyproject.toml|poetry.lock)
+        language: system
+        pass_filenames: false
