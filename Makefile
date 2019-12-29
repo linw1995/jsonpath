@@ -28,6 +28,7 @@ init_by_poetry:
 		read PYTHON_PREFIX; \
 		echo ">> link .venv -> $$PYTHON_PREFIX"; \
 		ln -s $$PYTHON_PREFIX .venv; \
+		ln -s `which poetry` .venv/bin/poetry >/dev/null 2>&1 || true; \
 	}
 	@echo ">> all dependencies installed completed! please execute below command for development"
 	@echo "> poetry shell"
