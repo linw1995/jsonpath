@@ -63,7 +63,7 @@ class JSONPathLexer(Lexer):
         "AND",
         "OR",
     }
-    literals = {"$", ".", "*", "[", "]", ":", "(", ")", "@", ","}
+    literals = {"[", "]", "(", ")", ","}
     ignore = " \t"
 
     TRUE = "true"
@@ -148,9 +148,12 @@ class JSONPathParser(Parser):
     tokens = JSONPathLexer.tokens
 
     precedence = [
+        ("left", "[", "]"),
+        ("left", "(", ")"),
         ("left", "NE", "GE", "LE", "EQ", "LT", "GT"),
         ("left", "AND", "OR"),
-        ("left", "DOUBLEDOT", "DOT"),
+        ("left", "DOUBLEDOT"),
+        ("left", "DOT"),
     ]
 
     start = "expr"
@@ -224,13 +227,18 @@ def string(parser: JSONPathParser, p: YaccProduction) -> str:
 @JSONPathParser.rule("number", "true", "false", "null", "string")
 def value(
     parser: JSONPathParser, p: YaccProduction
-) -> Union[int, float, bool, None]:
+) -> Union[int, float, bool, None, str]:
     return p[0]
 
 
-@JSONPathParser.rule("ID", "string", name="expr")
+@JSONPathParser.rule("ID", name="expr")
 def name_expr(parser: JSONPathParser, p: YaccProduction) -> Name:
     return Name(p[0])
+
+
+@JSONPathParser.rule("expr DOT string", name="expr")
+def string_as_name_expr(parser: JSONPathParser, p: YaccProduction) -> Name:
+    return p[0].Name(p[2])
 
 
 @JSONPathParser.rule("ROOT", name="expr")
