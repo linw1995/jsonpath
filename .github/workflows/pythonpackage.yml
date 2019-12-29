@@ -36,3 +36,16 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         # Specify whether or not CI build should fail if Codecov runs into an error during upload
         fail_ci_if_error: true # optional
+    # Publish to PYPI and Github Release
+    - name: Publish to PYPI
+      if: startsWith(github.ref, 'refs/tags/') && matrix.python-version == 3.8
+      run: |
+        poetry build
+        poetry publish -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }}
+    - name: Publish to Github Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/') && matrix.python-version == 3.8
+      with:
+        files: dist/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
