@@ -96,6 +96,7 @@ vtest: _stash
 
 _cov:
 	@.venv/bin/pytest -vv --cov=jsonpath
+	@.venv/bin/coverage xml
 	@.venv/bin/coverage html
 	@echo ">> open file://`pwd`/htmlcov/index.html to see coverage"
 
@@ -107,6 +108,7 @@ clean:
 	@rm -rf .mypy_cache
 	@rm -rf .pytest_cache
 	@rm -rf htmlcov
+	@rm -rf coverage.xml
 	@rm -rf *.egg-info
 	@rm -rf dist
 
