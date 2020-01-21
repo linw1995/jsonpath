@@ -94,7 +94,7 @@ class JSONPathTransformer(Transformer):
         return left.chain(rv)
 
     def chained_path_with_star(
-        self, prev_path: Expr, dot: str, star: str
+        self, prev_path: Expr, dot: Literal["."], star: Literal["*"]
     ) -> Name:
         return prev_path.chain(Name())
 
