@@ -26,7 +26,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.7"
-sly = "^0.3.0"
+lark-parser = {git = "https://github.com/lark-parser/lark.git", rev = "7c5917ba192330c2c10fce6dd41fedea4968e672"}
 typing_extensions = "^3.7"
 
 black = {version = "^19.3b0", optional = true}
