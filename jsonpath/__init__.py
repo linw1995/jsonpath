@@ -23,7 +23,7 @@ from .core import (
     Self,
     Slice,
 )
-from .sly import JSONPathLexer, JSONPathParser, parse
+from .parser import parse
 
 
 __all__ = (
@@ -34,8 +34,6 @@ __all__ = (
     "ExprMeta",
     "Root",
     "Name",
-    "JSONPathLexer",
-    "JSONPathParser",
     "parse",
     "Search",
     "Self",

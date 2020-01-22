@@ -1,16 +1,29 @@
 # Standard Library
+import json
 import weakref
 
 from abc import abstractmethod
 from contextvars import ContextVar
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+)
 from weakref import ReferenceType
 
 
 var_root: ContextVar[Any] = ContextVar("root")
-SelfValue = Union[Tuple[int, Any], Tuple[str, Any]]
-var_self: ContextVar[SelfValue] = ContextVar("self")
+T_SELF_VALUE = Union[Tuple[int, Any], Tuple[str, Any]]
+var_self: ContextVar[T_SELF_VALUE] = ContextVar("self")
 var_finding: ContextVar[bool] = ContextVar("finding", default=False)
+
+T = TypeVar("T", bound="Expr")
 
 
 class JSONPathError(Exception):
@@ -150,7 +163,7 @@ class Expr(metaclass=ExprMeta):
     def get_next(self) -> Optional["Expr"]:
         return self.ref_right() if self.ref_right else None
 
-    def chain(self, next_expr: "Expr") -> "Expr":
+    def chain(self, next_expr: T) -> T:
         if self.ref_begin is None:
             # the unchained expr become the first expr in chain
             self.ref_begin = weakref.ref(self)
@@ -415,7 +428,7 @@ class Compare(Expr):
         if isinstance(self.target, Expr):
             return self.target.get_expression()
         else:
-            return repr(self.target)
+            return json.dumps(self.target)
 
     def get_target_value(self) -> Any:
         if isinstance(self.target, Expr):
@@ -506,7 +519,7 @@ def _get_expression(target: Any) -> str:
     if isinstance(target, Expr):
         return target.get_expression()
     else:
-        return repr(target)
+        return json.dumps(target)
 
 
 class Function(Expr):

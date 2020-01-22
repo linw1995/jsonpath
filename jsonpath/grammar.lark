@@ -1,0 +1,89 @@
+start: _expr
+
+COLON: ":"
+slice: [INT] COLON [INT] COLON [INT] -> three_fields_slice
+    | [INT] COLON [INT]              -> two_fields_slice
+
+true: "true"
+false: "false"
+null: "null"
+STRING: /`([^`\\]|\\.)*?`|'([^'\\]|\\.)*?'|"([^"\\]|\\.)*?"/i
+
+value: NUMBER | true | false | null | STRING
+
+STAR: "*"
+DOT: "."
+DOUBLE_DOT.2: ".."
+
+LE: "<="
+GE: ">="
+LT: "<"
+GT: ">"
+NE: "!="
+EQ: "="
+
+COMPARE_OPERATOR: LE | GE | LT | GT | NE | EQ
+
+AND: "and"
+OR: "or"
+
+_expr: mixed_expr
+    | _single_expr
+
+braced_mixed_expr: "(" mixed_expr ")"
+
+_left_expr: braced_mixed_expr
+    | _expr
+
+_right_expr: braced_mixed_expr
+    | _single_expr
+
+mixed_expr: _left_expr AND _right_expr -> and_mixed_expr
+    | _left_expr OR _right_expr        -> or_mixed_expr
+
+comparison_expr: _path COMPARE_OPERATOR (_path | value)
+_single_expr: comparison_expr
+    | _path
+
+_arg: _expr | value
+args: args "," _arg -> multi_args
+    | _arg          -> single_arg
+
+?get: "[" INT "]"   -> get_item
+    | "[" slice "]" -> get_partial_items
+    | "[" STAR "]"  -> get_all_items
+
+predicate: "[" _expr "]"
+
+_path: mixed_path | _single_path
+
+braced_mixed_path: "(" mixed_path ")"
+_prev_path: braced_mixed_path
+    | _path
+
+mixed_path: _prev_path DOUBLE_DOT get -> get_item_from_search
+    | _prev_path DOUBLE_DOT predicate -> filter_from_search
+    | _prev_path DOUBLE_DOT STRING    -> search_with_string
+    | _prev_path DOUBLE_DOT NAME      -> search_with_name
+    | _prev_path DOT (STRING | NAME)  -> chained_path_with_name
+    | _prev_path DOT STAR             -> chained_path_with_star
+    | _prev_path predicate            -> filter_from_path
+    | _prev_path get                  -> get_item_from_path
+
+funccall: NAME "(" args ")"
+    | NAME "()"
+
+name: NAME
+self: "@"
+root: "$"
+_single_path: funccall
+    | name
+    | self
+    | root
+
+%import common.SIGNED_INT    -> INT
+%import common.SIGNED_NUMBER -> NUMBER
+%import common.CNAME         -> NAME
+%import common.WS_INLINE
+
+%ignore WS_INLINE
