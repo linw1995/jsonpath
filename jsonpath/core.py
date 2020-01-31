@@ -294,8 +294,6 @@ class Array(Expr):
                 rv = self.idx.find(value)
                 if rv and rv[0]:
                     filtered_items.append(value)
-            except JSONPathFindError:
-                pass
             finally:
                 var_finding.reset(token_finding)
                 var_self.reset(token_self)
@@ -351,22 +349,22 @@ class Slice(Expr):
 class Brace(Expr):
     def __init__(self, expr: Expr) -> None:
         super().__init__()
-        self.expr = expr
+        assert isinstance(
+            expr, Expr
+        ), '"expr" parameter must be an instance of the "Expr" class.'
+        self._expr = expr
 
     def _get_partial_expression(self) -> str:
-        return f"({self.expr!s})"
+        return f"({self._expr!s})"
 
     def find(self, element: Any) -> List[Any]:
-        if isinstance(self.expr, Expr):
-            # set var_finding False to
-            # start new finding process for the nested expr: self.expr
-            token = var_finding.set(False)
-            try:
-                return [self.expr.find(element)]
-            finally:
-                var_finding.reset(token)
-
-        raise JSONPathFindError
+        # set var_finding False to
+        # start new finding process for the nested expr: self.expr
+        token = var_finding.set(False)
+        try:
+            return [self._expr.find(element)]
+        finally:
+            var_finding.reset(token)
 
 
 def _recursive_find(expr: Expr, element: Any, rv: List[Any]) -> None:
@@ -389,22 +387,22 @@ def _recursive_find(expr: Expr, element: Any, rv: List[Any]) -> None:
 class Search(Expr):
     def __init__(self, expr: Expr) -> None:
         super().__init__()
-        self.expr = expr
+        assert isinstance(
+            expr, Expr
+        ), '"expr" parameter must be an instance of the "Expr" class.'
+        self._expr = expr
 
     def _get_partial_expression(self) -> str:
-        return f"..{self.expr!s}"
+        return f"..{self._expr!s}"
 
     def find(self, element: Any) -> List[Any]:
-        if isinstance(self.expr, Expr):
-            rv: List[Any] = []
-            if isinstance(self.expr, Array) and isinstance(self.expr.idx, Expr):
-                # filtering find needs to begin on the current element
-                _recursive_find(self.expr, [element], rv)
-            else:
-                _recursive_find(self.expr, element, rv)
-            return rv
-
-        raise RuntimeError
+        rv: List[Any] = []
+        if isinstance(self._expr, Array) and isinstance(self._expr.idx, Expr):
+            # filtering find needs to begin on the current element
+            _recursive_find(self._expr, [element], rv)
+        else:
+            _recursive_find(self._expr, element, rv)
+        return rv
 
 
 class Self(Expr):
@@ -533,7 +531,7 @@ class Function(Expr):
 
 
 class Key(Function):
-    def __init__(self, *args: Any) -> None:
+    def __init__(self, *args: List[Any]) -> None:
         super().__init__(*args)
         assert not self.args
 
@@ -541,37 +539,40 @@ class Key(Function):
         return "key()"
 
     def find(self, element: Any) -> List[Union[int, str]]:
-        try:
-            key, _ = var_self.get()
-            return [key]
-        except LookupError:
-            return []
+        # Key.find only executed in the predicate.
+        # So Array.find being executed first that set the var_self
+        key, _ = var_self.get()
+        return [key]
 
 
 class Contains(Function):
-    def __init__(self, *args: Any) -> None:
-        super().__init__(*args)
-        assert len(self.args) == 2
+    def __init__(self, expr: Expr, target: Any, *args: List[Any]) -> None:
+        super().__init__(expr, target, *args)
+        assert isinstance(
+            expr, Expr
+        ), '"expr" parameter must be an instance of the "Expr" class.'
+        assert not args
+        self._expr = expr
+        self._target = target
 
     def _get_partial_expression(self) -> str:
         args_list = (
-            f"{_get_expression(self.args[0])}, {_get_expression(self.args[1])}"
+            f"{_get_expression(self._expr)}, {_get_expression(self._target)}"
         )
         return f"contains({args_list})"
 
     def find(self, element: Any) -> List[bool]:
-        root_arg, target_arg = self.args
-        if isinstance(root_arg, Expr):
-            rv = root_arg.find(element)
-            if not rv:
-                return []
-            root_arg = rv[0]
+        rv = self._expr.find(element)
+        if not rv:
+            return []
+        root_arg = rv[0]
+        target_arg = self._target
         if isinstance(target_arg, Expr):
             # set var_finding False to
             # start new finding process for the nested expr: target_arg
             token = var_finding.set(False)
             try:
-                rv = target_arg.find(element)
+                rv = self._target.find(element)
             finally:
                 var_finding.reset(token)
 
@@ -585,26 +586,25 @@ class Contains(Function):
 
 
 class Not(Function):
-    def __init__(self, *args: Any) -> None:
-        super().__init__(*args)
-        assert len(self.args) == 1
+    def __init__(self, expr: Expr, *args: List[Any]) -> None:
+        super().__init__(expr, *args)
+        assert not args
+        assert isinstance(
+            expr, Expr
+        ), '"expr" parameter must be an instance of the "Expr" class.'
+        self._expr = expr
 
     def _get_partial_expression(self) -> str:
-        target = self.args[0]
-        return f"not({_get_expression(target)})"
+        return f"not({self._expr!s})"
 
     def find(self, element: Any) -> List[bool]:
-        target = self.args[0]
-        if isinstance(target, Expr):
-            # set var_finding False to
-            # start new finding process for the nested expr: target
-            token = var_finding.set(False)
-            try:
-                rv = target.find(element)
-            finally:
-                var_finding.reset(token)
-        else:
-            rv = [target]
+        # set var_finding False to
+        # start new finding process for the nested expr: target
+        token = var_finding.set(False)
+        try:
+            rv = self._expr.find(element)
+        finally:
+            var_finding.reset(token)
 
         return [not v for v in rv]
 
