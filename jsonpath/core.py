@@ -42,6 +42,10 @@ class JSONPathSyntaxError(JSONPathError, SyntaxError):
         return f"{self.__class__.__name__}({self.expr!r})"
 
 
+class JSONPathUndefinedFunctionError(JSONPathError):
+    pass
+
+
 class JSONPathFindError(JSONPathError):
     pass
 

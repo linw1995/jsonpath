@@ -3,7 +3,7 @@ from typing import Iterable, List, Optional, Union
 
 # Third Party Library
 from lark import Lark, Transformer, v_args
-from lark.exceptions import UnexpectedToken
+from lark.exceptions import UnexpectedToken, VisitError
 from typing_extensions import Literal
 
 # Local Folder
@@ -19,6 +19,7 @@ from .core import (
     GreaterEqual,
     GreaterThan,
     JSONPathSyntaxError,
+    JSONPathUndefinedFunctionError,
     Key,
     LessEqual,
     LessThan,
@@ -162,7 +163,9 @@ class JSONPathTransformer(Transformer):
         elif name == "not":
             return Not(*args)
         else:
-            raise SyntaxError(f"Function {name!r} not exists")
+            raise JSONPathUndefinedFunctionError(
+                f"Function {name!r} not exists"
+            )
 
     def multi_args(self, args: List[T_ARG], single_arg: T_ARG) -> List[T_ARG]:
         args.append(single_arg)
@@ -207,4 +210,10 @@ def parse(expr: str) -> Expr:
     except UnexpectedToken as exc:
         raise JSONPathSyntaxError(expr) from exc
 
-    return transformer.transform(tree)
+    try:
+        return transformer.transform(tree)
+    except VisitError as exc:
+        if isinstance(exc.orig_exc, JSONPathUndefinedFunctionError):
+            raise exc.orig_exc
+
+        raise

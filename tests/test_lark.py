@@ -11,7 +11,7 @@ import pytest
 from lark import Lark, UnexpectedToken
 
 # First Party Library
-from jsonpath.core import JSONPathSyntaxError
+from jsonpath.core import JSONPathSyntaxError, JSONPathUndefinedFunctionError
 from jsonpath.parser import parse, parser
 
 
@@ -480,3 +480,8 @@ pytest.mark.parametrize(
 def test_syntax_error(expression):
     with pytest.raises(JSONPathSyntaxError):
         parse(expression)
+
+
+def test_undefined_function_error():
+    with pytest.raises(JSONPathUndefinedFunctionError):
+        parse("$[abc(@)]")
