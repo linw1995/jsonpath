@@ -45,6 +45,9 @@ pre-commit = "^1.20"
 lint = ["black", "flake8", "flake8-bugbear", "isort", "mypy", "pytest"]
 test = ["pytest", "pytest-cov"]
 
+[tool.poetry.scripts]
+jp = 'jsonpath.cli:main'
+
 [tool.black]
 line-length = 80
 target-version = ['py38']
