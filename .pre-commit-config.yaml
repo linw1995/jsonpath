@@ -62,6 +62,25 @@ repos:
         exclude: (tests|docs)/
         language: system
         pass_filenames: false
+      - id: blacken-docs
+        name: blacken-docs
+        description: Run `black` on python code blocks in documentation files
+        entry: .venv/bin/blacken-docs --line-length 80
+        exclude_types: [python, toml, yaml, ini, makefile]
+        types: [file, non-executable, text]
+        language: system
+      - id: doc8
+        name: doc8
+        description: Style checker for Sphinx (or other) RST documentation
+        entry: .venv/bin/doc8 -q
+        types: [rst]
+        language: system
+      - id: build_readme
+        name: build_readme
+        description: Build README.rst
+        entry: .venv/bin/python scripts/build_readme.py README.template.rst README.rst
+        language: system
+        pass_filenames: false
       - id: requirement
         name: requirement
         description: create requirement file for python

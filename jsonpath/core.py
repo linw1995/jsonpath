@@ -1,3 +1,8 @@
+"""
+===========
+:mod:`core`
+===========
+"""
 # Standard Library
 import functools
 import json

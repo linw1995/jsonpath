@@ -1,3 +1,8 @@
+"""
+=============
+:mod:`parser`
+=============
+"""
 # Standard Library
 from typing import Iterable, List, Optional, Union
 

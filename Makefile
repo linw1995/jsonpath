@@ -4,7 +4,7 @@ EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
 POETRY_VERSION = 1.0.0
-POETRY_EXTRAS = lint test
+POETRY_EXTRAS = lint test docs
 POETRY_EXTRAS_ARGS = $(if $(POETRY_EXTRAS),-E,) $(subst $(SPACE),$(SPACE)-E$(SPACE),$(POETRY_EXTRAS))
 
 init_by_venv:
@@ -54,13 +54,19 @@ check-black:
 mypy:
 	@.venv/bin/pre-commit run mypy
 
+doc8:
+	@.venv/bin/pre-commit run doc8
+
+blacken-docs:
+	@.venv/bin/pre-commit run blacken-docs
+
 check:
 	@.venv/bin/pre-commit run --hook-stage push
 
 check-all:
 	@.venv/bin/pre-commit run --all-files --hook-stage push
 
-format-code: isort black
+format-code: isort black blacken-docs
 fc: format-code
 
 _stash:
@@ -113,6 +119,6 @@ clean:
 	@rm -rf *.egg-info
 	@rm -rf dist
 
-.PHONY: all init_by_venv init_by_poetry isort check-isort flake8 black \
+.PHONY: all init_by_venv init_by_poetry isort check-isort flake8 black blacken-docs \
 	check-black check check-all format-code fc mypy _stash _unstash _finally _test \
 	test _vtest vtest _cov cov clean
