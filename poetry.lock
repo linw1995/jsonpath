@@ -742,11 +742,11 @@ testing = ["jaraco.itertools"]
 
 [extras]
 docs = ["sphinx"]
-lint = ["black", "blacken-docs", "doc8", "flake8", "flake8-bugbear", "isort", "mypy", "pytest"]
+lint = ["black", "blacken-docs", "doc8", "flake8", "flake8-bugbear", "isort", "mypy", "pygments", "pytest"]
 test = ["pytest", "pytest-cov"]
 
 [metadata]
-content-hash = "b489f606b0f7954987a5e54643bdc6721cb7841c52a59cfccb39629dc5f8679e"
+content-hash = "f12f97bbddc1e88f744eaf87bbdae92bd6e7446f405c2f7870eea632a5e99fb4"
 python-versions = "^3.7"
 
 [metadata.files]
