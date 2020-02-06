@@ -110,6 +110,10 @@ _cov:
 cov: _stash
 	@make _cov $(_finally)
 
+livereload_docs:
+	@.venv/bin/python scripts/watch_build_and_serve_html_docs.py
+live_docs: livereload_docs
+
 clean:
 	@rm -f .coverage
 	@rm -rf .mypy_cache
