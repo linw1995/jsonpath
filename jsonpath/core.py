@@ -1,4 +1,5 @@
 # Standard Library
+import functools
 import json
 import weakref
 
@@ -14,6 +15,7 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
+    cast,
 )
 from weakref import ReferenceType
 
@@ -70,14 +72,21 @@ def _dfs_find(
 
 
 class ExprMeta(type):
-    _expr_classes: Dict[str, "ExprMeta"] = {}
+    _classes: Dict[str, "ExprMeta"] = {}
 
-    def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
-        super().__init__(name, bases, attr_dict)
-        cls._expr_classes[name] = cls
+    def __new__(
+        metacls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]
+    ) -> "ExprMeta":
 
-        actual_find = cls.find
+        if "find" not in attr_dict:
+            cls = super().__new__(metacls, name, bases, attr_dict)
+            cls = cast(ExprMeta, cls)
+            metacls._classes[name] = cls
+            return cls
 
+        actual_find = attr_dict["find"]
+
+        @functools.wraps(actual_find)
         def find(self: "Expr", element: Any) -> List[Any]:
             if var_finding.get():
                 # the chained expr in the finding process
@@ -112,7 +121,11 @@ class ExprMeta(type):
                 if token_root:
                     var_root.reset(token_root)
 
-        cls.find = find
+        attr_dict["find"] = find
+        cls = super().__new__(metacls, name, bases, attr_dict)
+        cls = cast(ExprMeta, cls)
+        metacls._classes[name] = cls
+        return cls
 
 
 class Expr(metaclass=ExprMeta):
@@ -185,16 +198,16 @@ class Expr(metaclass=ExprMeta):
         """
         create expr in a serial of chain class creations like Root().Name("*").
         """
-        if name not in Expr._expr_classes:
+        if name not in Expr._classes:
             raise AttributeError
 
-        expr_cls = Expr._expr_classes[name]
+        cls = Expr._classes[name]
 
-        def expr_cls_(*args: Any, **kwargs: Any) -> Expr:
-            expr = expr_cls(*args, **kwargs)
+        def cls_(*args: Any, **kwargs: Any) -> Expr:
+            expr = cls(*args, **kwargs)
             return self.chain(next_expr=expr)
 
-        return expr_cls_
+        return cls_
 
     def __lt__(self, value: Any) -> "Expr":
         return self.LessThan(value)
