@@ -13,6 +13,7 @@ from typing import (
     List,
     Optional,
     Tuple,
+    Type,
     TypeVar,
     Union,
     cast,
@@ -79,10 +80,7 @@ class ExprMeta(type):
     ) -> "ExprMeta":
 
         if "find" not in attr_dict:
-            cls = super().__new__(metacls, name, bases, attr_dict)
-            cls = cast(ExprMeta, cls)
-            metacls._classes[name] = cls
-            return cls
+            return _create_expr_cls(metacls, name, bases, attr_dict)
 
         actual_find = attr_dict["find"]
 
@@ -122,10 +120,21 @@ class ExprMeta(type):
                     var_root.reset(token_root)
 
         attr_dict["find"] = find
-        cls = super().__new__(metacls, name, bases, attr_dict)
-        cls = cast(ExprMeta, cls)
-        metacls._classes[name] = cls
-        return cls
+        return _create_expr_cls(metacls, name, bases, attr_dict)
+
+
+def _create_expr_cls(
+    metacls: Type[ExprMeta],
+    name: str,
+    bases: Tuple[type],
+    attr_dict: Dict[str, Any],
+) -> ExprMeta:
+    cls = type.__new__(metacls, name, bases, attr_dict)
+    # cast for the type checker
+    # https://mypy.readthedocs.io/en/stable/casts.html
+    cls = cast(ExprMeta, cls)
+    metacls._classes[name] = cls
+    return cls
 
 
 class Expr(metaclass=ExprMeta):
