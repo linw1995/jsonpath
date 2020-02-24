@@ -47,7 +47,14 @@ rope = {version = "^0.14.0"}
 pre-commit = "^1.20"
 
 [tool.poetry.extras]
-lint = ["black", "blacken-docs", "doc8", "flake8", "flake8-bugbear", "isort", "mypy", "pygments", "pytest"]
+lint = [
+  "black", "blacken-docs",
+  "doc8",
+  "flake8", "flake8-bugbear",
+  "isort",
+  "livereload",
+  "mypy",
+  "pygments", "pytest"]
 test = ["pytest", "pytest-cov"]
 docs = ["sphinx", "livereload"]
 
