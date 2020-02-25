@@ -5,6 +5,7 @@ Watch related files, build and serve Sphinx documentation automatically.
 import os
 import shlex
 import subprocess
+import sys
 
 # Third Party Library
 from livereload import Server
@@ -34,7 +35,18 @@ def shell(cmd, output=None, cwd=None, env=None, shell=False):
 
 def main():
     server = Server()
-    build_docs = shell("make html", cwd="docs")
+
+    # https://github.com/pypa/virtualenv/issues/906#issuecomment-244394963
+    # the Python executable from virtualenv
+    # doesn't set the PATH or VIRTUAL_ENV environment variables.
+    # That's by design, and is not a bug.
+    env = os.environ.copy()
+    env["PATH"] = (
+        os.path.dirname(os.path.abspath(sys.executable))
+        + os.pathsep
+        + os.environ.get("PATH", "")
+    )
+    build_docs = shell("make html", cwd="docs", output=sys.stderr, env=env)
     # watcher use glob.glob without setting recursive=True
     # ref:
     # https://github.com/lepture/python-livereload/pull/203
