@@ -1,7 +1,7 @@
 """
-=============
-:mod:`parser`
-=============
+=====================================================
+:mod:`parser` -- Translate expression into executable
+=====================================================
 """
 # Standard Library
 from typing import Iterable, List, Optional, Union
@@ -48,6 +48,10 @@ T_ARGS = Union[T_NO_ARG, List[T_ARG]]
 
 @v_args(inline=True)
 class JSONPathTransformer(Transformer):
+    """
+    Transform JSONPath expression AST parsed by lark-parser into an executable object.
+    """
+
     INT = int
 
     def true(self) -> Literal[True]:
@@ -121,7 +125,7 @@ class JSONPathTransformer(Transformer):
         colon_1: Literal[":"],
         second_field: Optional[int],
     ) -> Slice:
-        return Slice(start=first_field, end=second_field)
+        return Slice(start=first_field, stop=second_field)
 
     def three_fields_slice(
         self,
@@ -131,7 +135,7 @@ class JSONPathTransformer(Transformer):
         colon_2: Literal[":"],
         third_field: Optional[int],
     ) -> Slice:
-        return Slice(start=first_field, end=second_field, step=third_field)
+        return Slice(start=first_field, stop=second_field, step=third_field)
 
     def get_partial_items(self, slice_: Slice) -> Array:
         return Array(slice_)
@@ -210,6 +214,20 @@ transformer = JSONPathTransformer(visit_tokens=True)
 
 
 def parse(expr: str) -> Expr:
+    """
+    Transform JSONPath expression into an executable object.
+
+    >>> parse("$.a").find({"a": 1})
+    [1]
+
+    :param expr: JSONPath expression
+    :type expr: str
+
+    :returns: An executable object.
+    :rtype: :class:`jsonpath.core.Expr`
+    :raises ~jsonpath.core.JSONPathError: \
+        Transform JSONPath expression error.
+    """
     try:
         tree = parser.parse(expr)
     except UnexpectedToken as exc:
