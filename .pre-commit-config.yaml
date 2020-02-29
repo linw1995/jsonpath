@@ -65,7 +65,7 @@ repos:
       - id: blacken-docs
         name: blacken-docs
         description: Run `black` on python code blocks in documentation files
-        entry: .venv/bin/blacken-docs --line-length 80
+        entry: .venv/bin/blacken-docs --line-length 72
         exclude_types: [python, toml, yaml, ini, makefile]
         types: [file, non-executable, text]
         language: system

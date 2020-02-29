@@ -26,42 +26,45 @@ Or install the latest version from Github.
 
     pip install git+https://github.com/linw1995/jsonpath.git@master
 
-
 Usage
 ~~~~~
+
+.. code-block:: json
+
+    {
+        "goods": [
+            {"price": 100, "category": "Comic book"},
+            {"price": 200, "category": "magazine"},
+            {"price": 200, "no category": ""}
+        ],
+        "targetCategory": "book"
+    }
+
+
+How to parse and extract all the comic book data from the above JSON file.
 
 .. code-block:: python3
 
     import json
 
-    from jsonpath import parse, Root, Contains, Self
+    from jsonpath import parse
 
-    data = json.loads(
-        """
-        {
-            "goods": [
-                {"price": 100, "category": "Comic book"},
-                {"price": 200, "category": "magazine"},
-                {"price": 200, "no category": ""}
-            ],
-            "targetCategory": "book"
-        }
-    """
-    )
-    expect = [{"price": 100, "category": "Comic book"}]
+    with open("example.json", "r") as f:
+        data = json.load(f)
 
-    assert (
-        parse("$.goods[contains(@.category, $.targetCategory)]").find(data)
-        == expect
-    )
+    assert parse("$.goods[contains(@.category, $.targetCategory)]").find(
+        data
+    ) == [{"price": 100, "category": "Comic book"}]
 
-    assert (
-        Root()
-        .Name("goods")
-        .Array(Contains(Self().Name("category"), Root().Name("targetCategory")))
-        .find(data)
-        == expect
-    )
+Or use the :py:mod:`jsonpath.core` module to extract it.
+
+.. code-block:: python3
+
+    from jsonpath.core import Root, Contains, Self
+
+    assert Root().Name("goods").Array(
+        Contains(Self().Name("category"), Root().Name("targetCategory"))
+    ).find(data) == [{"price": 100, "category": "Comic book"}]
 
 Changelog
 <<<<<<<<<
