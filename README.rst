@@ -56,7 +56,7 @@ How to parse and extract all the comic book data from the above JSON file.
         data
     ) == [{"price": 100, "category": "Comic book"}]
 
-Or use the :py:mod:`jsonpath.core` module to extract it.
+Or use the `jsonpath.core <https://jsonpath.readthedocs.io/en/latest/api_core.html>`_ module to extract it.
 
 .. code-block:: python3
 
