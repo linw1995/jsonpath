@@ -1,3 +1,9 @@
+"""
+===============
+:mod:`jsonpath`
+===============
+A selector expression for extracting data from JSON.
+"""
 # Local Folder
 from .core import (
     Array,

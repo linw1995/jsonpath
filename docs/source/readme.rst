@@ -10,75 +10,15 @@ A selector expression for extracting data from JSON.
 Quickstarts
 <<<<<<<<<<<
 
-
-Installation
-~~~~~~~~~~~~
-
-Install the stable version from PYPI.
-
-.. code-block:: shell
-
-    pip install jsonpath-extractor
-
-Or install the latest version from Github.
-
-.. code-block:: shell
-
-    pip install git+https://github.com/linw1995/jsonpath.git@master
-
-Usage
-~~~~~
-
-.. code-block:: json
-
-    {
-        "goods": [
-            {"price": 100, "category": "Comic book"},
-            {"price": 200, "category": "magazine"},
-            {"price": 200, "no category": ""}
-        ],
-        "targetCategory": "book"
-    }
-
-
-How to parse and extract all the comic book data from the above JSON file.
-
-.. code-block:: python3
-
-    import json
-
-    from jsonpath import parse
-
-    with open("example.json", "r") as f:
-        data = json.load(f)
-
-    assert parse("$.goods[contains(@.category, $.targetCategory)]").find(
-        data
-    ) == [{"price": 100, "category": "Comic book"}]
-
-Or use the `jsonpath.core <https://jsonpath.readthedocs.io/en/latest/api_core.html>`_ module to extract it.
-
-.. code-block:: python3
-
-    from jsonpath.core import Root, Contains, Self
-
-    assert Root().Name("goods").Array(
-        Contains(Self().Name("category"), Root().Name("targetCategory"))
-    ).find(data) == [{"price": 100, "category": "Comic book"}]
+.. include:: quickstarts.rst
+    :start-line: 4
 
 Changelog
 <<<<<<<<<
 
-v0.1.1
-~~~~~~~~~~~
-
-- 35f0960 New:Add release actions for pypi and gh-release
-- ce022b6 New:Add codecov for code coverage report
-- 7f4fe3c Fix:The reduce/reduce conflicts
-- 258b0fa Fix:The shift/reduce conflicts
-- 95f088d New:Add Github Actions for CI
-
-
+.. include:: changelog.rst
+    :start-line: 4
+    :end-before: .. include:: history.rst
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/jsonpath.svg
     :target: https://github.com/linw1995/jsonpath/blob/master/LICENSE
