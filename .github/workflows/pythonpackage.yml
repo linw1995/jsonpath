@@ -17,6 +17,16 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
+    # cache poetry virtualenv dir may be faster
+    - name: Caches
+      uses: actions/cache@v1
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip poetry
@@ -36,15 +46,20 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         # Specify whether or not CI build should fail if Codecov runs into an error during upload
         fail_ci_if_error: true # optional
-    # Publish to PYPI and Github Release
-    - name: Publish to PYPI
+    # Build, Upload and Publish to PYPI and GitHub Release
+    - name: Build release
+      run: poetry build
+    - name: Upload release
+      uses: actions/upload-artifact@v1
+      with:
+        name: dist
+        path: dist
+    - name: Publish release to PYPI
       if: startsWith(github.ref, 'refs/tags/') && matrix.python-version == 3.8
-      run: |
-        poetry build
-        poetry publish -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }}
-    - name: Publish to Github Release
+      run: poetry publish -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }}
+    - name: Publish release to GitHub Release
+      if: startsWith(github.ref, 'refs/tags/') && matrix.python-version == 3.8
       uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/') && matrix.python-version == 3.8
       with:
         files: dist/*
       env:

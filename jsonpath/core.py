@@ -1,23 +1,53 @@
+"""
+============================
+:mod:`core` -- JSONPath Core
+============================
+"""
 # Standard Library
+import functools
+import json
 import weakref
 
 from abc import abstractmethod
 from contextvars import ContextVar
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+)
 from weakref import ReferenceType
 
 
 var_root: ContextVar[Any] = ContextVar("root")
-SelfValue = Union[Tuple[int, Any], Tuple[str, Any]]
-var_self: ContextVar[SelfValue] = ContextVar("self")
+T_SELF_VALUE = Union[Tuple[int, Any], Tuple[str, Any]]
+var_self: ContextVar[T_SELF_VALUE] = ContextVar("self")
 var_finding: ContextVar[bool] = ContextVar("finding", default=False)
+
+T = TypeVar("T", bound="Expr")
 
 
 class JSONPathError(Exception):
-    pass
+    """
+    JSONPath Base Exception.
+    """
 
 
 class JSONPathSyntaxError(JSONPathError, SyntaxError):
+    """
+    JSONPath expression syntax error.
+
+    :param expr: JSONPath expression
+    :type expr: str
+    """
+
     def __init__(self, expr: str):
         self.expr = expr
         super().__init__(str(self))
@@ -29,8 +59,16 @@ class JSONPathSyntaxError(JSONPathError, SyntaxError):
         return f"{self.__class__.__name__}({self.expr!r})"
 
 
+class JSONPathUndefinedFunctionError(JSONPathError):
+    """
+    Undefined Function in JSONPath expression error.
+    """
+
+
 class JSONPathFindError(JSONPathError):
-    pass
+    """
+    JSONPath executable object finds nothing.
+    """
 
 
 def _dfs_find(
@@ -53,14 +91,22 @@ def _dfs_find(
 
 
 class ExprMeta(type):
-    _expr_classes: Dict[str, "ExprMeta"] = {}
+    """
+    JSONPath Expr Meta Class.
+    """
 
-    def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
-        super().__init__(name, bases, attr_dict)
-        cls._expr_classes[name] = cls
+    _classes: Dict[str, "ExprMeta"] = {}
 
-        actual_find = cls.find
+    def __new__(
+        metacls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]
+    ) -> "ExprMeta":
 
+        if "find" not in attr_dict:
+            return _create_expr_cls(metacls, name, bases, attr_dict)
+
+        actual_find = attr_dict["find"]
+
+        @functools.wraps(actual_find)
         def find(self: "Expr", element: Any) -> List[Any]:
             if var_finding.get():
                 # the chained expr in the finding process
@@ -95,10 +141,36 @@ class ExprMeta(type):
                 if token_root:
                     var_root.reset(token_root)
 
-        cls.find = find
+        attr_dict["find"] = find
+        return _create_expr_cls(metacls, name, bases, attr_dict)
+
+
+def _create_expr_cls(
+    metacls: Type[ExprMeta],
+    name: str,
+    bases: Tuple[type],
+    attr_dict: Dict[str, Any],
+) -> ExprMeta:
+    cls = type.__new__(metacls, name, bases, attr_dict)
+    # cast for the type checker
+    # https://mypy.readthedocs.io/en/stable/casts.html
+    cls = cast(ExprMeta, cls)
+    metacls._classes[name] = cls
+    return cls
 
 
 class Expr(metaclass=ExprMeta):
+    """
+    JSONPath executable Class.
+
+    .. automethod:: find
+    .. automethod:: get_expression
+    .. automethod:: get_begin
+    .. automethod:: get_next
+    .. automethod:: chain
+    .. automethod:: __getattr__
+    """
+
     def __init__(self) -> None:
         self.left: Optional[Expr] = None
         self.ref_right: Optional[ReferenceType[Expr]] = None
@@ -111,6 +183,9 @@ class Expr(metaclass=ExprMeta):
         return self.get_expression()
 
     def get_expression(self) -> str:
+        """
+        Get JSONPath expression.
+        """
         expr: Optional[Expr] = self.get_begin()
         parts: List[str] = []
         while expr:
@@ -136,9 +211,24 @@ class Expr(metaclass=ExprMeta):
 
     @abstractmethod
     def find(self, element: Any) -> List[Any]:
+        """
+        Find target data by the JSONPath expression.
+
+        :param element: Root data where target data found from
+        :type element: Any
+
+        :returns: A list of target data
+        :rtype: List[Any]
+        """
         raise NotImplementedError
 
     def get_begin(self) -> "Expr":
+        """
+        Get the begin expr of the combined expr.
+
+        :returns: The begin expr of the combined expr.
+        :rtype: :class:`jsonpath.core.Expr`
+        """
         if self.ref_begin is None:
             # the unchained expr's ref_begin is None
             return self
@@ -148,9 +238,24 @@ class Expr(metaclass=ExprMeta):
             return begin
 
     def get_next(self) -> Optional["Expr"]:
+        """
+        Get the next part of expr in the combined expr.
+
+        :returns: The next part of expr in the combined expr.
+        :rtype: :class:`jsonpath.core.Expr`
+        """
         return self.ref_right() if self.ref_right else None
 
-    def chain(self, next_expr: "Expr") -> "Expr":
+    def chain(self, next_expr: T) -> T:
+        """
+        Chain the next part of expr as a combined expr.
+
+        :param next_expr: The next part of expr in the combined expr.
+        :type next_expr: :class:`jsonpath.core.Expr`
+
+        :returns: The next part of expr in the combined expr.
+        :rtype: :class:`jsonpath.core.Expr`
+        """
         if self.ref_begin is None:
             # the unchained expr become the first expr in chain
             self.ref_begin = weakref.ref(self)
@@ -166,18 +271,25 @@ class Expr(metaclass=ExprMeta):
 
     def __getattr__(self, name: str) -> Callable[..., "Expr"]:
         """
-        create expr in a serial of chain class creations like Root().Name("*").
+        Create combined expr in a serial of chain class creations
+        like `Root().Name("*")`.
+
+        :param name: The name of the next part expr in combined expr.
+        :type name: str
+
+        :returns: The function for creating the next part of the combined expr.
+        :rtype: Callable[[...], :class:`Expr`]
         """
-        if name not in Expr._expr_classes:
+        if name not in Expr._classes:
             raise AttributeError
 
-        expr_cls = Expr._expr_classes[name]
+        cls = Expr._classes[name]
 
-        def expr_cls_(*args: Any, **kwargs: Any) -> Expr:
-            expr = expr_cls(*args, **kwargs)
+        def cls_(*args: Any, **kwargs: Any) -> Expr:
+            expr = cls(*args, **kwargs)
             return self.chain(next_expr=expr)
 
-        return expr_cls_
+        return cls_
 
     def __lt__(self, value: Any) -> "Expr":
         return self.LessThan(value)
@@ -199,6 +311,16 @@ class Expr(metaclass=ExprMeta):
 
 
 class Root(Expr):
+    """
+    Represent the root of data.
+
+    >>> p = Root(); print(p)
+    $
+    >>> p.find([1])
+    [[1]]
+
+    """
+
     def _get_partial_expression(self) -> str:
         return "$"
 
@@ -207,6 +329,28 @@ class Root(Expr):
 
 
 class Name(Expr):
+    """
+    Represent the data of the field name.
+    Represent the data of all fields if not providing the field name.
+
+    :param name: The field name of the data.
+    :type name: Optional[str]
+
+    >>> p = Name("abc"); print(p)
+    abc
+    >>> p.find({"abc": 1})
+    [1]
+    >>> p = Name(); print(p)
+    *
+    >>> p.find({"a": 1, "b": 2})
+    [1, 2]
+    >>> p = Name("a").Name("b"); print(p)
+    a.b
+    >>> p.find({"a": {"b": 1}})
+    [1]
+
+    """
+
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__()
         self.name = name
@@ -231,6 +375,54 @@ class Name(Expr):
 
 
 class Array(Expr):
+    """
+    Represent the array data
+    if combine with expr (e.g., :class:`Name`, :class:`Root`) as the next part.
+
+    Use an array index to get the item of the array.
+
+    >>> p = Root().Array(0); print(p)
+    $[0]
+    >>> p.find([1, 2])
+    [1]
+
+    Also can use a :class:`Slice` to get partial items of the array.
+
+    >>> p = Root().Array(Slice(0, 3, 2)); print(p)
+    $[:3:2]
+    >>> p.find([1, 2, 3, 4])
+    [1, 3]
+
+    Accept None to get all items of the array.
+
+    >>> p = Root().Array(); print(p)
+    $[*]
+    >>> p.find([1, 2, 3, 4])
+    [1, 2, 3, 4]
+
+    Prediction. It also can process dictionary form data.
+
+    Accept comparison expr for prediction.
+    See more in :class:`Compare`.
+
+    >>> p = Root().Array(Name("a") == 1); print(p)
+    $[a = 1]
+    >>> p.find([{"a": 1}, {"a": 2}, {}])
+    [{'a': 1}]
+    >>> p = Root().Array(Contains(Key(), "a")); print(p)
+    $[contains(key(), "a")]
+    >>> p.find({"a": 1, "ab": 2, "c": 3})
+    [1, 2]
+
+    Or accept single expr for prediction.
+
+    >>> p = Root().Array(Name("a")); print(p)
+    $[a]
+    >>> p.find([{"a": 0}, {"a": 1}, {}])
+    [{'a': 1}]
+
+    """
+
     def __init__(
         self, idx: Optional[Union[int, "Slice", "Compare", Expr]] = None
     ) -> None:
@@ -281,8 +473,6 @@ class Array(Expr):
                 rv = self.idx.find(value)
                 if rv and rv[0]:
                     filtered_items.append(value)
-            except JSONPathFindError:
-                pass
             finally:
                 var_finding.reset(token_finding)
                 var_self.reset(token_self)
@@ -290,15 +480,22 @@ class Array(Expr):
 
 
 class Slice(Expr):
+    """
+    Use it with :class:`Array` to get partial items from the array data.
+    Work like the `Python slice(range)`_.
+
+    .. _Python slice(range): https://docs.python.org/3/library/stdtypes.html#ranges
+    """
+
     def __init__(
         self,
         start: Optional[int] = None,
-        end: Optional[int] = None,
+        stop: Optional[int] = None,
         step: Optional[int] = None,
     ) -> None:
         super().__init__()
         self.start = start
-        self.end = end
+        self.end = stop
         self.step = step
 
     def _get_partial_expression(self) -> str:
@@ -336,24 +533,37 @@ class Slice(Expr):
 
 
 class Brace(Expr):
+    """
+    Brace the mixed expression to be executed first.
+
+    >>> p = Brace(
+    ...     Root().Array().Name("a")
+    ... ).Array(Self() == 1)
+    >>> print(p)
+    ($[*].a)[@ = 1]
+    >>> p.find([{"a": 1}, {"a": 2}, {"a": 1}])
+    [1, 1]
+
+    """
+
     def __init__(self, expr: Expr) -> None:
         super().__init__()
-        self.expr = expr
+        assert isinstance(
+            expr, Expr
+        ), '"expr" parameter must be an instance of the "Expr" class.'
+        self._expr = expr
 
     def _get_partial_expression(self) -> str:
-        return f"({self.expr!s})"
+        return f"({self._expr!s})"
 
     def find(self, element: Any) -> List[Any]:
-        if isinstance(self.expr, Expr):
-            # set var_finding False to
-            # start new finding process for the nested expr: self.expr
-            token = var_finding.set(False)
-            try:
-                return [self.expr.find(element)]
-            finally:
-                var_finding.reset(token)
-
-        raise JSONPathFindError
+        # set var_finding False to
+        # start new finding process for the nested expr: self.expr
+        token = var_finding.set(False)
+        try:
+            return [self._expr.find(element)]
+        finally:
+            var_finding.reset(token)
 
 
 def _recursive_find(expr: Expr, element: Any, rv: List[Any]) -> None:
@@ -374,27 +584,51 @@ def _recursive_find(expr: Expr, element: Any, rv: List[Any]) -> None:
 
 
 class Search(Expr):
+    """
+    Recursively search target in data.
+
+    :param expr: The expr is used to search in data recursively.
+    :type expr: :class:`Expr`
+
+    >>> p = Root().Search(Name("a")); print(p)
+    $..a
+    >>> p.find({"a":{"a": 0}})
+    [{'a': 0}, 0]
+
+    """
+
     def __init__(self, expr: Expr) -> None:
         super().__init__()
-        self.expr = expr
+        assert isinstance(
+            expr, Expr
+        ), '"expr" parameter must be an instance of the "Expr" class.'
+        # TODO: Not accepts mixed expr
+        self._expr = expr
 
     def _get_partial_expression(self) -> str:
-        return f"..{self.expr!s}"
+        return f"..{self._expr!s}"
 
     def find(self, element: Any) -> List[Any]:
-        if isinstance(self.expr, Expr):
-            rv: List[Any] = []
-            if isinstance(self.expr, Array) and isinstance(self.expr.idx, Expr):
-                # filtering find needs to begin on the current element
-                _recursive_find(self.expr, [element], rv)
-            else:
-                _recursive_find(self.expr, element, rv)
-            return rv
-
-        raise RuntimeError
+        rv: List[Any] = []
+        if isinstance(self._expr, Array) and isinstance(self._expr.idx, Expr):
+            # filtering find needs to begin on the current element
+            _recursive_find(self._expr, [element], rv)
+        else:
+            _recursive_find(self._expr, element, rv)
+        return rv
 
 
 class Self(Expr):
+    """
+    Represent each item of the array data.
+
+    >>> p = Root().Array(Self()==1); print(p)
+    $[@ = 1]
+    >>> p.find([1, 2, 1])
+    [1, 1]
+
+    """
+
     def _get_partial_expression(self) -> str:
         return "@"
 
@@ -407,6 +641,29 @@ class Self(Expr):
 
 
 class Compare(Expr):
+    """
+    Base class of comparison operators.
+
+    Compare value between the first result of an expression,
+    and the first result of an expression or simple value.
+
+    >>> Root().Array(Self() == 1)
+    JSONPath('$[@ = 1]')
+    >>> Root().Array(Self().Equal(1))
+    JSONPath('$[@ = 1]')
+    >>> Root().Array(Self() <= 1)
+    JSONPath('$[@ <= 1]')
+    >>> (
+    ...     Root()
+    ...     .Name("data")
+    ...     .Array(
+    ...         Self() != Root().Name("target")
+    ...     )
+    ... )
+    JSONPath('$.data[@ != $.target]')
+
+    """
+
     def __init__(self, target: Any) -> None:
         super().__init__()
         self.target = target
@@ -415,7 +672,7 @@ class Compare(Expr):
         if isinstance(self.target, Expr):
             return self.target.get_expression()
         else:
-            return repr(self.target)
+            return json.dumps(self.target)
 
     def get_target_value(self) -> Any:
         if isinstance(self.target, Expr):
@@ -487,6 +744,11 @@ class NotEqual(Compare):
 
 
 class And(Compare):
+    """
+    And, a boolean operator.
+
+    """
+
     def _get_partial_expression(self) -> str:
         return f" and {self._get_target_expression()}"
 
@@ -495,6 +757,11 @@ class And(Compare):
 
 
 class Or(Compare):
+    """
+    Or, a boolean operator.
+
+    """
+
     def _get_partial_expression(self) -> str:
         return f" or {self._get_target_expression()}"
 
@@ -506,10 +773,14 @@ def _get_expression(target: Any) -> str:
     if isinstance(target, Expr):
         return target.get_expression()
     else:
-        return repr(target)
+        return json.dumps(target)
 
 
 class Function(Expr):
+    """
+    Base class of functions.
+    """
+
     def __init__(self, *args: Any) -> None:
         super().__init__()
         self.args = args
@@ -520,7 +791,25 @@ class Function(Expr):
 
 
 class Key(Function):
-    def __init__(self, *args: Any) -> None:
+    """
+    Key function is used to get the field name from dictionary data.
+
+    >>> Root().Array(Key() == "a")
+    JSONPath('$[key() = "a"]')
+
+    Same as :data:`Root().Name("a")`.
+
+    Filter all values which field name contains :data:`"book"`.
+
+    >>> p = Root().Array(Contains(Key(), "book"))
+    >>> print(p)
+    $[contains(key(), "book")]
+    >>> p.find({"book 1": 1, "picture 2": 2})
+    [1]
+
+    """
+
+    def __init__(self, *args: List[Any]) -> None:
         super().__init__(*args)
         assert not self.args
 
@@ -528,37 +817,55 @@ class Key(Function):
         return "key()"
 
     def find(self, element: Any) -> List[Union[int, str]]:
-        try:
-            key, _ = var_self.get()
-            return [key]
-        except LookupError:
-            return []
+        # Key.find only executed in the predicate.
+        # So Array.find being executed first that set the var_self
+        key, _ = var_self.get()
+        return [key]
 
 
 class Contains(Function):
-    def __init__(self, *args: Any) -> None:
-        super().__init__(*args)
-        assert len(self.args) == 2
+    """
+    Determine the first result of expression contains the target substring.
+
+    >>> p = Root().Array(Contains(Name("name"), "red"))
+    >>> print(p)
+    $[contains(name, "red")]
+    >>> p.find([
+    ...     {"name": "red book"},
+    ...     {"name": "red pen"},
+    ...     {"name": "green book"}
+    ... ])
+    [{'name': 'red book'}, {'name': 'red pen'}]
+
+    """
+
+    def __init__(self, expr: Expr, target: Any, *args: List[Any]) -> None:
+        super().__init__(expr, target, *args)
+        assert isinstance(
+            expr, Expr
+        ), '"expr" parameter must be an instance of the "Expr" class.'
+        assert not args
+        self._expr = expr
+        self._target = target
 
     def _get_partial_expression(self) -> str:
         args_list = (
-            f"{_get_expression(self.args[0])}, {_get_expression(self.args[1])}"
+            f"{_get_expression(self._expr)}, {_get_expression(self._target)}"
         )
         return f"contains({args_list})"
 
     def find(self, element: Any) -> List[bool]:
-        root_arg, target_arg = self.args
-        if isinstance(root_arg, Expr):
-            rv = root_arg.find(element)
-            if not rv:
-                return []
-            root_arg = rv[0]
+        rv = self._expr.find(element)
+        if not rv:
+            return []
+        root_arg = rv[0]
+        target_arg = self._target
         if isinstance(target_arg, Expr):
             # set var_finding False to
             # start new finding process for the nested expr: target_arg
             token = var_finding.set(False)
             try:
-                rv = target_arg.find(element)
+                rv = self._target.find(element)
             finally:
                 var_finding.reset(token)
 
@@ -572,48 +879,57 @@ class Contains(Function):
 
 
 class Not(Function):
-    def __init__(self, *args: Any) -> None:
-        super().__init__(*args)
-        assert len(self.args) == 1
+    """
+    Not, a boolean operator.
+
+    >>> Root().Array(Not(Name("enable")))
+    JSONPath('$[not(enable)]')
+
+    """
+
+    def __init__(self, expr: Expr, *args: List[Any]) -> None:
+        super().__init__(expr, *args)
+        assert not args
+        assert isinstance(
+            expr, Expr
+        ), '"expr" parameter must be an instance of the "Expr" class.'
+        self._expr = expr
 
     def _get_partial_expression(self) -> str:
-        target = self.args[0]
-        return f"not({_get_expression(target)})"
+        return f"not({self._expr!s})"
 
     def find(self, element: Any) -> List[bool]:
-        target = self.args[0]
-        if isinstance(target, Expr):
-            # set var_finding False to
-            # start new finding process for the nested expr: target
-            token = var_finding.set(False)
-            try:
-                rv = target.find(element)
-            finally:
-                var_finding.reset(token)
-        else:
-            rv = [target]
+        # set var_finding False to
+        # start new finding process for the nested expr: target
+        token = var_finding.set(False)
+        try:
+            rv = self._expr.find(element)
+        finally:
+            var_finding.reset(token)
 
         return [not v for v in rv]
 
 
 __all__ = (
-    "Contains",
-    "Expr",
-    "ExprMeta",
-    "Name",
-    "Root",
+    "And",
     "Array",
-    "Slice",
-    "Search",
-    "Self",
     "Brace",
     "Compare",
-    "LessThan",
-    "LessEqual",
+    "Contains",
     "Equal",
+    "Expr",
+    "ExprMeta",
     "GreaterEqual",
     "GreaterThan",
-    "NotEqual",
-    "Not",
     "Key",
+    "LessEqual",
+    "LessThan",
+    "Name",
+    "Not",
+    "NotEqual",
+    "Or",
+    "Root",
+    "Search",
+    "Self",
+    "Slice",
 )

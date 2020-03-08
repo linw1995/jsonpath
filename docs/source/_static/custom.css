@@ -1,0 +1,15 @@
+div.sphinxsidebar {
+    width: 250px;
+}
+
+dl.class{
+    margin-bottom: 1rem;
+}
+
+dl.method, dl.field-list {
+    margin-bottom: 0.5rem;
+}
+
+pre {
+    padding: 7px 15px;
+}
