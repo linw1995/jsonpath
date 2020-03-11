@@ -2,9 +2,9 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
     hooks:
-      - id: no-commit-to-branch
-        args: [--branch, master]
-        language_version: python3
+      # - id: no-commit-to-branch
+      #   args: [--branch, master]
+      #   language_version: python3
       - id: check-symlinks
       - id: check-toml
       - id: check-yaml
