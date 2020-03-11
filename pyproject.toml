@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jsonpath-extractor"
-version = "0.1.1"
+version = "0.2.0-alpha"
 license = "MIT"
 description = "A selector expression for extracting data from JSON."
 authors = ["林玮 <linw1995@icloud.com>"]
