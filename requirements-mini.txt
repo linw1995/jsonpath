@@ -4,9 +4,7 @@ appdirs==1.4.3 \
 importlib-metadata==1.5.0; python_version < "3.8" \
     --hash=sha256:b97607a1a18a5100839aec1dc26a1ea17ee0d93b20b0f008d80a5a050afb200b \
     --hash=sha256:06f5b3a99029c7134207dd882428a66992a9de2bef7c2b699b5641f9886c3302
-lark-parser==0.8.2 \
-    --hash=sha256:78d1e293a1fb06f10373552af95f70832e2bfe19aebfc3b142ea6c03b2ea0597 \
-    --hash=sha256:9d9ce33f36f749211194823a1175a76e2ccabccdfb86a196cefb967914122cd7
+-e git+https://github.com/lark-parser/lark.git@7538c9308009f9b33f4ea203f58f12013b90b253#egg=lark-parser
 six==1.14.0 \
     --hash=sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c \
     --hash=sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a

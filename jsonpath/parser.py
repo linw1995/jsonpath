@@ -47,7 +47,7 @@ T_ARGS = Union[T_NO_ARG, List[T_ARG]]
 
 
 @v_args(inline=True)
-class JSONPathTransformer(Transformer):
+class JSONPathTransformer(Transformer[Expr]):
     """
     Transform JSONPath expression AST parsed by lark-parser into an executable object.
     """
