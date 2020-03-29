@@ -69,10 +69,15 @@ Or use the `jsonpath.core <https://jsonpath.readthedocs.io/en/latest/api_core.ht
 Changelog
 <<<<<<<<<
 
-v0.2.0-alpha.2
-~~~~~~~~~~~~~~
+v0.2.0
+~~~~~~
 
-- 2440951 Fix:Cannot release into PyPI
+- Chg:Use lark-parser to replace sly
+- New:Create docs by sphinx
+- New,Dev:Watch related files,
+  build and serve Sphinx documentation automatically.
+- New,Dev:Test with doctest by pytest
+- New:Add .readthedocs.yaml for docs deployment
 
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/jsonpath.svg

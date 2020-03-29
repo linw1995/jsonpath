@@ -2,6 +2,11 @@
 History
 =======
 
+v0.2.0-alpha.2
+~~~~~~~~~~~~~~
+
+- 2440951 Fix:Cannot release into PyPI
+
 v0.2.0-alpha.1
 ~~~~~~~~~~~~~~
 
