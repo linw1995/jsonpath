@@ -46,6 +46,6 @@ Or use the :py:mod:`jsonpath.core` module to extract it.
 
     from jsonpath.core import Root, Contains, Self
 
-    assert Root().Name("goods").Array(
+    assert Root().Name("goods").Predicate(
         Contains(Self().Name("category"), Root().Name("targetCategory"))
     ).find(data) == [{"price": 100, "category": "Comic book"}]

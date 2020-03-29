@@ -190,7 +190,7 @@ class Expr(metaclass=ExprMeta):
         parts: List[str] = []
         while expr:
             part = expr._get_partial_expression()
-            if isinstance(expr, (Array, Search, Compare)):
+            if isinstance(expr, (Array, Predicate, Search, Compare)):
                 if parts:
                     parts[-1] += part
                 else:
@@ -393,40 +393,21 @@ class Array(Expr):
     >>> p.find([1, 2, 3, 4])
     [1, 3]
 
-    Accept None to get all items of the array.
+    Accept :data:`None` to get all items of the array.
 
     >>> p = Root().Array(); print(p)
     $[*]
     >>> p.find([1, 2, 3, 4])
     [1, 2, 3, 4]
 
-    Prediction. It also can process dictionary form data.
-
-    Accept comparison expr for prediction.
-    See more in :class:`Compare`.
-
-    >>> p = Root().Array(Name("a") == 1); print(p)
-    $[a = 1]
-    >>> p.find([{"a": 1}, {"a": 2}, {}])
-    [{'a': 1}]
-    >>> p = Root().Array(Contains(Key(), "a")); print(p)
-    $[contains(key(), "a")]
-    >>> p.find({"a": 1, "ab": 2, "c": 3})
-    [1, 2]
-
-    Or accept single expr for prediction.
-
-    >>> p = Root().Array(Name("a")); print(p)
-    $[a]
-    >>> p.find([{"a": 0}, {"a": 1}, {}])
-    [{'a': 1}]
-
     """
 
-    def __init__(
-        self, idx: Optional[Union[int, "Slice", "Compare", Expr]] = None
-    ) -> None:
+    def __init__(self, idx: Optional[Union[int, "Slice"]] = None) -> None:
         super().__init__()
+        assert idx is None or isinstance(idx, (int, Slice)), (
+            '"idx" parameter must be an instance of the "int" or "Slice" class,'
+            ' or "None" value'
+        )
         self.idx = idx
 
     def _get_partial_expression(self) -> str:
@@ -446,13 +427,47 @@ class Array(Expr):
             return [element[self.idx]]
         elif isinstance(self.idx, Slice):
             return self.idx.find(element)
-        elif isinstance(self.idx, Expr):
-            return self._filtering_find(element)
 
         raise JSONPathFindError
 
-    def _filtering_find(self, element: Any) -> List[Any]:
-        assert isinstance(self.idx, Expr)
+
+class Predicate(Expr):
+    """
+    Filter items from the array by expr(e.g., :class:`Compare`)
+    if combine with expr (e.g., :class:`Name`, :class:`Root`) as the next part.
+    It is also able to process dictionary.
+
+    Accept comparison expr for filtering.
+    See more in :class:`Compare`.
+
+    >>> p = Root().Predicate(Name("a") == 1); print(p)
+    $[a = 1]
+    >>> p.find([{"a": 1}, {"a": 2}, {}])
+    [{'a': 1}]
+    >>> p = Root().Predicate(Contains(Key(), "a")); print(p)
+    $[contains(key(), "a")]
+    >>> p.find({"a": 1, "ab": 2, "c": 3})
+    [1, 2]
+
+    Or accept single expr for filtering.
+
+    >>> p = Root().Predicate(Name("a")); print(p)
+    $[a]
+    >>> p.find([{"a": 0}, {"a": 1}, {}])
+    [{'a': 1}]
+    """
+
+    def __init__(self, expr: Union["Compare", Expr]) -> None:
+        super().__init__()
+        assert isinstance(
+            expr, Expr
+        ), '"expr" parameter must be an instance of the "Expr" class.'
+        self.expr = expr
+
+    def _get_partial_expression(self) -> str:
+        return f"[{self.expr!s}]"
+
+    def find(self, element: Any) -> List[Any]:
         filtered_items = []
         items: Union[Iterable[Tuple[int, Any]], Iterable[Tuple[str, Any]]]
         if isinstance(element, list):
@@ -470,7 +485,7 @@ class Array(Expr):
             token_finding = var_finding.set(False)
             _, value = item
             try:
-                rv = self.idx.find(value)
+                rv = self.expr.find(value)
                 if rv and rv[0]:
                     filtered_items.append(value)
             finally:
@@ -538,7 +553,7 @@ class Brace(Expr):
 
     >>> p = Brace(
     ...     Root().Array().Name("a")
-    ... ).Array(Self() == 1)
+    ... ).Predicate(Self() == 1)
     >>> print(p)
     ($[*].a)[@ = 1]
     >>> p.find([{"a": 1}, {"a": 2}, {"a": 1}])
@@ -610,7 +625,7 @@ class Search(Expr):
 
     def find(self, element: Any) -> List[Any]:
         rv: List[Any] = []
-        if isinstance(self._expr, Array) and isinstance(self._expr.idx, Expr):
+        if isinstance(self._expr, Predicate):
             # filtering find needs to begin on the current element
             _recursive_find(self._expr, [element], rv)
         else:
@@ -622,7 +637,7 @@ class Self(Expr):
     """
     Represent each item of the array data.
 
-    >>> p = Root().Array(Self()==1); print(p)
+    >>> p = Root().Predicate(Self()==1); print(p)
     $[@ = 1]
     >>> p.find([1, 2, 1])
     [1, 1]
@@ -647,16 +662,16 @@ class Compare(Expr):
     Compare value between the first result of an expression,
     and the first result of an expression or simple value.
 
-    >>> Root().Array(Self() == 1)
+    >>> Root().Predicate(Self() == 1)
     JSONPath('$[@ = 1]')
-    >>> Root().Array(Self().Equal(1))
+    >>> Root().Predicate(Self().Equal(1))
     JSONPath('$[@ = 1]')
-    >>> Root().Array(Self() <= 1)
+    >>> Root().Predicate(Self() <= 1)
     JSONPath('$[@ <= 1]')
     >>> (
     ...     Root()
     ...     .Name("data")
-    ...     .Array(
+    ...     .Predicate(
     ...         Self() != Root().Name("target")
     ...     )
     ... )
@@ -794,14 +809,14 @@ class Key(Function):
     """
     Key function is used to get the field name from dictionary data.
 
-    >>> Root().Array(Key() == "a")
+    >>> Root().Predicate(Key() == "a")
     JSONPath('$[key() = "a"]')
 
     Same as :data:`Root().Name("a")`.
 
     Filter all values which field name contains :data:`"book"`.
 
-    >>> p = Root().Array(Contains(Key(), "book"))
+    >>> p = Root().Predicate(Contains(Key(), "book"))
     >>> print(p)
     $[contains(key(), "book")]
     >>> p.find({"book 1": 1, "picture 2": 2})
@@ -827,7 +842,7 @@ class Contains(Function):
     """
     Determine the first result of expression contains the target substring.
 
-    >>> p = Root().Array(Contains(Name("name"), "red"))
+    >>> p = Root().Predicate(Contains(Name("name"), "red"))
     >>> print(p)
     $[contains(name, "red")]
     >>> p.find([
@@ -882,7 +897,7 @@ class Not(Function):
     """
     Not, a boolean operator.
 
-    >>> Root().Array(Not(Name("enable")))
+    >>> Root().Predicate(Not(Name("enable")))
     JSONPath('$[not(enable)]')
 
     """
@@ -928,6 +943,7 @@ __all__ = (
     "Not",
     "NotEqual",
     "Or",
+    "Predicate",
     "Root",
     "Search",
     "Self",

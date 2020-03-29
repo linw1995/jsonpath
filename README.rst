@@ -62,7 +62,7 @@ Or use the `jsonpath.core <https://jsonpath.readthedocs.io/en/latest/api_core.ht
 
     from jsonpath.core import Root, Contains, Self
 
-    assert Root().Name("goods").Array(
+    assert Root().Name("goods").Predicate(
         Contains(Self().Name("category"), Root().Name("targetCategory"))
     ).find(data) == [{"price": 100, "category": "Comic book"}]
 

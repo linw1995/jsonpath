@@ -32,6 +32,7 @@ from .core import (
     Not,
     NotEqual,
     Or,
+    Predicate,
     Root,
     Search,
     Self,
@@ -113,8 +114,8 @@ class JSONPathTransformer(Transformer[Expr]):
     ) -> Name:
         return prev_path.chain(Name(string))
 
-    def predicate(self, expr: Expr) -> Array:
-        return Array(expr)
+    def predicate(self, expr: Expr) -> Predicate:
+        return Predicate(expr)
 
     def get_item(self, idx: int) -> Array:
         return Array(idx)
