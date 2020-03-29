@@ -69,12 +69,10 @@ Or use the `jsonpath.core <https://jsonpath.readthedocs.io/en/latest/api_core.ht
 Changelog
 <<<<<<<<<
 
-v0.2.0-alpha.1
+v0.2.0-alpha.2
 ~~~~~~~~~~~~~~
 
-- ea0aaff Chg,Dev:Allow to commit on master branch
-- bc42f61 Fix:Type annotation error
-
+- 2440951 Fix:Cannot release into PyPI
 
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/jsonpath.svg
