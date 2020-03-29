@@ -12,6 +12,7 @@ Contents
    :maxdepth: 4
 
    quickstarts
+   howto
    api_reference
 
 Indices and tables

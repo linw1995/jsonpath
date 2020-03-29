@@ -852,6 +852,14 @@ class Contains(Function):
     ... ])
     [{'name': 'red book'}, {'name': 'red pen'}]
 
+    Check the specific key in the dictionary.
+
+    >>> p = Root().Predicate(Contains(Self(), "a"))
+    >>> print(p)
+    $[contains(@, "a")]
+    >>> p.find([{"a": 0}, {"a": 1}, {}, {"b": 1}])
+    [{'a': 0}, {'a': 1}]
+
     """
 
     def __init__(self, expr: Expr, target: Any, *args: List[Any]) -> None:
