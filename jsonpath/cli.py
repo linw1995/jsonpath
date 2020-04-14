@@ -14,7 +14,7 @@ def cli(args: argparse.Namespace) -> None:
     try:
         jp = parse(args.expression)
     except JSONPathError as exc:
-        raise SystemExit(exc) from exc
+        sys.exit(exc)
 
     if args.file:
         file_path = Path(args.file)
@@ -23,7 +23,7 @@ def cli(args: argparse.Namespace) -> None:
     elif not sys.stdin.isatty():
         data = json.load(sys.stdin)
     else:
-        raise SystemExit("JSON file is needed.")
+        sys.exit("JSON file is needed.")
 
     json.dump(jp.find(data), sys.stdout, indent=2)
     sys.stdout.write("\n")

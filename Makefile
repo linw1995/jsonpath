@@ -90,13 +90,13 @@ _finally=|| code=$$?; \
 		&& exit $$code
 
 _test:
-	@.venv/bin/pytest -q -x --ff --nf -s
+	@.venv/bin/pytest -q -x --ff --nf
 
 test: _stash
 	@make _test $(_finally)
 
 _vtest:
-	@.venv/bin/pytest -vv -x --ff --nf -s
+	@.venv/bin/pytest -vv -x --ff --nf
 
 vtest: _stash
 	@make _vtest $(_finally)

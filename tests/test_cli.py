@@ -1,23 +1,13 @@
 # Standard Library
 import json
-import os
 import sys
 
-from contextlib import redirect_stdout
-from io import StringIO
+from functools import wraps
 from pathlib import Path
-from unittest import mock
 
 # Third Party Library
+import pexpect
 import pytest
-
-# First Party Library
-from jsonpath.cli import cli, create_args_parser
-
-
-@pytest.fixture
-def args_parser():
-    return create_args_parser()
 
 
 common_testcases = [
@@ -26,60 +16,61 @@ common_testcases = [
 ]
 
 
+@pytest.fixture
+def spawn():
+    ps = []
+
+    @wraps(pexpect.spawn)
+    def wrapper(*args, **kwargs):
+        p = pexpect.spawn(*args, logfile=sys.stdout.buffer, **kwargs,)
+        ps.append(p)
+        return p
+
+    yield wrapper
+
+    for p in ps:
+        p.close()
+
+    sys.stdout.flush()
+
+
 @pytest.mark.parametrize(
     "expression, data, expect", common_testcases,
 )
-def test_parse_json_file_and_extract(
-    expression, data, expect, args_parser, tmpdir
+def test_parse_json_file_and_extract(spawn, expression, data, expect, tmpdir):
+    json_file_path = Path(tmpdir) / "test_example.json"
+    with json_file_path.open("w") as f:
+        json.dump(data, f)
+
+    p = spawn(f"jp {expression} -f {json_file_path}")
+    p.expect_exact(json.dumps(expect, indent=2).split("\n"))
+    p.wait()
+    assert p.exitstatus == 0
+
+
+@pytest.mark.parametrize("expression, data, expect", common_testcases)
+def test_parse_json_from_stdin_and_extract(
+    spawn, expression, data, expect, tmpdir
 ):
     json_file_path = Path(tmpdir) / "test_example.json"
     with json_file_path.open("w") as f:
         json.dump(data, f)
 
-    args = args_parser.parse_args([expression, "-f", str(json_file_path)])
-
-    output = StringIO()
-    with redirect_stdout(output):
-        cli(args)
-
-    output.seek(0, os.SEEK_SET)
-    result = json.load(output)
-    assert result == expect
+    p = spawn("/bin/bash", ["-c", f"cat {json_file_path} | jp {expression}"],)
+    p.expect_exact(json.dumps(expect, indent=2).split("\n"))
+    p.wait()
+    assert p.exitstatus == 0
 
 
-@pytest.mark.parametrize("expression, data, expect", common_testcases)
-def test_parse_json_from_stdin_and_extract(
-    expression, data, expect, args_parser
-):
-    input_ = StringIO()
-    json.dump(data, input_)
-    input_.seek(0, os.SEEK_SET)
-
-    args = args_parser.parse_args([expression])
-
-    output = StringIO()
-    with redirect_stdout(output), mock.patch.object(sys, "stdin", new=input_):
-        cli(args)
-
-    output.seek(0, os.SEEK_SET)
-    result = json.load(output)
-    assert result == expect
+def test_no_json_input_error(spawn):
+    p = spawn("jp boo")
+    p.expect("JSON file is needed.")
+    p.wait()
+    assert p.exitstatus == 1
 
 
-def test_no_json_input_error(args_parser):
-    args = args_parser.parse_args(["boo"])
-    with pytest.raises(SystemExit) as catched, mock.patch.object(
-        sys, "stdin"
-    ) as mock_stdin:
-        mock_stdin.isatty.return_value = True
-        cli(args)
-
-    assert str(catched.value) == "JSON file is needed."
-
-
-def test_invalid_expression_errror(args_parser):
-    args = args_parser.parse_args(["$["])
-    with pytest.raises(SystemExit) as catched:
-        cli(args)
-
-    assert str(catched.value) == "'$[' is not a valid JSONPath expression."
+def test_invalid_expression_errror(spawn):
+    p = spawn("jp []")
+    p.expect_exact("'[]' is not a valid JSONPath expression.")
+    p.wait()
+    assert p.exitstatus == 1
