@@ -54,7 +54,7 @@ html_theme_options = {
     "description": "A selector expression for extracting data from JSON.",
     "github_button": True,
     "github_type": "star",
-    "travis_button": True,
+    "travis_button": False,
     "codecov_button": True,
     "github_user": "linw1995",
     "github_repo": "jsonpath",
