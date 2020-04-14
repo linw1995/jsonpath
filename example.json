@@ -1,0 +1,8 @@
+{
+    "goods": [
+        {"price": 100, "category": "Comic book"},
+        {"price": 200, "category": "magazine"},
+        {"price": 200, "no category": ""}
+    ],
+    "targetCategory": "book"
+}
