@@ -10,6 +10,8 @@ import pexpect
 import pytest
 
 
+JP = f"{sys.prefix}/bin/jp"
+
 common_testcases = [
     ("boo", {"boo": 1}, [1]),
     ("$.*", {"boo": 1, "bar": 2}, [1, 2]),
@@ -42,7 +44,7 @@ def test_parse_json_file_and_extract(spawn, expression, data, expect, tmpdir):
     with json_file_path.open("w") as f:
         json.dump(data, f)
 
-    p = spawn(f"jp {expression} -f {json_file_path}")
+    p = spawn(f"{JP} {expression} -f {json_file_path}")
     p.expect_exact(json.dumps(expect, indent=2).split("\n"))
     p.wait()
     assert p.exitstatus == 0
@@ -56,21 +58,21 @@ def test_parse_json_from_stdin_and_extract(
     with json_file_path.open("w") as f:
         json.dump(data, f)
 
-    p = spawn("/bin/bash", ["-c", f"cat {json_file_path} | jp {expression}"],)
+    p = spawn("/bin/bash", ["-c", f"cat {json_file_path} | {JP} {expression}"],)
     p.expect_exact(json.dumps(expect, indent=2).split("\n"))
     p.wait()
     assert p.exitstatus == 0
 
 
 def test_no_json_input_error(spawn):
-    p = spawn("jp boo")
+    p = spawn(f"{JP} boo")
     p.expect("JSON file is needed.")
     p.wait()
     assert p.exitstatus == 1
 
 
 def test_invalid_expression_errror(spawn):
-    p = spawn("jp []")
+    p = spawn(f"{JP} []")
     p.expect_exact("'[]' is not a valid JSONPath expression.")
     p.wait()
     assert p.exitstatus == 1
