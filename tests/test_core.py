@@ -12,6 +12,7 @@ from jsonpath.core import (
     Key,
     Name,
     Not,
+    Predicate,
     Root,
     Self,
     Slice,
@@ -109,62 +110,62 @@ def test_slice(start, end, step, data, expect):
     "expr,data,expect",
     [
         (
-            Root().Array(Name("price") > 100),
+            Root().Predicate(Name("price") > 100),
             [{"price": 100}, {"price": 200}],
             [{"price": 200}],
         ),
         (
-            Root().Array(Name("price").GreaterThan(100)),
+            Root().Predicate(Name("price").GreaterThan(100)),
             [{"price": 100}, {"price": 200}],
             [{"price": 200}],
         ),
         (
-            Root().Array(Name("price") >= 100),
+            Root().Predicate(Name("price") >= 100),
             [{"price": 100}, {"price": 200}],
             [{"price": 100}, {"price": 200}],
         ),
         (
-            Root().Array(Name("price").GreaterEqual(100)),
+            Root().Predicate(Name("price").GreaterEqual(100)),
             [{"price": 100}, {"price": 200}],
             [{"price": 100}, {"price": 200}],
         ),
         (
-            Root().Array(Name("price") < 100),
+            Root().Predicate(Name("price") < 100),
             [{"price": 100}, {"price": 200}],
             [],
         ),
         (
-            Root().Array(Name("price").LessThan(100)),
+            Root().Predicate(Name("price").LessThan(100)),
             [{"price": 100}, {"price": 200}],
             [],
         ),
         (
-            Root().Array(Name("price") <= 100),
+            Root().Predicate(Name("price") <= 100),
             [{"price": 100}, {"price": 200}],
             [{"price": 100}],
         ),
         (
-            Root().Array(Name("price").LessEqual(100)),
+            Root().Predicate(Name("price").LessEqual(100)),
             [{"price": 100}, {"price": 200}],
             [{"price": 100}],
         ),
         (
-            Root().Array(Name("price") == 100),
+            Root().Predicate(Name("price") == 100),
             [{"price": 100}, {"price": 200}],
             [{"price": 100}],
         ),
         (
-            Root().Array(Name("price").Equal(100)),
+            Root().Predicate(Name("price").Equal(100)),
             [{"price": 100}, {"price": 200}],
             [{"price": 100}],
         ),
         (
-            Root().Array(Name("price") != 100),
+            Root().Predicate(Name("price") != 100),
             [{"price": 100}, {"price": 200}],
             [{"price": 200}],
         ),
         (
-            Root().Array(Name("price").NotEqual(100)),
+            Root().Predicate(Name("price").NotEqual(100)),
             [{"price": 100}, {"price": 200}],
             [{"price": 200}],
         ),
@@ -179,7 +180,7 @@ def test_comparison(expr, data, expect):
     "expr,data,expect",
     [
         (
-            Root().Search(Array(Name("price") > 100)),
+            Root().Search(Predicate(Name("price") > 100)),
             {
                 "price": 200,
                 "charpter": [{"price": 100}, {"price": 200}, {"price": 300}],
@@ -198,7 +199,7 @@ def test_comparison(expr, data, expect):
             ],
         ),
         (
-            Root().Search(Array(Name("price") >= 100)),
+            Root().Search(Predicate(Name("price") >= 100)),
             {
                 "price": 200,
                 "charpter": [{"price": 100}, {"price": 200}, {"price": 300}],
@@ -218,7 +219,7 @@ def test_comparison(expr, data, expect):
             ],
         ),
         (
-            Root().Search(Array(Name("price") <= 100)),
+            Root().Search(Predicate(Name("price") <= 100)),
             {
                 "price": 200,
                 "charpter": [{"price": 100}, {"price": 200}, {"price": 300}],
@@ -226,7 +227,7 @@ def test_comparison(expr, data, expect):
             [{"price": 100}],
         ),
         (
-            Root().Search(Array(Name("price") < 100)),
+            Root().Search(Predicate(Name("price") < 100)),
             {
                 "price": 200,
                 "charpter": [{"price": 100}, {"price": 200}, {"price": 300}],
@@ -234,7 +235,7 @@ def test_comparison(expr, data, expect):
             [],
         ),
         (
-            Root().Search(Array(Name("price") == 100)),
+            Root().Search(Predicate(Name("price") == 100)),
             {
                 "price": 200,
                 "charpter": [{"price": 100}, {"price": 200}, {"price": 300}],
@@ -242,7 +243,7 @@ def test_comparison(expr, data, expect):
             [{"price": 100}],
         ),
         (
-            Root().Search(Array(Name("price") != 100)),
+            Root().Search(Predicate(Name("price") != 100)),
             {
                 "price": 200,
                 "charpter": [{"price": 100}, {"price": 200}, {"price": 300}],
@@ -320,36 +321,39 @@ test_get_expression = pytest.mark.parametrize(
         (Brace(Root().Name("abc")).Array(1), "($.abc)[1]"),
         (Root().Search(Name("abc")).Array(1), "$..abc[1]"),
         (Root().Search(Array()), "$..[*]"),
-        (Root().Array(Name("abc").GreaterThan(1)), "$[abc > 1]"),
-        (Root().Array(Name("abc").GreaterEqual(1)), "$[abc >= 1]"),
-        (Root().Array(Name("abc").Equal(1)), "$[abc = 1]"),
-        (Root().Array(Name("abc").NotEqual(1)), "$[abc != 1]"),
-        (Root().Array(Name("abc").LessEqual(1)), "$[abc <= 1]"),
-        (Root().Array(Name("abc").LessThan(1)), "$[abc < 1]"),
-        (Root().Array(Self().Name("abc").LessThan(1)), "$[@.abc < 1]"),
+        (Root().Predicate(Name("abc").GreaterThan(1)), "$[abc > 1]"),
+        (Root().Predicate(Name("abc").GreaterEqual(1)), "$[abc >= 1]"),
+        (Root().Predicate(Name("abc").Equal(1)), "$[abc = 1]"),
+        (Root().Predicate(Name("abc").NotEqual(1)), "$[abc != 1]"),
+        (Root().Predicate(Name("abc").LessEqual(1)), "$[abc <= 1]"),
+        (Root().Predicate(Name("abc").LessThan(1)), "$[abc < 1]"),
+        (Root().Predicate(Self().Name("abc").LessThan(1)), "$[@.abc < 1]"),
         (
-            Name("list").Array(Name("abc") < Root().Name("abc")),
+            Name("list").Predicate(Name("abc") < Root().Name("abc")),
             "list[abc < $.abc]",
         ),
         (
-            Name("list").Array(Name("abc").And(Root().Name("abc"))),
+            Name("list").Predicate(Name("abc").And(Root().Name("abc"))),
             "list[abc and $.abc]",
         ),
         (
-            Name("list").Array(Name("abc").Or(Root().Name("abc"))),
+            Name("list").Predicate(Name("abc").Or(Root().Name("abc"))),
             "list[abc or $.abc]",
         ),
         (
-            Name("list").Array(
+            Name("list").Predicate(
                 Name("abc").Or(Root().Name("abc")).Or(Name("def"))
             ),
             "list[abc or $.abc or def]",
         ),
-        (Root().Array(Name("name") == "name"), '$[name = "name"]'),
-        (Root().Array(Key() == "bookA"), '$[key() = "bookA"]'),
-        (Root().Array(Contains(Key(), "book")), '$[contains(key(), "book")]'),
+        (Root().Predicate(Name("name") == "name"), '$[name = "name"]'),
+        (Root().Predicate(Key() == "bookA"), '$[key() = "bookA"]'),
         (
-            Root().Array(Not(Contains(Key(), "book"))),
+            Root().Predicate(Contains(Key(), "book")),
+            '$[contains(key(), "book")]',
+        ),
+        (
+            Root().Predicate(Not(Contains(Key(), "book"))),
             '$[not(contains(key(), "book"))]',
         ),
     ],
