@@ -2,10 +2,10 @@
 Changelog
 =========
 
-v0.3.0
+v0.4.0
 ~~~~~~
 
-- 98e6718 New:Add Predicate class
+- 9f8f039 New:Add Command-line interface support
 
 .. include:: history.rst
     :start-line: 4

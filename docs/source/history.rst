@@ -2,6 +2,11 @@
 History
 =======
 
+v0.3.0
+~~~~~~
+
+- 98e6718 New:Add Predicate class
+
 v0.2.0
 ~~~~~~
 
