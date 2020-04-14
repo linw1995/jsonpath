@@ -49,3 +49,30 @@ Or use the :py:mod:`jsonpath.core` module to extract it.
     assert Root().Name("goods").Predicate(
         Contains(Self().Name("category"), Root().Name("targetCategory"))
     ).find(data) == [{"price": 100, "category": "Comic book"}]
+
+
+Usage via CLI
+~~~~~~~~~~~~~
+
+The faster way to extract by using CLI.
+
+.. code-block:: shell
+
+    jp -f example.json "$.goods[contains(@.category, $.targetCategory)]"
+
+Or pass content by pipeline.
+
+.. code-block:: shell
+
+    cat example.json | jp "$.goods[contains(@.category, $.targetCategory)]"
+
+The output of the above commands.
+
+.. code-block:: json
+
+    [
+      {
+        "price": 100,
+        "category": "Comic book"
+      }
+    ]
