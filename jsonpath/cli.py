@@ -25,7 +25,9 @@ def cli(args: argparse.Namespace) -> None:
     else:
         sys.exit("JSON file is needed.")
 
-    json.dump(jp.find(data), sys.stdout, indent=2)
+    json.dump(
+        jp.find(data), sys.stdout, indent=2, ensure_ascii=args.ensure_ascii
+    )
     sys.stdout.write("\n")
 
 
@@ -36,6 +38,11 @@ def create_args_parser() -> argparse.ArgumentParser:
         "-f",
         "--file",
         help="JSON file need to be parsed and extracted by JSONPath expression",
+    )
+    args_parser.add_argument(
+        "--ensure-ascii",
+        help="Escape all non-ASCII characters from extracting results",
+        action="store_true",
     )
     return args_parser
 
