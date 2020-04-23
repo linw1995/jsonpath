@@ -26,7 +26,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.7"
-lark-parser = "^0.8.5"
+lark-parser = {version = "^0.8.5", optional = true}
 typing_extensions = "^3.7"
 
 black = {version = "^19.3b0", optional = true}
@@ -53,11 +53,11 @@ lint = [
   "doc8",
   "flake8", "flake8-bugbear",
   "isort",
-  "livereload",
+  "livereload", "lark-parser",
   "mypy",
   "pygments", "pytest", "pexpect"]
-test = ["pytest", "pytest-cov", "pexpect"]
-docs = ["sphinx", "livereload"]
+test = ["pytest", "pytest-cov", "pexpect", "lark-parser"]
+docs = ["sphinx", "livereload", "lark-parser"]
 
 [tool.poetry.scripts]
 jp = 'jsonpath.cli:main'
