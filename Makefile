@@ -122,6 +122,7 @@ clean:
 	@rm -rf coverage.xml
 	@rm -rf *.egg-info
 	@rm -rf dist
+	@rm -f jsonpath/lark_parser
 
 .PHONY: all init_by_venv init_by_poetry isort check-isort flake8 black blacken-docs \
 	check-black check check-all format-code fc mypy _stash _unstash _finally _test \

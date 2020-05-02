@@ -48,7 +48,9 @@ jobs:
         fail_ci_if_error: true # optional
     # Build, Upload and Publish to PYPI and GitHub Release
     - name: Build release
-      run: poetry build
+      run: |
+        poetry install
+        poetry build
     - name: Upload release
       uses: actions/upload-artifact@v1
       with:

@@ -11,7 +11,7 @@ try:
 except ImportError:
     import importlib.resources
 
-    exec(importlib.resources.read_text(__name__.split(".")[0], "lark"))
+    exec(importlib.resources.read_text(__name__.split(".")[0], "lark_parser"))
 
 
 __all__ = (
