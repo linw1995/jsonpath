@@ -49,6 +49,7 @@ rope = {version = "^0.14.0"}
 pre-commit = "^1.20"
 nox = "^2019.11.9"
 lark-parser = "^0.8.5"
+coverage = {version = "4.5.4"}
 
 [tool.poetry.extras]
 lint = [
