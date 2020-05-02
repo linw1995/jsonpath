@@ -2,6 +2,11 @@
 Changelog
 =========
 
+v0.5.1
+~~~~~~
+
+- 5d30a84 Fix,Dev,CI:Release stage error
+
 v0.5.0
 ~~~~~~
 
