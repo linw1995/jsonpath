@@ -6,6 +6,7 @@ try:
     from lark import Transformer, v_args, Lark
     from lark.exceptions import UnexpectedToken, VisitError
 
+    # Fix lint error temporarily
     Lark_StandAlone = Lark
     DATA: Dict[str, Any] = {}
 except ImportError:

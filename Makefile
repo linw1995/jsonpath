@@ -7,6 +7,11 @@ POETRY_VERSION = 1.0.0
 POETRY_EXTRAS = lint test docs
 POETRY_EXTRAS_ARGS = $(if $(POETRY_EXTRAS),-E,) $(subst $(SPACE),$(SPACE)-E$(SPACE),$(POETRY_EXTRAS))
 
+deinit:
+	@echo ">> remove venv..."
+	@[ -h .venv ] && rm -rf `realpath .venv` && rm .venv && echo ">> remove success" || true
+	@[ -d .venv ] && rm -rf .venv && echo ">> remove success" || true
+
 init_by_venv:
 	@echo ">> initing by venv..."
 	@echo ">> creating venv..."
@@ -110,6 +115,22 @@ _cov:
 cov: _stash
 	@make _cov $(_finally)
 
+_nox:
+	@rm -f .coverage
+	@.venv/bin/nox -k test
+	@.venv/bin/coverage xml
+	@.venv/bin/coverage html
+	@echo ">> open file://`pwd`/htmlcov/index.html to see coverage"
+
+nox: _stash
+	@make _nox $(_finally)
+
+build: _stash
+	@.venv/bin/nox -k build $(_finally)
+
+clean_nox:
+	@rm -rf .nox
+
 livereload_docs:
 	@.venv/bin/python scripts/watch_build_and_serve_html_docs.py
 live_docs: livereload_docs
@@ -123,6 +144,8 @@ clean:
 	@rm -rf *.egg-info
 	@rm -rf dist
 	@rm -f jsonpath/lark_parser
+	@rm -rf __pycache__
+	@rm -rf **/__pycache__
 
 .PHONY: all init_by_venv init_by_poetry isort check-isort flake8 black blacken-docs \
 	check-black check check-all format-code fc mypy _stash _unstash _finally _test \

@@ -15,12 +15,15 @@ def build_lark_parser():
 
 
 def __getattr__(name):
-    if name not in globals():
+    if name == "build_lark_parser":
+        return build_lark_parser
+
+    try:
         import poetry.masonry.api
 
         if name in ("build_wheel", "build_sdist"):
             build_lark_parser()
 
         return getattr(poetry.masonry.api, name)
-
-    return globals()[name]
+    except ImportError:
+        return getattr(globals(), name)
