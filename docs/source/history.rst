@@ -2,6 +2,11 @@
 History
 =======
 
+v0.4.0
+~~~~~~
+
+- 9f8f039 New:Add Command-line interface support
+
 v0.3.0
 ~~~~~~
 
