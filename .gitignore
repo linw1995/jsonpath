@@ -134,3 +134,4 @@ dmypy.json
 .vscode
 ## Codegen
 lark_parser
+pyoxidizer.bzl

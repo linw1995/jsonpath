@@ -128,6 +128,12 @@ nox: _stash
 build: _stash
 	@.venv/bin/nox -k build $(_finally)
 
+_build_binary: build
+	.venv/bin/python scripts/generate_pyoxidizer_bzl.py
+	pyoxidizer build --release
+build_binary: _stash
+	@make _build_binary $(_finally)
+
 clean_nox:
 	@rm -rf .nox
 
@@ -143,10 +149,11 @@ clean:
 	@rm -rf coverage.xml
 	@rm -rf *.egg-info
 	@rm -rf dist
+	@rm -rf build
 	@rm -f jsonpath/lark_parser
 	@rm -rf __pycache__
 	@rm -rf **/__pycache__
 
 .PHONY: all init_by_venv init_by_poetry isort check-isort flake8 black blacken-docs \
 	check-black check check-all format-code fc mypy _stash _unstash _finally _test \
-	test _vtest vtest _cov cov clean
+	test _vtest vtest _cov cov clean build_binary _build_binary
