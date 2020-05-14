@@ -41,8 +41,8 @@ Changelog
 .. |Code style: black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
 
-.. |Build Status| image:: https://img.shields.io/github/workflow/status/linw1995/jsonpath/Python%20package
-    :target: https://github.com/linw1995/jsonpath/actions?query=workflow%3A%22Python+package%22
+.. |Build Status| image:: https://github.com/linw1995/jsonpath/workflows/Lint&Test/badge.svg
+    :target: https://github.com/linw1995/jsonpath/actions?query=workflow%3ALint%26Test
 
 .. |codecov| image:: https://codecov.io/gh/linw1995/jsonpath/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/linw1995/jsonpath
