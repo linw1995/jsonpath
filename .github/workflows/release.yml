@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+    - '*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Set PY
+      run: echo "::set-env name=PY::$(python -c 'import hashlib, sys;print(hashlib.sha256(sys.version.encode()+sys.executable.encode()).hexdigest())')"
+    - name: Cache PIP
+      uses: actions/cache@v1
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ env.PY }}-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ env.PY }}-
+    - name: Cache Poetry Virtualenvs
+      uses: actions/cache@v1
+      with:
+        path: ~/.cache/pypoetry/virtualenvs
+        key: ${{ runner.os }}-poetry-${{ env.PY }}-${{ hashFiles('**/poetry.lock') }}
+    - name: Build release
+      run: |
+        python -m pip install --upgrade pip poetry
+        make POETRY_EXTRAS= init_by_poetry
+        make build
+    - name: Upload release
+      uses: actions/upload-artifact@v1
+      with:
+        name: dist
+        path: dist
+    - name: Publish release to PYPI
+      run: poetry publish -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }}
+    - name: Publish release to GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
