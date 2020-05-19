@@ -198,10 +198,7 @@ class Expr(metaclass=ExprMeta):
             else:
                 parts.append(part)
 
-            if expr.ref_right:
-                expr = expr.ref_right()
-            else:
-                expr = None
+            expr = expr.get_next()
 
         return ".".join(parts)
 
