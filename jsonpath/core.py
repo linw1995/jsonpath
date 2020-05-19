@@ -129,7 +129,7 @@ class ExprMeta(type):
                 # set the root element when the chained expr begins to find.
                 # the partial exprs of the nested expr
                 # can execute find method many times
-                # but only the first times finding can set the root element.
+                # but only the first time finding can set the root element.
                 token_root = var_root.set(element)
 
             token_finding = var_finding.set(True)
