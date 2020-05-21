@@ -40,35 +40,37 @@ init_by_poetry:
 	@echo ">> or:"
 	@echo "> source .venv/bin/acitvate"
 
+_clean_codegen:
+	@rm -f jsonpath/lark_parser.py
 
-isort:
+isort: _clean_codegen
 	@.venv/bin/pre-commit run isort
 
-check-isort:
+check-isort: _clean_codegen
 	@.venv/bin/pre-commit run check-isort
 
-flake8:
+flake8: _clean_codegen
 	@.venv/bin/pre-commit run flake8
 
-black:
+black: _clean_codegen
 	@.venv/bin/pre-commit run black
 
-check-black:
+check-black: _clean_codegen
 	@.venv/bin/pre-commit run check-black
 
-mypy:
+mypy: _clean_codegen
 	@.venv/bin/pre-commit run mypy
 
-doc8:
+doc8: _clean_codegen
 	@.venv/bin/pre-commit run doc8
 
-blacken-docs:
+blacken-docs: _clean_codegen
 	@.venv/bin/pre-commit run blacken-docs
 
-check:
+check: _clean_codegen
 	@.venv/bin/pre-commit run --hook-stage push
 
-check-all:
+check-all: _clean_codegen
 	@.venv/bin/pre-commit run --all-files --hook-stage push
 
 format-code: isort black blacken-docs
@@ -135,7 +137,7 @@ livereload_docs:
 	@.venv/bin/python scripts/watch_build_and_serve_html_docs.py
 live_docs: livereload_docs
 
-clean:
+clean: _clean_codegen
 	@rm -f .coverage
 	@rm -rf .mypy_cache
 	@rm -rf .pytest_cache
@@ -143,10 +145,9 @@ clean:
 	@rm -rf coverage.xml
 	@rm -rf *.egg-info
 	@rm -rf dist
-	@rm -f jsonpath/lark_parser
 	@rm -rf __pycache__
 	@rm -rf **/__pycache__
 
 .PHONY: all init_by_venv init_by_poetry isort check-isort flake8 black blacken-docs \
 	check-black check check-all format-code fc mypy _stash _unstash _finally _test \
-	test _vtest vtest _cov cov clean
+	test _vtest vtest _cov cov clean _clean_codegen

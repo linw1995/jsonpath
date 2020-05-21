@@ -133,4 +133,4 @@ dmypy.json
 ## IDEA
 .vscode
 ## Codegen
-lark_parser
+lark_parser.py

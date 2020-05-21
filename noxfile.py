@@ -20,7 +20,7 @@ pythons = ["3.7", "3.8"]
 assert current_python_version in pythons
 pythons = [current_python_version]
 
-lark_parser_path = Path("jsonpath/lark_parser")
+lark_parser_path = Path("jsonpath/lark_parser.py")
 
 
 @nox.session(python=pythons, reuse_venv=True)

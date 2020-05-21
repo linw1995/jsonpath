@@ -10,7 +10,7 @@ def build_lark_parser():
             "jsonpath/grammar.lark",
         ]
     )
-    with open("jsonpath/lark_parser", "wb") as f:
+    with open("jsonpath/lark_parser.py", "wb") as f:
         f.write(output)
 
 
