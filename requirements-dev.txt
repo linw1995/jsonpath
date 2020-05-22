@@ -1,3 +1,5 @@
+zipp==3.1.0; python_version >= "3.7" and python_version < "3.8" or python_version < "3.8"
+importlib-metadata==1.6.0; python_version >= "3.7" and python_version < "3.8" or python_version < "3.8"
 pyparsing==2.4.7
 six==1.14.0
 appdirs==1.4.3

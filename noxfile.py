@@ -60,7 +60,7 @@ def build(session):
     session.run("poetry", "build")
 
 
-@nox.session(reuse_venv=True)
+@nox.session(python="3.7", reuse_venv=True)
 def export_requirements_txt(session):
     session.install("poetry")
     session.run("python", "scripts/export_requirements_txt.py")

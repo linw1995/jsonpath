@@ -9,6 +9,7 @@ Because it exports wrong dependencies, unlike the install process.
 
 # Standard Library
 import os
+import sys
 
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -39,7 +40,11 @@ def export(
 
         text = ""
         for call_args in mocked_execute.call_args_list:
-            op = call_args.args[0]
+            if sys.version_info[:2] > (3, 7):
+                op = call_args.args[0]
+            else:
+                op = call_args[0][0]
+
             if not isinstance(op, (Install, Update)):
                 continue
 
