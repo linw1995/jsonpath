@@ -40,6 +40,9 @@ init_by_poetry:
 	@echo ">> or:"
 	@echo "> source .venv/bin/acitvate"
 
+pre-commit_init:
+	@.venv/bin/pre-commit install
+
 _clean_codegen:
 	@rm -f jsonpath/lark_parser.py
 
@@ -150,4 +153,4 @@ clean: _clean_codegen
 
 .PHONY: all init_by_venv init_by_poetry isort check-isort flake8 black blacken-docs \
 	check-black check check-all format-code fc mypy _stash _unstash _finally _test \
-	test _vtest vtest _cov cov clean _clean_codegen
+	test _vtest vtest _cov cov clean _clean_codegen pre-commit_init
