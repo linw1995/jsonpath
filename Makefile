@@ -140,6 +140,11 @@ livereload_docs:
 	@.venv/bin/python scripts/watch_build_and_serve_html_docs.py
 live_docs: livereload_docs
 
+export_requirements_txt:
+	@.venv/bin/nox -k export_requirements_txt
+
+export: export_requirements_txt
+
 clean: _clean_codegen
 	@rm -f .coverage
 	@rm -rf .mypy_cache
@@ -153,4 +158,5 @@ clean: _clean_codegen
 
 .PHONY: all init_by_venv init_by_poetry isort check-isort flake8 black blacken-docs \
 	check-black check check-all format-code fc mypy _stash _unstash _finally _test \
-	test _vtest vtest _cov cov clean _clean_codegen pre-commit_init
+	test _vtest vtest _cov cov clean _clean_codegen pre-commit_init \
+	export_requirements_txt export

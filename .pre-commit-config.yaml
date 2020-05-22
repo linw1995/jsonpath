@@ -84,7 +84,7 @@ repos:
       - id: requirement
         name: requirement
         description: create requirement file for python
-        entry: .venv/bin/python scripts/export_requirements_txt.py
+        entry: make export
         files: (pyproject.toml|poetry.lock)
         language: system
         pass_filenames: false

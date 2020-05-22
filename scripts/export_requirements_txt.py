@@ -8,32 +8,15 @@ Because it exports wrong dependencies, unlike the install process.
 """
 
 # Standard Library
-import subprocess
+import os
 
-from importlib.machinery import SourceFileLoader
-from importlib.util import module_from_spec, spec_from_loader
+from contextlib import redirect_stdout
 from pathlib import Path
-
-
-def add_poetry_in_syspath():
-    poetry_path = (
-        subprocess.check_output(["which", "poetry"]).decode("utf-8").strip()
-    )
-    # https://stackoverflow.com/a/43602645/7035932
-    spec = spec_from_loader(
-        "poetry_cli_script",
-        SourceFileLoader("poetry_cli_script", poetry_path,),
-    )
-    poetry_cli_script = module_from_spec(spec)
-    # add poetry package path into sys.path
-    spec.loader.exec_module(poetry_cli_script)
 
 
 def export(
     path: Path, *extras, dev=False,
 ):
-    add_poetry_in_syspath()
-
     from unittest import mock
     from poetry.console.application import Application
     from poetry.puzzle.operations import Install, Update
@@ -44,15 +27,16 @@ def export(
     ) as mocked_execute:
         app = Application()
         app.config.set_terminate_after_run(False)
+        cmd = ["poetry", "install", "--dry-run"]
         if not dev:
-            cmd = ["poetry", "install", "--no-dev", "--dry-run"]
-        else:
-            cmd = ["poetry", "install", "--dry-run"]
+            cmd.extend(["--no-dev"])
 
         for extra in extras:
             cmd.extend(["--extras", extra])
 
-        app.run(ArgvArgs(cmd))
+        with redirect_stdout(open(os.devnull, "w")):
+            app.run(ArgvArgs(cmd))
+
         with path.open("w", encoding="utf-8") as f:
             for call_args in mocked_execute.call_args_list:
                 op = call_args.args[0]
