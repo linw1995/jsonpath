@@ -37,26 +37,31 @@ def export(
         with redirect_stdout(open(os.devnull, "w")):
             app.run(ArgvArgs(cmd))
 
-        with path.open("w", encoding="utf-8") as f:
-            for call_args in mocked_execute.call_args_list:
-                op = call_args.args[0]
-                if not isinstance(op, (Install, Update)):
-                    continue
+        text = ""
+        for call_args in mocked_execute.call_args_list:
+            op = call_args.args[0]
+            if not isinstance(op, (Install, Update)):
+                continue
 
-                if op.skip_reason in (
-                    "Not required",
-                    "Not needed for the current environment",
-                ):
-                    continue
+            if op.skip_reason in (
+                "Not required",
+                "Not needed for the current environment",
+            ):
+                continue
 
-                package = op.package
-                dependency = package.to_dependency()
-                line = "{}=={}".format(package.name, package.version)
-                requirement = dependency.to_pep_508()
-                if ";" in requirement:
-                    line += "; {}".format(requirement.split(";")[1].strip())
+            package = op.package
+            dependency = package.to_dependency()
+            line = "{}=={}".format(package.name, package.version)
+            requirement = dependency.to_pep_508()
+            if ";" in requirement:
+                line += "; {}".format(requirement.split(";")[1].strip())
 
-                f.write(f"{line}\n")
+            text += f"{line}\n"
+
+        if path.exists() and path.read_text(encoding="utf-8") == text:
+            return
+
+        path.write_text(text, encoding="utf-8")
 
 
 if __name__ == "__main__":
