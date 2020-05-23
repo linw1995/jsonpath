@@ -94,6 +94,8 @@ class JSONPathTransformer(Transformer[Expr]):
             rv = GreaterThan(right)
         elif operator == "!=":
             rv = NotEqual(right)
+        else:
+            raise AssertionError(f"Opertor {operator!r} is not supported")
 
         return left.chain(rv)
 
