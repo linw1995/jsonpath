@@ -57,7 +57,7 @@ def build(session):
     session.run("poetry", "install", "-v", "--no-dev", external=True)
     if not lark_parser_path.exists():
         build_lark_parser()
-    session.run("poetry", "build")
+    session.run("poetry", "build", external=True)
 
 
 @nox.session(python="3.7", reuse_venv=True)
