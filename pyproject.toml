@@ -19,7 +19,7 @@ classifiers = [
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
 ]
-include = ["build.py"]
+include = ["build.py", "jsonpath/lark_parser.py"]
 packages = [
   { include = "jsonpath" }
 ]
