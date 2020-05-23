@@ -84,7 +84,7 @@ repos:
       - id: requirement
         name: requirement
         description: create requirement file for python
-        entry: ./scripts/export_requirements_txt.sh
+        entry: make export
         files: (pyproject.toml|poetry.lock)
         language: system
         pass_filenames: false

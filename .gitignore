@@ -133,5 +133,5 @@ dmypy.json
 ## IDEA
 .vscode
 ## Codegen
-lark_parser
 pyoxidizer.bzl
+lark_parser.py

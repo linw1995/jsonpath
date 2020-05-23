@@ -20,7 +20,7 @@ pythons = ["3.7", "3.8"]
 assert current_python_version in pythons
 pythons = [current_python_version]
 
-lark_parser_path = Path("jsonpath/lark_parser")
+lark_parser_path = Path("jsonpath/lark_parser.py")
 
 
 @nox.session(python=pythons, reuse_venv=True)
@@ -52,9 +52,15 @@ def test(session: nox.sessions.Session, parser_backend):
     session.run("pytest", "-vv", "--cov=jsonpath", "--cov-append")
 
 
-@nox.session
+@nox.session(reuse_venv=True)
 def build(session):
     session.run("poetry", "install", "-v", "--no-dev", external=True)
     if not lark_parser_path.exists():
         build_lark_parser()
-    session.run("poetry", "build", "-f", "wheel")
+    session.run("poetry", "build", external=True)
+
+
+@nox.session(python="3.7", reuse_venv=True)
+def export_requirements_txt(session):
+    session.install("poetry")
+    session.run("python", "scripts/export_requirements_txt.py")
