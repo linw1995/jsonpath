@@ -12,14 +12,16 @@ QUIET =
 link_venv:
 	@[ $(QUIET) ] || echo ">> make a symlink from the env created by poetry to ./.venv"
 	@[ -h .venv ] && unlink .venv && ( [ $(QUIET) ] || echo ">> remove old link" ) || true
-	@poetry run python -c "import sys; print(sys.prefix)" | { \
+	@poetry run python -c "import sys; print(sys.prefix)" | tail -n 1 | { \
 		read PYTHON_PREFIX; \
-		[ $(QUIET) ] || echo ">> link .venv -> $$PYTHON_PREFIX"; \
-		ln -s $$PYTHON_PREFIX .venv; \
-		ln -s `which poetry` .venv/bin/poetry >/dev/null 2>&1 || true; \
+		[ -d $$PYTHON_PREFIX ] && { \
+			[ $(QUIET) ] || echo ">> link .venv -> $$PYTHON_PREFIX"; \
+			ln -s $$PYTHON_PREFIX .venv; \
+			ln -s `which poetry` .venv/bin/poetry >/dev/null 2>&1 || true; \
+		} \
 	}
 	@[ $(QUIET) ] || { \
-		echo "please execute below command for development"; \
+		echo ">> please execute below command for development"; \
 		echo "> poetry shell"; \
 		echo ">> or:"; \
 		echo "> source .venv/bin/activate"; \
@@ -44,6 +46,7 @@ init_by_poetry:
 	@make activate
 	@poetry install $(POETRY_EXTRAS_ARGS)
 	@echo ">> all dependencies installed completed!"
+	@make QUIET=true activate
 
 pre-commit_init:
 	@.venv/bin/pre-commit install
