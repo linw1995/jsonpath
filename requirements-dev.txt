@@ -63,7 +63,7 @@ blacken-docs==1.6.0
 doc8==0.8.0
 flake8-bugbear==19.8.0
 isort==4.3.21
-lark-parser==0.8.5
+lark-parser==0.8.9
 livereload==2.6.1
 mypy==0.750
 nox==2019.11.9

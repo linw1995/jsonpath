@@ -316,7 +316,7 @@ description = "a modern parsing library"
 name = "lark-parser"
 optional = false
 python-versions = "*"
-version = "0.8.5"
+version = "0.8.9"
 
 [[package]]
 category = "main"
@@ -1005,8 +1005,7 @@ jinja2 = [
     {file = "Jinja2-2.11.2.tar.gz", hash = "sha256:89aab215427ef59c34ad58735269eb58b1a5808103067f7bb9d5836c651b3bb0"},
 ]
 lark-parser = [
-    {file = "lark-parser-0.8.5.tar.gz", hash = "sha256:e3ee17708e310de3a832a9beb448aa60ab6812f1bb283f72d473584c7566cc74"},
-    {file = "lark_parser-0.8.5-py2.py3-none-any.whl", hash = "sha256:157879e04628e8e2bd57b72f3ba5642b3919137d5f7058612e95a38fb8761fa7"},
+    {file = "lark-parser-0.8.9.tar.gz", hash = "sha256:78915e9e59c7a3068830fd2d2cd733f7ab0cbea2d7928ebfaac4f8df10e4e989"},
 ]
 livereload = [
     {file = "livereload-2.6.1-py2.py3-none-any.whl", hash = "sha256:78d55f2c268a8823ba499305dcac64e28ddeb9a92571e12d543cd304faf5817b"},
@@ -1179,6 +1178,7 @@ regex = [
     {file = "regex-2020.4.4.tar.gz", hash = "sha256:295badf61a51add2d428a46b8580309c520d8b26e769868b922750cf3ce67142"},
 ]
 requests = [
+    {file = "requests-2.23.0-py2.7.egg", hash = "sha256:5d2d0ffbb515f39417009a46c14256291061ac01ba8f875b90cad137de83beb4"},
     {file = "requests-2.23.0-py2.py3-none-any.whl", hash = "sha256:43999036bfa82904b6af1d99e4882b560e5e2c68e5c4b0aa03b655f3d7d73fee"},
     {file = "requests-2.23.0.tar.gz", hash = "sha256:b3f43d496c6daba4493e7c431722aeb7dbc6288f52a6e04e7b6023b0247817e6"},
 ]
