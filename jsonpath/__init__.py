@@ -28,6 +28,7 @@ from .core import (
     Search,
     Self,
     Slice,
+    Value,
 )
 from .parser import parse
 
@@ -53,6 +54,7 @@ __all__ = (
     "NotEqual",
     "Not",
     "Key",
+    "Value",
     "JSONPathError",
     "JSONPathSyntaxError",
     "JSONPathFindError",

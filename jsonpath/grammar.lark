@@ -1,8 +1,9 @@
-start: _expr
+start: path
+    | funccall
 
 COLON: ":"
-slice: [INT] COLON [INT] COLON [INT] -> three_fields_slice
-    | [INT] COLON [INT]              -> two_fields_slice
+slice: [expr] COLON [expr] COLON [expr] -> three_fields_slice
+    | [expr] COLON [expr]              -> two_fields_slice
 
 true: "true"
 false: "false"
@@ -15,6 +16,13 @@ STAR: "*"
 DOT: "."
 DOUBLE_DOT.2: ".."
 
+identifier: CNAME | STRING
+self: "@"
+root: "$"
+first_path: CNAME
+    | self
+    | root
+
 LE: "<="
 GE: ">="
 LT: "<"
@@ -22,68 +30,47 @@ GT: ">"
 NE: "!="
 EQ: "="
 
+
 COMPARE_OPERATOR: LE | GE | LT | GT | NE | EQ
+?test_comparison: atom COMPARE_OPERATOR atom -> comparison_expr
+    | atom
 
 AND: "and"
 OR: "or"
 
-_expr: mixed_expr
-    | _single_expr
+?test: test OR test_and                  -> or_expr
+    | test_and
+?test_and: test_and AND test_comparison  -> and_expr
+    | test_comparison
 
-braced_mixed_expr: "(" mixed_expr ")"
+predicate: "[" (expr | slice | STAR) "]"
 
-_left_expr: braced_mixed_expr
-    | _expr
+action_separate_with_dot: DOUBLE_DOT predicate  -> search_with_predicate
+    | DOUBLE_DOT identifier                     -> search_with_identifier
+    | DOT identifier                            -> chain_with_identifier
+    | DOT STAR                                  -> chain_with_star
 
-_right_expr: braced_mixed_expr
-    | _single_expr
+path_with_action: atom action_separate_with_dot
+    | atom predicate
 
-mixed_expr: _left_expr AND _right_expr -> and_mixed_expr
-    | _left_expr OR _right_expr        -> or_mixed_expr
+?path: path_with_action
+    | first_path
 
-comparison_expr: _path COMPARE_OPERATOR (_path | value)
-_single_expr: comparison_expr
-    | _path
+args: args "," expr       -> multi_args
+    | expr                -> single_arg
+funccall: CNAME "(" args ")"
+    | CNAME "()"
 
-_arg: _expr | value
-args: args "," _arg -> multi_args
-    | _arg          -> single_arg
+?atom: value
+    | path
+    | funccall
+    | "(" expr ")"          -> parenthesized_expr
 
-?get: "[" INT "]"   -> get_item
-    | "[" slice "]" -> get_partial_items
-    | "[" STAR "]"  -> get_all_items
-
-predicate: "[" _expr "]"
-
-_path: mixed_path | _single_path
-
-braced_mixed_path: "(" mixed_path ")"
-_prev_path: braced_mixed_path
-    | _path
-
-mixed_path: _prev_path DOUBLE_DOT get -> get_item_from_search
-    | _prev_path DOUBLE_DOT predicate -> filter_from_search
-    | _prev_path DOUBLE_DOT STRING    -> search_with_string
-    | _prev_path DOUBLE_DOT NAME      -> search_with_name
-    | _prev_path DOT (STRING | NAME)  -> chained_path_with_name
-    | _prev_path DOT STAR             -> chained_path_with_star
-    | _prev_path predicate            -> filter_from_path
-    | _prev_path get                  -> get_item_from_path
-
-funccall: NAME "(" args ")"
-    | NAME "()"
-
-name: NAME
-self: "@"
-root: "$"
-_single_path: funccall
-    | name
-    | self
-    | root
+?expr: test
 
 %import common.SIGNED_INT    -> INT
 %import common.SIGNED_NUMBER -> NUMBER
-%import common.CNAME         -> NAME
+%import common.CNAME         -> CNAME
 %import common.WS_INLINE
 
 %ignore WS_INLINE

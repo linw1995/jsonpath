@@ -25,11 +25,15 @@ from typing import (
 )
 from weakref import ReferenceType
 
+# Third Party Library
+from typing_extensions import Literal
+
 
 var_root: ContextVar[Any] = ContextVar("root")
 T_SELF_VALUE = Union[Tuple[int, Any], Tuple[str, Any]]
 var_self: ContextVar[T_SELF_VALUE] = ContextVar("self")
 var_finding: ContextVar[bool] = ContextVar("finding", default=False)
+T_VALUE = Union[int, float, str, Literal[None], Literal[True], Literal[False]]
 
 T = TypeVar("T", bound="Expr")
 
@@ -307,6 +311,43 @@ class Expr(metaclass=ExprMeta):
         return self.NotEqual(value)
 
 
+class Value(Expr):
+    """
+    Represent the value in the expression.
+
+    It is used mainly to support parsing comparison expression
+    which value is on the left.
+
+    >>> p = Value("boo"); print(p)
+    "boo"
+    >>> p.find([])
+    ['boo']
+    >>> print(Value(True))
+    true
+    >>> print(Value(False))
+    false
+    >>> print(Value(None))
+    null
+    >>> print(Value(1))
+    1
+    >>> print(Value(1.1))
+    1.1
+    >>> print(Value(1).LessThan(Value(2)))
+    1 < 2
+
+    """
+
+    def __init__(self, value: T_VALUE) -> None:
+        super().__init__()
+        self.value = value
+
+    def _get_partial_expression(self) -> str:
+        return json.dumps(self.value)
+
+    def find(self, element: Any) -> List[Any]:
+        return [self.value]
+
+
 class Root(Expr):
     """
     Represent the root of data.
@@ -501,9 +542,9 @@ class Slice(Expr):
 
     def __init__(
         self,
-        start: Optional[int] = None,
-        stop: Optional[int] = None,
-        step: Optional[int] = None,
+        start: Optional[Union[Expr, int]] = None,
+        stop: Optional[Union[Expr, int]] = None,
+        step: Optional[Union[Expr, int]] = None,
     ) -> None:
         super().__init__()
         self.start = start
@@ -529,15 +570,46 @@ class Slice(Expr):
 
     def find(self, element: List[Any]) -> Any:
         if isinstance(element, list):
-            start = self.start
-            end = self.end
-            step = self.step
-            if start is None:
+            # set var_finding False to start new finding process for
+            # the nested expr: self.start, self.end and self.step
+            token_finding = var_finding.set(False)
+            try:
+                start = (
+                    self.start.find(element)
+                    if isinstance(self.start, Expr)
+                    else self.start
+                )
+                end = (
+                    self.end.find(element)
+                    if isinstance(self.end, Expr)
+                    else self.end
+                )
+                step = (
+                    self.step.find(element)
+                    if isinstance(self.step, Expr)
+                    else self.step
+                )
+            finally:
+                var_finding.reset(token_finding)
+
+            if not start:
                 start = 0
-            if end is None:
+            elif isinstance(start, list):
+                start = start[0]
+                if not isinstance(start, int):
+                    return []
+            if not end:
                 end = len(element)
-            if step is None:
+            elif isinstance(end, list):
+                end = end[0]
+                if not isinstance(end, int):
+                    return []
+            if not step:
                 step = 1
+            elif isinstance(step, list):
+                step = step[0]
+                if not isinstance(step, int):
+                    return []
 
             return element[start:end:step]
 
@@ -953,4 +1025,5 @@ __all__ = (
     "Search",
     "Self",
     "Slice",
+    "Value",
 )

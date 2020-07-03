@@ -95,5 +95,5 @@ exclude = '''
 build-backend = "build"
 
 [build-system]
-requires = ["intreehooks", "poetry", "lark-parser"]
+requires = ["intreehooks", "poetry", "lark-parser==0.8.9"]
 build-backend = "intreehooks:loader"

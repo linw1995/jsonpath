@@ -80,22 +80,22 @@ parser_parse_not_raises_exception_testcases = [
     "$[c and (a or b)]",
     "$[c and ((a or b) or c)]",
     "((a.b).c).d",
+    "((a.b)).c",
+    "$[((a.b).c)]",
+    "$[1 < @]",
+    "$[@ and 1]",
+    "$[(a and b)]",
+    "$[((a and b)) or c]",
+    "$[not((a and b)) or c]",
 ]
 
 parser_parse_raises_exception_testcases = [
-    "((a.b)).c",
-    "$[((a.b).c)]",
     "array[]",
     "$*",
     "[*]",
     '"abc"',
     "'abc'",
     "`abc`",
-    "$[1 < @]",
-    "$[@ and 1]",
-    "$[(a and b)]",
-    "$[((a and b)) or c]",
-    "$[not((a and b)) or c]",
 ]
 parser_parse_testcases = [
     *(
@@ -433,6 +433,42 @@ pytest.mark.parametrize(
                 {"type": "audio", "price": 100},
             ],
             [{"type": "audio", "price": 100}],
+        ),
+        ("$[100 = price]", [{"price": 100}, {"price": 0}], [{"price": 100}]),
+        (
+            "$.data[$.start:$.stop:$.step]",
+            {"data": [0, 1, 2, 3, 4], "start": 1, "stop": 10, "step": 2},
+            [1, 3],
+        ),
+        (
+            "$.data[$.start:$.stop:$.step]",
+            {
+                "data": [0, 1, 2, 3, 4],
+                "start": "not integer",
+                "stop": 10,
+                "step": 2,
+            },
+            [],
+        ),
+        (
+            "$.data[$.start:$.stop:$.step]",
+            {
+                "data": [0, 1, 2, 3, 4],
+                "start": 1,
+                "stop": "not integer",
+                "step": 2,
+            },
+            [],
+        ),
+        (
+            "$.data[$.start:$.stop:$.step]",
+            {
+                "data": [0, 1, 2, 3, 4],
+                "start": 1,
+                "stop": 10,
+                "step": "not integer",
+            },
+            [],
         ),
     ],
     ids=ids,
