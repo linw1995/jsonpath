@@ -1,3 +1,5 @@
+# mypy: ignore-errors
+# Ignore variable already redefined error
 try:
     from lark import Transformer, v_args, Lark
     from lark.exceptions import UnexpectedToken, VisitError

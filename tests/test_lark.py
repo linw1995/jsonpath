@@ -80,22 +80,22 @@ parser_parse_not_raises_exception_testcases = [
     "$[c and (a or b)]",
     "$[c and ((a or b) or c)]",
     "((a.b).c).d",
+    "((a.b)).c",
+    "$[((a.b).c)]",
+    "$[1 < @]",
+    "$[@ and 1]",
+    "$[(a and b)]",
+    "$[((a and b)) or c]",
+    "$[not((a and b)) or c]",
 ]
 
 parser_parse_raises_exception_testcases = [
-    "((a.b)).c",
-    "$[((a.b).c)]",
     "array[]",
     "$*",
     "[*]",
     '"abc"',
     "'abc'",
     "`abc`",
-    "$[1 < @]",
-    "$[@ and 1]",
-    "$[(a and b)]",
-    "$[((a and b)) or c]",
-    "$[not((a and b)) or c]",
 ]
 parser_parse_testcases = [
     *(
@@ -434,6 +434,7 @@ pytest.mark.parametrize(
             ],
             [{"type": "audio", "price": 100}],
         ),
+        ("$[100 = price]", [{"price": 100}, {"price": 0}], [{"price": 100}]),
     ],
     ids=ids,
 )(test_parse_check_and_extract)
