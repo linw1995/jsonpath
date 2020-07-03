@@ -570,21 +570,28 @@ class Slice(Expr):
 
     def find(self, element: List[Any]) -> Any:
         if isinstance(element, list):
-            start = (
-                self.start.find(element)
-                if isinstance(self.start, Expr)
-                else self.start
-            )
-            end = (
-                self.end.find(element)
-                if isinstance(self.end, Expr)
-                else self.end
-            )
-            step = (
-                self.step.find(element)
-                if isinstance(self.step, Expr)
-                else self.step
-            )
+            # set var_finding False to start new finding process for
+            # the nested expr: self.start, self.end and self.step
+            token_finding = var_finding.set(False)
+            try:
+                start = (
+                    self.start.find(element)
+                    if isinstance(self.start, Expr)
+                    else self.start
+                )
+                end = (
+                    self.end.find(element)
+                    if isinstance(self.end, Expr)
+                    else self.end
+                )
+                step = (
+                    self.step.find(element)
+                    if isinstance(self.step, Expr)
+                    else self.step
+                )
+            finally:
+                var_finding.reset(token_finding)
+
             if not start:
                 start = 0
             elif isinstance(start, list):

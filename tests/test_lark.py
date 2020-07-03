@@ -435,6 +435,41 @@ pytest.mark.parametrize(
             [{"type": "audio", "price": 100}],
         ),
         ("$[100 = price]", [{"price": 100}, {"price": 0}], [{"price": 100}]),
+        (
+            "$.data[$.start:$.stop:$.step]",
+            {"data": [0, 1, 2, 3, 4], "start": 1, "stop": 10, "step": 2},
+            [1, 3],
+        ),
+        (
+            "$.data[$.start:$.stop:$.step]",
+            {
+                "data": [0, 1, 2, 3, 4],
+                "start": "not integer",
+                "stop": 10,
+                "step": 2,
+            },
+            [],
+        ),
+        (
+            "$.data[$.start:$.stop:$.step]",
+            {
+                "data": [0, 1, 2, 3, 4],
+                "start": 1,
+                "stop": "not integer",
+                "step": 2,
+            },
+            [],
+        ),
+        (
+            "$.data[$.start:$.stop:$.step]",
+            {
+                "data": [0, 1, 2, 3, 4],
+                "start": 1,
+                "stop": 10,
+                "step": "not integer",
+            },
+            [],
+        ),
     ],
     ids=ids,
 )(test_parse_check_and_extract)
