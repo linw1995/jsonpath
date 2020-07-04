@@ -12,7 +12,7 @@ ignore_collect = sum(
         [str(p.absolute()) for p in Path().glob(pattern)]
         for pattern in ["jsonpath/lark_parser.py"]
     ),
-    start=[],
+    [],
 )
 
 
