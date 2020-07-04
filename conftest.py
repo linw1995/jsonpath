@@ -1,6 +1,11 @@
 # Standard Library
 from pathlib import Path
 
+# Third Party Library
+import sybil
+import sybil.parsers.codeblock
+import sybil.parsers.doctest
+
 
 ignore_collect = sum(
     (
@@ -21,3 +26,13 @@ def pytest_ignore_collect(path, config):
         return True
 
     return False
+
+
+pytest_collect_file = sybil.Sybil(
+    parsers=[
+        sybil.parsers.doctest.DocTestParser(),
+        sybil.parsers.codeblock.CodeBlockParser(),
+    ],
+    pattern="*.rst",
+    fixtures=[],
+).pytest()
