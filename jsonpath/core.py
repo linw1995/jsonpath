@@ -9,6 +9,7 @@ import json
 import weakref
 
 from abc import abstractmethod
+from contextlib import suppress
 from contextvars import ContextVar
 from typing import (
     Any,
@@ -455,16 +456,16 @@ class Array(Expr):
             return f"[{self.idx!s}]"
 
     def find(self, element: Any) -> List[Any]:
-        if self.idx is None and isinstance(element, list):
-            return element
-        elif (
-            isinstance(self.idx, int)
-            and isinstance(element, list)
-            and self.idx < len(element)
-        ):
-            return [element[self.idx]]
-        elif isinstance(self.idx, Slice):
-            return self.idx.find(element)
+        if isinstance(element, list):
+            if self.idx is None:
+                return element
+            elif isinstance(self.idx, int):
+                with suppress(IndexError):
+                    return [element[self.idx]]
+            elif isinstance(self.idx, Slice):
+                return self.idx.find(element)
+            else:
+                raise AssertionError(f"self.idx={self.idx!r} is not valid")
 
         raise JSONPathFindError
 
