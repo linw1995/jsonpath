@@ -464,6 +464,8 @@ class Array(Expr):
                     return [element[self.idx]]
             elif isinstance(self.idx, Slice):
                 return self.idx.find(element)
+            else:
+                raise AssertionError(f"{self.idx=} is not valid")
 
         raise JSONPathFindError
 
