@@ -96,15 +96,11 @@ The output of the above commands.
 Changelog
 <<<<<<<<<
 
-v0.7.0
+v0.7.1
 ~~~~~~
 
-- 46cfd08 Fix,Dev:make init_by_poetry error when python(system) version is
-  lower than 3.7
-- 19f981f Chg:Upgrade lark-parser
-- 982e344 New:Rewrite grammar to support more extensible jsonpath expression,
-  e.g., more elegant comparison syntax.
-- 1803339 New:Slice supports to cooperate with JSONPath.
+- 7ba2b1c Fix:IndexError raised from method Array.find (#20)
+
 
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/jsonpath.svg
