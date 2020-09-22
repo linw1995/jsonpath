@@ -17,6 +17,7 @@ from jsonpath.core import (
     Self,
     Slice,
     Value,
+    var_parent,
 )
 
 
@@ -426,3 +427,39 @@ test_get_expression = pytest.mark.parametrize(
     ],
     ids=reprlib.repr,
 )(test_get_expression)
+
+
+def test_get_parent_object():
+    root = {"a": 1}
+
+    class TestName1(Name):
+        def find(self, element):
+            with pytest.raises(LookupError):
+                var_parent.get()
+
+            assert element == root
+            return super().find(element)
+
+    assert TestName1("a").find(root) == [1]
+
+    root = {"a": {"b": 1}}
+
+    class TestName2(Name):
+        def find(self, element):
+            assert var_parent.get() == root
+            assert element == {"b": 1}
+            return super().find(element)
+
+    assert Name("a").chain(TestName2("b")).find(root) == [1]
+
+
+def test_get_parent_array():
+    root = [{"a": 1}, {"a": 2}]
+
+    class TestName(Name):
+        def find(self, element):
+            assert var_parent.get() == root
+            assert element in root
+            return super().find(element)
+
+    assert Array().chain(TestName("a")).find(root) == [1, 2]

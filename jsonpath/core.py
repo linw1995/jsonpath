@@ -31,6 +31,7 @@ from typing_extensions import Literal
 
 
 var_root: ContextVar[Any] = ContextVar("root")
+var_parent: ContextVar[Union[List[Any], Dict[str, Any]]] = ContextVar("parent")
 T_SELF_VALUE = Union[Tuple[int, Any], Tuple[str, Any]]
 var_self: ContextVar[T_SELF_VALUE] = ContextVar("self")
 var_finding: ContextVar[bool] = ContextVar("finding", default=False)
@@ -76,23 +77,36 @@ class JSONPathFindError(JSONPathError):
     """
 
 
-def _dfs_find(
-    expr: Optional["Expr"], elements: List[Any], rv: List[Any]
-) -> None:
+def _dfs_find(expr: "Expr", elements: List[Any], rv: List[Any]) -> None:
     """
     use DFS to find all target elements.
     the next expr finds in the result found by the current expr.
     """
-    if expr is None:
-        rv.extend(elements)
-    else:
-        for element in elements:
-            try:
-                _dfs_find(
-                    expr.get_next(), expr.find(element), rv,
-                )
-            except JSONPathFindError:
-                pass
+    next_expr = expr.get_next()
+    for element in elements:
+        try:
+            found_elements = expr.find(element)
+        except JSONPathFindError:
+            continue
+
+        if not found_elements:
+            continue
+
+        if next_expr is None:
+            # collect all found elements if there is no next expr.
+            rv.extend(found_elements)
+            continue
+
+        # if isinstance(element, (list, dict)):
+        #     # set the parent element if type of element is JSON Array or Object.
+        #     token_parent = var_parent.set(element)
+        token_parent = var_parent.set(element)
+        try:
+            _dfs_find(
+                next_expr, found_elements, rv,
+            )
+        finally:
+            var_parent.reset(token_parent)
 
 
 class ExprMeta(type):
