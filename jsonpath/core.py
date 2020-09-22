@@ -97,9 +97,6 @@ def _dfs_find(expr: "Expr", elements: List[Any], rv: List[Any]) -> None:
             rv.extend(found_elements)
             continue
 
-        # if isinstance(element, (list, dict)):
-        #     # set the parent element if type of element is JSON Array or Object.
-        #     token_parent = var_parent.set(element)
         token_parent = var_parent.set(element)
         try:
             _dfs_find(
