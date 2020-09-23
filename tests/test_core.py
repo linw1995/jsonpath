@@ -463,3 +463,20 @@ def test_get_parent_array():
             return super().find(element)
 
     assert Array().chain(TestName("a")).find(root) == [1, 2]
+
+
+def test_get_parent_while_searching():
+    root = {"a": {"b": {"c": 1}}}
+
+    parents = []
+    history = []
+
+    class TestName(Name):
+        def find(self, element):
+            parents.append(var_parent.get())
+            history.append(element)
+            return super().find(element)
+
+    assert Root().Search(TestName("c")).find(root) == [1]
+    assert parents == [root, root, root["a"], root["a"]["b"]]
+    assert history == [root, root["a"], root["a"]["b"], 1]

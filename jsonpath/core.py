@@ -681,12 +681,14 @@ def _recursive_find(expr: Expr, element: Any, rv: List[Any]) -> None:
         rv.extend(find_rv)
     except JSONPathFindError:
         pass
-    if isinstance(element, list):
-        for item in element:
-            _recursive_find(expr, item, rv)
-    elif isinstance(element, dict):
-        for item in element.values():
-            _recursive_find(expr, item, rv)
+
+    with temporary_set(var_parent, element):
+        if isinstance(element, list):
+            for item in element:
+                _recursive_find(expr, item, rv)
+        elif isinstance(element, dict):
+            for item in element.values():
+                _recursive_find(expr, item, rv)
 
 
 class Search(Expr):
