@@ -570,9 +570,9 @@ class Slice(Expr):
 
     def __init__(
         self,
-        start: Optional[Union[Expr, int]] = None,
-        stop: Optional[Union[Expr, int]] = None,
-        step: Optional[Union[Expr, int]] = None,
+        start: Union[Expr, int, None] = None,
+        stop: Union[Expr, int, None] = None,
+        step: Union[Expr, int, None] = None,
     ) -> None:
         super().__init__()
         self.start = start
@@ -596,45 +596,31 @@ class Slice(Expr):
 
         return ":".join(parts)
 
+    def _ensure_int_or_none(
+        self, value: Union[Expr, int, None]
+    ) -> Union[int, None]:
+        if isinstance(value, Expr):
+            # set var_finding False to start new finding process for the nested expr
+            with temporary_set(var_finding, False):
+                found_elements = value.find(var_parent.get())
+            if not found_elements or not isinstance(found_elements[0], int):
+                raise JSONPathFindError
+            return found_elements[0]
+        else:
+            return value
+
     def find(self, element: List[Any]) -> Any:
         if isinstance(element, list):
-            # set var_finding False to start new finding process for
-            # the nested expr: self.start, self.end and self.step
-            with temporary_set(var_finding, False):
-                start = (
-                    self.start.find(element)
-                    if isinstance(self.start, Expr)
-                    else self.start
-                )
-                end = (
-                    self.end.find(element)
-                    if isinstance(self.end, Expr)
-                    else self.end
-                )
-                step = (
-                    self.step.find(element)
-                    if isinstance(self.step, Expr)
-                    else self.step
-                )
+            start = self._ensure_int_or_none(self.start)
+            end = self._ensure_int_or_none(self.end)
+            step = self._ensure_int_or_none(self.step)
 
-            if not start:
+            if start is None:
                 start = 0
-            elif isinstance(start, list):
-                start = start[0]
-                if not isinstance(start, int):
-                    return []
-            if not end:
+            if end is None:
                 end = len(element)
-            elif isinstance(end, list):
-                end = end[0]
-                if not isinstance(end, int):
-                    return []
-            if not step:
+            if step is None:
                 step = 1
-            elif isinstance(step, list):
-                step = step[0]
-                if not isinstance(step, int):
-                    return []
 
             return element[start:end:step]
 
