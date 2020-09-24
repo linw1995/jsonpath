@@ -609,22 +609,21 @@ class Slice(Expr):
         else:
             return value
 
-    def find(self, element: List[Any]) -> Any:
-        if isinstance(element, list):
-            start = self._ensure_int_or_none(self.start)
-            end = self._ensure_int_or_none(self.end)
-            step = self._ensure_int_or_none(self.step)
+    def find(self, element: List[Any]) -> List[Any]:
+        assert isinstance(element, list), "Slice.find apply on list only."
 
-            if start is None:
-                start = 0
-            if end is None:
-                end = len(element)
-            if step is None:
-                step = 1
+        start = self._ensure_int_or_none(self.start)
+        end = self._ensure_int_or_none(self.end)
+        step = self._ensure_int_or_none(self.step)
 
-            return element[start:end:step]
+        if start is None:
+            start = 0
+        if end is None:
+            end = len(element)
+        if step is None:
+            step = 1
 
-        raise JSONPathFindError
+        return element[start:end:step]
 
 
 class Brace(Expr):
