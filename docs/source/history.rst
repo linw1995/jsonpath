@@ -2,6 +2,11 @@
 History
 =======
 
+v0.7.1
+~~~~~~
+
+- 7ba2b1c Fix:IndexError raised from method Array.find (#20)
+
 v0.7.0
 ~~~~~~
 
