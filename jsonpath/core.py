@@ -548,15 +548,16 @@ class Predicate(Expr):
 
         for item in items:
             # save the current item into var_self for Self()
-            # set var_finding False to
-            # start new finding process for the nested expr: self.idx
-            with temporary_set(var_self, item), temporary_set(
-                var_finding, False
-            ):
+            with temporary_set(var_self, item):
                 _, value = item
-                rv = self.expr.find(value)
+                # set var_finding False to
+                # start new finding process for the nested expr: self.idx
+                with temporary_set(var_finding, False):
+                    rv = self.expr.find(value)
+
                 if rv and rv[0]:
                     filtered_items.append(value)
+
         return filtered_items
 
 
