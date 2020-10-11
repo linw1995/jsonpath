@@ -16,7 +16,7 @@ nox.options.stop_on_first_error = True
 current_python_version = "%s.%s" % platform.python_version_tuple()[:2]
 
 
-pythons = ["3.7", "3.8"]
+pythons = ["3.7", "3.8", "3.9"]
 assert current_python_version in pythons
 pythons = [current_python_version]
 
