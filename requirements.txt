@@ -1,2 +1,2 @@
-typing-extensions==3.7.4.2
+typing-extensions==3.7.4.3
 lark-parser==0.8.9
