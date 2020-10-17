@@ -629,14 +629,40 @@ class Slice(Expr):
 
 class Brace(Expr):
     """
-    Brace the mixed expression to be executed first.
+    Brace groups part of expression,
+    uses sub-expression to find the target data,
+    and wraps the found result as an array.
+
+    >>> p = Root().Array().Name("a"); print(p)
+    $[*].a
+    >>> p.find([{"a": 1}])
+    [1]
+
+    >>> p = Brace(p); print(p)
+    ($[*].a)
+    >>> p.find([{"a": 1}])
+    [[1]]
+
+    It seems to be useless but makes chaining filtering become possible.
+    The expressions like `$[@ < 100][@ >= 50]` can not perform chaining filtering.
+    Because the Preidcate (and Array) class always unarrays the found elements to
+    avoid the found result looking like `[[[[[[[...]]]]]]]`.
+    So the right way to do chaining filter is that it should use with Brace class.
+
+    >>> p = Brace(Root().Predicate(Self() < 100)).Predicate(Self() >= 50)
+    >>> print(p)
+    ($[@ < 100])[@ >= 50]
+    >>> p.find([100, 99, 50, 1])
+    [99, 50]
+
+    Generally, we will use And expresion do that. e.g. `$[@ < 100 and @ >= 50]`
 
     >>> p = Brace(
     ...     Root().Array().Name("a")
     ... ).Predicate(Self() == 1)
     >>> print(p)
     ($[*].a)[@ = 1]
-    >>> p.find([{"a": 1}, {"a": 2}, {"a": 1}])
+    >>> p.find([{"a": 1}, {"a": 2}, {"a": 1}, {}])
     [1, 1]
 
     """
