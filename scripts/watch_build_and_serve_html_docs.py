@@ -55,6 +55,8 @@ def main():
     server.watch("docs/source/**/*.rst", build_docs)
     server.watch("jsonpath/*.py", build_docs)
     server.watch("jsonpath/**/*.py", build_docs)
+
+    build_docs()
     server.serve(root="docs/build/html")
 
 
