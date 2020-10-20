@@ -140,7 +140,7 @@ _nox:
 nox: _stash
 	@make _nox $(_finally)
 
-build: _stash
+build: deactivate _stash
 	@.venv/bin/nox -k build $(_finally)
 
 clean_nox:
