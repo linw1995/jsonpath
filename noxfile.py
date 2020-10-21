@@ -8,7 +8,7 @@ import nox
 import nox.sessions
 
 # First Party Library
-from build import build_lark_parser
+from jsonpath_build import build_lark_parser
 
 
 nox.options.stop_on_first_error = True
