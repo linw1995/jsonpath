@@ -212,14 +212,16 @@ class Expr(metaclass=ExprMeta):
         self.ref_begin: Optional[ReferenceType[Expr]] = None
 
     def __repr__(self) -> str:
-        return f"JSONPath({str(self)!r})"
+        args = [self.get_expression(), self._get_partial_expression()]
+        right = self.ref_right and self.ref_right()
+        if right:
+            args.append(right._get_partial_expression())
 
-    def __str__(self) -> str:
-        return self.get_expression()
+        return f"JSONPath({', '.join(map(repr, args))})"
 
     def get_expression(self) -> str:
         """
-        Get JSONPath expression.
+        Get full JSONPath expression.
         """
         expr: Optional[Expr] = self.get_begin()
         parts: List[str] = []
@@ -349,21 +351,21 @@ class Value(Expr):
     It is used mainly to support parsing comparison expression
     which value is on the left.
 
-    >>> p = Value("boo"); print(p)
+    >>> p = Value("boo"); print(p.get_expression())
     "boo"
     >>> p.find([])
     ['boo']
-    >>> print(Value(True))
+    >>> print(Value(True).get_expression())
     true
-    >>> print(Value(False))
+    >>> print(Value(False).get_expression())
     false
-    >>> print(Value(None))
+    >>> print(Value(None).get_expression())
     null
-    >>> print(Value(1))
+    >>> print(Value(1).get_expression())
     1
-    >>> print(Value(1.1))
+    >>> print(Value(1.1).get_expression())
     1.1
-    >>> print(Value(1).LessThan(Value(2)))
+    >>> print(Value(1).LessThan(Value(2)).get_expression())
     1 < 2
 
     """
@@ -383,7 +385,7 @@ class Root(Expr):
     """
     Represent the root of data.
 
-    >>> p = Root(); print(p)
+    >>> p = Root(); print(p.get_expression())
     $
     >>> p.find([1])
     [[1]]
@@ -405,15 +407,15 @@ class Name(Expr):
     :param name: The field name of the data.
     :type name: Optional[str]
 
-    >>> p = Name("abc"); print(p)
+    >>> p = Name("abc"); print(p.get_expression())
     abc
     >>> p.find({"abc": 1})
     [1]
-    >>> p = Name(); print(p)
+    >>> p = Name(); print(p.get_expression())
     *
     >>> p.find({"a": 1, "b": 2})
     [1, 2]
-    >>> p = Name("a").Name("b"); print(p)
+    >>> p = Name("a").Name("b"); print(p.get_expression())
     a.b
     >>> p.find({"a": {"b": 1}})
     [1]
@@ -450,21 +452,21 @@ class Array(Expr):
 
     Use an array index to get the item of the array.
 
-    >>> p = Root().Array(0); print(p)
+    >>> p = Root().Array(0); print(p.get_expression())
     $[0]
     >>> p.find([1, 2])
     [1]
 
     Also can use a :class:`Slice` to get partial items of the array.
 
-    >>> p = Root().Array(Slice(0, 3, 2)); print(p)
+    >>> p = Root().Array(Slice(0, 3, 2)); print(p.get_expression())
     $[:3:2]
     >>> p.find([1, 2, 3, 4])
     [1, 3]
 
     Accept :data:`None` to get all items of the array.
 
-    >>> p = Root().Array(); print(p)
+    >>> p = Root().Array(); print(p.get_expression())
     $[*]
     >>> p.find([1, 2, 3, 4])
     [1, 2, 3, 4]
@@ -483,7 +485,12 @@ class Array(Expr):
         if self.idx is None:
             return "[*]"
         else:
-            return f"[{self.idx!s}]"
+            idx_str = (
+                self.idx.get_expression()
+                if isinstance(self.idx, Expr)
+                else self.idx
+            )
+            return f"[{idx_str}]"
 
     def find(self, element: Any) -> List[Any]:
         if isinstance(element, list):
@@ -509,18 +516,18 @@ class Predicate(Expr):
     Accept comparison expr for filtering.
     See more in :class:`Compare`.
 
-    >>> p = Root().Predicate(Name("a") == 1); print(p)
+    >>> p = Root().Predicate(Name("a") == 1); print(p.get_expression())
     $[a = 1]
     >>> p.find([{"a": 1}, {"a": 2}, {}])
     [{'a': 1}]
-    >>> p = Root().Predicate(Contains(Key(), "a")); print(p)
+    >>> p = Root().Predicate(Contains(Key(), "a")); print(p.get_expression())
     $[contains(key(), "a")]
     >>> p.find({"a": 1, "ab": 2, "c": 3})
     [1, 2]
 
     Or accept single expr for filtering.
 
-    >>> p = Root().Predicate(Name("a")); print(p)
+    >>> p = Root().Predicate(Name("a")); print(p.get_expression())
     $[a]
     >>> p.find([{"a": 0}, {"a": 1}, {}])
     [{'a': 1}]
@@ -534,7 +541,7 @@ class Predicate(Expr):
         self.expr = expr
 
     def _get_partial_expression(self) -> str:
-        return f"[{self.expr!s}]"
+        return f"[{self.expr.get_expression()}]"
 
     def find(self, element: Any) -> List[Any]:
         filtered_items = []
@@ -583,17 +590,29 @@ class Slice(Expr):
     def _get_partial_expression(self) -> str:
         parts = []
         if self.start:
-            parts.append(str(self.start))
+            parts.append(
+                self.start.get_expression()
+                if isinstance(self.start, Expr)
+                else str(self.start)
+            )
         else:
             parts.append("")
 
         if self.end:
-            parts.append(str(self.end))
+            parts.append(
+                self.end.get_expression()
+                if isinstance(self.end, Expr)
+                else str(self.end)
+            )
         else:
             parts.append("")
 
         if self.step:
-            parts.append(str(self.step))
+            parts.append(
+                self.step.get_expression()
+                if isinstance(self.step, Expr)
+                else str(self.step)
+            )
 
         return ":".join(parts)
 
@@ -633,12 +652,12 @@ class Brace(Expr):
     uses sub-expression to find the target data,
     and wraps the found result as an array.
 
-    >>> p = Root().Array().Name("a"); print(p)
+    >>> p = Root().Array().Name("a"); print(p.get_expression())
     $[*].a
     >>> p.find([{"a": 1}])
     [1]
 
-    >>> p = Brace(p); print(p)
+    >>> p = Brace(p); print(p.get_expression())
     ($[*].a)
     >>> p.find([{"a": 1}])
     [[1]]
@@ -650,7 +669,7 @@ class Brace(Expr):
     So the right way to do chaining filter is that it should use with Brace class.
 
     >>> p = Brace(Root().Predicate(Self() < 100)).Predicate(Self() >= 50)
-    >>> print(p)
+    >>> print(p.get_expression())
     ($[@ < 100])[@ >= 50]
     >>> p.find([100, 99, 50, 1])
     [99, 50]
@@ -660,7 +679,7 @@ class Brace(Expr):
     >>> p = Brace(
     ...     Root().Array().Name("a")
     ... ).Predicate(Self() == 1)
-    >>> print(p)
+    >>> print(p.get_expression())
     ($[*].a)[@ = 1]
     >>> p.find([{"a": 1}, {"a": 2}, {"a": 1}, {}])
     [1, 1]
@@ -675,7 +694,7 @@ class Brace(Expr):
         self._expr = expr
 
     def _get_partial_expression(self) -> str:
-        return f"({self._expr!s})"
+        return f"({self._expr.get_expression()})"
 
     def find(self, element: Any) -> List[Any]:
         # set var_finding False to
@@ -710,7 +729,7 @@ class Search(Expr):
     :param expr: The expr is used to search in data recursively.
     :type expr: :class:`Expr`
 
-    >>> p = Root().Search(Name("a")); print(p)
+    >>> p = Root().Search(Name("a")); print(p.get_expression())
     $..a
     >>> p.find({"a":{"a": 0}})
     [{'a': 0}, 0]
@@ -726,7 +745,7 @@ class Search(Expr):
         self._expr = expr
 
     def _get_partial_expression(self) -> str:
-        return f"..{self._expr!s}"
+        return f"..{self._expr.get_expression()}"
 
     def find(self, element: Any) -> List[Any]:
         rv: List[Any] = []
@@ -742,7 +761,7 @@ class Self(Expr):
     """
     Represent each item of the array data.
 
-    >>> p = Root().Predicate(Self()==1); print(p)
+    >>> p = Root().Predicate(Self()==1); print(p.get_expression())
     $[@ = 1]
     >>> p.find([1, 2, 1])
     [1, 1]
@@ -768,11 +787,11 @@ class Compare(Expr):
     and the first result of an expression or simple value.
 
     >>> Root().Predicate(Self() == 1)
-    JSONPath('$[@ = 1]')
+    JSONPath('$[@ = 1]', '[@ = 1]')
     >>> Root().Predicate(Self().Equal(1))
-    JSONPath('$[@ = 1]')
+    JSONPath('$[@ = 1]', '[@ = 1]')
     >>> Root().Predicate(Self() <= 1)
-    JSONPath('$[@ <= 1]')
+    JSONPath('$[@ <= 1]', '[@ <= 1]')
     >>> (
     ...     Root()
     ...     .Name("data")
@@ -780,7 +799,7 @@ class Compare(Expr):
     ...         Self() != Root().Name("target")
     ...     )
     ... )
-    JSONPath('$.data[@ != $.target]')
+    JSONPath('$.data[@ != $.target]', '[@ != $.target]')
 
     """
 
@@ -911,14 +930,14 @@ class Key(Function):
     Key function is used to get the field name from dictionary data.
 
     >>> Root().Predicate(Key() == "a")
-    JSONPath('$[key() = "a"]')
+    JSONPath('$[key() = "a"]', '[key() = "a"]')
 
     Same as :data:`Root().Name("a")`.
 
     Filter all values which field name contains :data:`"book"`.
 
     >>> p = Root().Predicate(Contains(Key(), "book"))
-    >>> print(p)
+    >>> print(p.get_expression())
     $[contains(key(), "book")]
     >>> p.find({"book 1": 1, "picture 2": 2})
     [1]
@@ -944,7 +963,7 @@ class Contains(Function):
     Determine the first result of expression contains the target substring.
 
     >>> p = Root().Predicate(Contains(Name("name"), "red"))
-    >>> print(p)
+    >>> print(p.get_expression())
     $[contains(name, "red")]
     >>> p.find([
     ...     {"name": "red book"},
@@ -956,7 +975,7 @@ class Contains(Function):
     Check the specific key in the dictionary.
 
     >>> p = Root().Predicate(Contains(Self(), "a"))
-    >>> print(p)
+    >>> print(p.get_expression())
     $[contains(@, "a")]
     >>> p.find([{"a": 0}, {"a": 1}, {}, {"b": 1}])
     [{'a': 0}, {'a': 1}]
@@ -1004,7 +1023,7 @@ class Not(Function):
     Not, a boolean operator.
 
     >>> Root().Predicate(Not(Name("enable")))
-    JSONPath('$[not(enable)]')
+    JSONPath('$[not(enable)]', '[not(enable)]')
 
     """
 
@@ -1017,7 +1036,7 @@ class Not(Function):
         self._expr = expr
 
     def _get_partial_expression(self) -> str:
-        return f"not({self._expr!s})"
+        return f"not({self._expr.get_expression()})"
 
     def find(self, element: Any) -> List[bool]:
         # set var_finding False to
