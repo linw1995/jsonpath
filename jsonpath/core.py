@@ -121,9 +121,7 @@ def _dfs_find(expr: "Expr", elements: List[Any], rv: List[Any]) -> None:
             continue
 
         with temporary_set(var_parent, element):
-            _dfs_find(
-                next_expr, found_elements, rv,
-            )
+            _dfs_find(next_expr, found_elements, rv)
 
 
 class ExprMeta(type):
