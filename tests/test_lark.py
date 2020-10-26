@@ -118,7 +118,7 @@ pytest.mark.parametrize(
 def test_parse_check_and_extract(expression, data, expect):
     jp = parse(expression)
     logging.debug(f"parse {expression!r} result: {jp}")
-    assert str(jp) == expression
+    assert jp.get_expression() == expression
     assert jp.find(data) == expect
 
 

@@ -361,7 +361,7 @@ def test_others(expr, data, expect):
 
 
 def test_get_expression(expr, expect):
-    assert str(expr) == expect
+    assert expr.get_expression() == expect
 
 
 test_get_expression = pytest.mark.parametrize(
