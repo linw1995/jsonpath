@@ -96,20 +96,15 @@ The output of the above commands.
 Changelog
 <<<<<<<<<
 
-v0.7.3
-~~~~~~
+Unreleased
+~~~~~~~~~~
 
-- a4e3dee Chg:Refactoring
-- f46e87e Fix:Exports requirements.txt error
-- c085900 New:Supports Python3.9
-- 3f8b882 Fix:mypy error when using Python39
-- 3b1a40a Fix:Missing Python3.9
-- 53905c2 Chg:Update Brace class doc.
-- ad76217 Chg:Update Brace class doc.
-- c4d9538 Fix:Build document first while running 'make live_docs'
-- b12491e Fix,Dev:Must deactivate before using nox
-- 82ada7a Fix:build.py file contamination (fixes #26)
+Features
+********
 
+- be22151_ better JSONPath object representations
+
+.. _be22151: https://github.com/linw1995/jsonpath/commit/be221513bd8a1821e8007eb1c2d4f10aa6d3f987
 
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/jsonpath.svg
