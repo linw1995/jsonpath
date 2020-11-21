@@ -100,7 +100,7 @@ def temporary_set(
         context_var.reset(token)
 
 
-def _dfs_find(expr: "Expr", elements: List[Any], rv: List[Any]) -> None:
+def _dfs_find(expr: "Expr", elements: List[Any]) -> Generator[Any, None, None]:
     """
     use DFS to find all target elements.
     the next expr finds in the result found by the current expr.
@@ -117,11 +117,11 @@ def _dfs_find(expr: "Expr", elements: List[Any], rv: List[Any]) -> None:
 
         if next_expr is None:
             # collect all found elements if there is no next expr.
-            rv.extend(found_elements)
+            yield from found_elements
             continue
 
         with temporary_set(var_parent, element):
-            _dfs_find(next_expr, found_elements, rv)
+            yield from _dfs_find(next_expr, found_elements)
 
 
 class ExprMeta(type):
@@ -152,27 +152,7 @@ class ExprMeta(type):
 
                     return []
 
-            # the chained expr begins to find
-            begin = self.get_begin()
-
-            rv: List[Any] = []
-            token_root = None
-            try:
-                var_root.get()
-            except LookupError:
-                # set the root element when the chained expr begins to find.
-                # the partial exprs of the nested expr
-                # can execute find method many times
-                # but only the first time finding can set the root element.
-                token_root = var_root.set(element)
-
-            try:
-                with temporary_set(var_finding, True):
-                    _dfs_find(begin, [element], rv)
-                return rv
-            finally:
-                if token_root:
-                    var_root.reset(token_root)
+            return list(self.find_iter(element))
 
         attr_dict["find"] = find
         return _create_expr_cls(metacls, name, bases, attr_dict)
@@ -197,6 +177,8 @@ class Expr(metaclass=ExprMeta):
     JSONPath executable Class.
 
     .. automethod:: find
+    .. automethod:: find_first
+    .. automethod:: find_iter
     .. automethod:: get_expression
     .. automethod:: get_begin
     .. automethod:: get_next
@@ -253,6 +235,54 @@ class Expr(metaclass=ExprMeta):
         :rtype: List[Any]
         """
         raise NotImplementedError
+
+    def find_first(self, element: Any) -> Any:
+        """
+        Find first target data by the JSONPath expression.
+
+        :param element: Root data where target data found from
+        :type element: Any
+
+        :returns: the first target data
+        :rtype: Any
+        :raises JSONPathFindError: Found nothing
+        """
+        notfound = object()
+        rv = next(self.find_iter(element), notfound)
+        if rv is notfound:
+            raise JSONPathFindError("Found nothing")
+
+        return rv
+
+    def find_iter(self, element: Any) -> Generator[Any, None, None]:
+        """
+        Iterable find target data by the JSONPath expression.
+
+        :param element: Root data where target data found from
+        :type element: Any
+
+        :returns: the generator of target data list
+        :rtype: Generator[Any, None, None]
+        """
+        # the chained expr begins to find
+        begin = self.get_begin()
+
+        token_root = None
+        try:
+            var_root.get()
+        except LookupError:
+            # set the root element when the chained expr begins to find.
+            # the partial exprs of the nested expr
+            # can execute find method many times
+            # but only the first time finding can set the root element.
+            token_root = var_root.set(element)
+
+        try:
+            with temporary_set(var_finding, True):
+                yield from _dfs_find(begin, [element])
+        finally:
+            if token_root:
+                var_root.reset(token_root)
 
     def get_begin(self) -> "Expr":
         """

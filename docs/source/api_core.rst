@@ -2,7 +2,7 @@
     :members:
     :inherited-members:
     :show-inheritance:
-    :exclude-members: mro, chain, find, get_begin, get_next, get_expression
+    :exclude-members: mro, chain, find, find_first, find_iter, get_begin, get_next, get_expression
 
 .. autoexception:: jsonpath.core.JSONPathError
     :show-inheritance:
