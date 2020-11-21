@@ -20,6 +20,9 @@ from jsonpath.core import (
     var_parent,
 )
 
+# Local Folder
+from .utils import assert_find
+
 
 @pytest.mark.parametrize(
     "name,data,expect",
@@ -27,7 +30,7 @@ from jsonpath.core import (
     ids=reprlib.repr,
 )
 def test_name_find(name, data, expect):
-    assert Name(name).find(data) == expect
+    assert_find(Name(name), data, expect)
 
 
 @pytest.mark.parametrize(
@@ -48,14 +51,14 @@ def test_name_chain_find(names, data, expect):
     for name in names[1:]:
         jp = jp.Name(name)
 
-    assert jp.find(data) == expect
+    assert_find(jp, data, expect)
 
 
 @pytest.mark.parametrize(
     "data", [[], "abc", {"a": "b"}, 1, 1.0], ids=reprlib.repr
 )
 def test_root(data):
-    assert Root().find(data) == [data]
+    assert_find(Root(), data, [data])
 
 
 @pytest.mark.parametrize(
@@ -70,7 +73,7 @@ def test_root(data):
 )
 def test_slice_in_array(start, end, step, data, expect):
     jp = Root().Array(Slice(start, end, step))
-    assert jp.find(data) == expect
+    assert_find(jp, data, expect)
 
 
 @pytest.mark.parametrize(
@@ -90,7 +93,7 @@ def test_slice_in_array(start, end, step, data, expect):
     ],
 )
 def test_search(expr, data, expect):
-    assert expr.find(data) == expect
+    assert_find(expr, data, expect)
 
 
 @pytest.mark.parametrize(
@@ -108,7 +111,7 @@ def test_search(expr, data, expect):
 )
 def test_slice(start, end, step, data, expect):
     jp = Root().Slice(start, end, step)
-    assert jp.find(data) == expect
+    assert_find(jp, data, expect)
 
 
 @pytest.mark.parametrize(
@@ -178,7 +181,7 @@ def test_slice(start, end, step, data, expect):
     ids=reprlib.repr,
 )
 def test_comparison(expr, data, expect):
-    assert expr.find(data) == expect
+    assert_find(expr, data, expect)
 
 
 @pytest.mark.parametrize(
@@ -270,7 +273,7 @@ def test_comparison(expr, data, expect):
     ids=reprlib.repr,
 )
 def test_comparison_in_search(expr, data, expect):
-    assert expr.find(data) == expect
+    assert_find(expr, data, expect)
 
 
 @pytest.mark.parametrize(
@@ -357,7 +360,7 @@ def test_comparison_in_search(expr, data, expect):
     ids=reprlib.repr,
 )
 def test_others(expr, data, expect):
-    assert expr.find(data) == expect
+    assert_find(expr, data, expect)
 
 
 def test_get_expression(expr, expect):

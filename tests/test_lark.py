@@ -13,6 +13,9 @@ from jsonpath.core import JSONPathSyntaxError, JSONPathUndefinedFunctionError
 from jsonpath.lark import Lark, UnexpectedToken
 from jsonpath.parser import parse, parser
 
+# Local Folder
+from .utils import assert_find
+
 
 @pytest.mark.xfail(raises=NameError)
 def test_no_conflict(caplog):
@@ -119,7 +122,7 @@ def test_parse_check_and_extract(expression, data, expect):
     jp = parse(expression)
     logging.debug(f"parse {expression!r} result: {jp}")
     assert jp.get_expression() == expression
-    assert jp.find(data) == expect
+    assert_find(jp, data, expect)
 
 
 pytest.mark.parametrize(
@@ -492,7 +495,7 @@ pytest.mark.parametrize(
 def test_parse_and_extract(expression, data, expect):
     jp = parse(expression)
     logging.debug(f"parse {expression!r} result: {jp}")
-    assert jp.find(data) == expect
+    assert_find(jp, data, expect)
 
 
 pytest.mark.parametrize(
