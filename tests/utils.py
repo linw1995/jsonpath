@@ -13,6 +13,6 @@ def assert_find(jp: Expr, data: Any, expect: List[Any]):
         assert expect[0] == jp.find_first(data)
     else:
         with pytest.raises(JSONPathFindError):
-            assert jp.find_first(data)
+            jp.find_first(data)
 
     assert expect == jp.find(data)
