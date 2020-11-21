@@ -168,7 +168,10 @@ def _create_expr_cls(
     # cast for the type checker
     # https://mypy.readthedocs.io/en/stable/casts.html
     cls = cast(ExprMeta, cls)
-    metacls._classes[name] = cls
+    if name != "Expr":
+        # not registers the base class
+        metacls._classes[name] = cls
+
     return cls
 
 
