@@ -344,9 +344,11 @@ class Expr(metaclass=ExprMeta):
 
         :returns: The function for creating the next part of the combined expr.
         :rtype: Callable[[...], :class:`Expr`]
+
+        :raises AttributeError: The name of Expr Component not found
         """
         if name not in Expr._classes:
-            raise AttributeError
+            return super().__getattribute__(name)  # for raising AttributeError
 
         cls = Expr._classes[name]
 
