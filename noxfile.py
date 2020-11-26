@@ -10,7 +10,6 @@ import nox.sessions
 # First Party Library
 from jsonpath_build import build_lark_parser
 
-
 nox.options.stop_on_first_error = True
 
 current_python_version = "%s.%s" % platform.python_version_tuple()[:2]
@@ -25,7 +24,8 @@ lark_parser_path = Path("jsonpath/lark_parser.py")
 
 @nox.session(python=pythons, reuse_venv=True)
 @nox.parametrize(
-    "parser_backend", ["standalone", "lark-parser"],
+    "parser_backend",
+    ["standalone", "lark-parser"],
 )
 def test(session: nox.sessions.Session, parser_backend):
     session.run(
@@ -34,11 +34,7 @@ def test(session: nox.sessions.Session, parser_backend):
         "-v",
         "-E",
         "test",
-        *(
-            ("-E", parser_backend)
-            if parser_backend == "lark-parser"
-            else tuple()
-        ),
+        *(("-E", parser_backend) if parser_backend == "lark-parser" else tuple()),
         "--no-dev",
         external=True,
     )

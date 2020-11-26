@@ -9,7 +9,6 @@ from pathlib import Path
 import pexpect
 import pytest
 
-
 JP = f"{sys.prefix}/bin/jp"
 
 common_testcases = [
@@ -24,7 +23,11 @@ def spawn():
 
     @wraps(pexpect.spawn)
     def wrapper(*args, **kwargs):
-        p = pexpect.spawn(*args, logfile=sys.stdout.buffer, **kwargs,)
+        p = pexpect.spawn(
+            *args,
+            logfile=sys.stdout.buffer,
+            **kwargs,
+        )
         ps.append(p)
         return p
 
@@ -37,7 +40,8 @@ def spawn():
 
 
 @pytest.mark.parametrize(
-    "expression, data, expect", common_testcases,
+    "expression, data, expect",
+    common_testcases,
 )
 def test_parse_json_file_and_extract(spawn, expression, data, expect, tmpdir):
     json_file_path = Path(tmpdir) / "test_example.json"
@@ -51,14 +55,15 @@ def test_parse_json_file_and_extract(spawn, expression, data, expect, tmpdir):
 
 
 @pytest.mark.parametrize("expression, data, expect", common_testcases)
-def test_parse_json_from_stdin_and_extract(
-    spawn, expression, data, expect, tmpdir
-):
+def test_parse_json_from_stdin_and_extract(spawn, expression, data, expect, tmpdir):
     json_file_path = Path(tmpdir) / "test_example.json"
     with json_file_path.open("w") as f:
         json.dump(data, f)
 
-    p = spawn("/bin/bash", ["-c", f"cat {json_file_path} | {JP} {expression}"],)
+    p = spawn(
+        "/bin/bash",
+        ["-c", f"cat {json_file_path} | {JP} {expression}"],
+    )
     p.expect_exact(json.dumps(expect, indent=2).split("\n"))
     p.wait()
     assert p.exitstatus == 0

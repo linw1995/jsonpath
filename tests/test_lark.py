@@ -2,7 +2,7 @@
 import json
 import logging
 
-from contextlib import nullcontext as does_not_raise
+from contextlib import nullcontext
 
 # Third Party Library
 import _pytest.python_api
@@ -15,6 +15,8 @@ from jsonpath.parser import parse, parser
 
 # Local Folder
 from .utils import assert_find
+
+does_not_raise = nullcontext()
 
 
 @pytest.mark.xfail(raises=NameError)
@@ -31,7 +33,7 @@ def test_no_conflict(caplog):
 
 
 def ids(x):
-    if isinstance(x, does_not_raise):
+    if x is does_not_raise:
         return "does not raise"
     elif isinstance(x, _pytest.python_api.RaisesContext):
         return f"raise {x.expected_exception.__name__}"
@@ -69,8 +71,7 @@ parser_parse_not_raises_exception_testcases = [
     "$.goods[@.price > 10]",
     "$.goods[@.price >= 10 and @.price < 20]",
     "$.goods[@.price >= 10 and @.price < 20 and @.category = $.targetCategory]",
-    "$.goods"
-    "[(@.price >= 10 and @.price < 20) or @.category = $.targetCategory]",
+    "$.goods" "[(@.price >= 10 and @.price < 20) or @.category = $.targetCategory]",
     "$.goods[@.'price' > 10]",
     '$."price"',
     "$.'price'",
@@ -104,7 +105,7 @@ parser_parse_raises_exception_testcases = [
 ]
 parser_parse_testcases = [
     *(
-        (expression, does_not_raise())
+        (expression, does_not_raise)
         for expression in parser_parse_not_raises_exception_testcases
     ),
     *(
@@ -114,7 +115,9 @@ parser_parse_testcases = [
 ]
 
 pytest.mark.parametrize(
-    "expression, raises_what", parser_parse_testcases, ids=ids,
+    "expression, raises_what",
+    parser_parse_testcases,
+    ids=ids,
 )(test_parser_parse)
 
 
@@ -185,19 +188,31 @@ pytest.mark.parametrize(
             [{"price": 100}, {"price": 200}],
             [{"price": 200}],
         ),
-        ("$[price > 100]", [{"price": 100}, {"price": 200}], [{"price": 200}],),
+        (
+            "$[price > 100]",
+            [{"price": 100}, {"price": 200}],
+            [{"price": 200}],
+        ),
         (
             "$[price >= 100]",
             [{"price": 100}, {"price": 200}],
             [{"price": 100}, {"price": 200}],
         ),
-        ("$[price < 100]", [{"price": 100}, {"price": 200}], [],),
+        (
+            "$[price < 100]",
+            [{"price": 100}, {"price": 200}],
+            [],
+        ),
         (
             "$[price <= 100]",
             [{"price": 100}, {"price": 200}],
             [{"price": 100}],
         ),
-        ("$[price = 100]", [{"price": 100}, {"price": 200}], [{"price": 100}],),
+        (
+            "$[price = 100]",
+            [{"price": 100}, {"price": 200}],
+            [{"price": 100}],
+        ),
         (
             "$[price != 100]",
             [{"price": 100}, {"price": 200}],
@@ -235,24 +250,16 @@ pytest.mark.parametrize(
             [
                 {
                     "price": 200,
-                    "charpter": [
-                        {"price": 100},
-                        {"price": 200},
-                        {"price": 300},
-                    ],
+                    "charpter": [{"price": 100}, {"price": 200}, {"price": 300}],
                 },
                 {"price": 200},
                 {"price": 300},
             ],
         ),
-        (
-            "$[price > 100.5]",
-            [{"price": 100}, {"price": 200}],
-            [{"price": 200}],
-        ),
-        ("$[on = null]", [{"on": None}, {"on": False}], [{"on": None}],),
-        ("$[on = true]", [{"on": True}, {"on": False}], [{"on": True}],),
-        ("$[on = false]", [{"on": True}, {"on": False}], [{"on": False}],),
+        ("$[price > 100.5]", [{"price": 100}, {"price": 200}], [{"price": 200}]),
+        ("$[on = null]", [{"on": None}, {"on": False}], [{"on": None}]),
+        ("$[on = true]", [{"on": True}, {"on": False}], [{"on": True}]),
+        ("$[on = false]", [{"on": True}, {"on": False}], [{"on": False}]),
         (
             "$.systems[on = $.on]",
             {"systems": [{"on": True}, {"on": False}], "on": False},
@@ -263,23 +270,15 @@ pytest.mark.parametrize(
             {"systems": [{"on": True}, {"on": False}], "on": False},
             [],
         ),
-        (
-            '$[name = "john"]',
-            [{"name": "jack"}, {"name": "john"}],
-            [{"name": "john"}],
-        ),
-        (
-            '$[name = "john"]',
-            [{"name": "jack"}, {"name": "john"}],
-            [{"name": "john"}],
-        ),
-        ("$[*].name", [{"name": "jack"}, {"name": "john"}], ["jack", "john"],),
+        ('$[name = "john"]', [{"name": "jack"}, {"name": "john"}], [{"name": "john"}]),
+        ('$[name = "john"]', [{"name": "jack"}, {"name": "john"}], [{"name": "john"}]),
+        ("$[*].name", [{"name": "jack"}, {"name": "john"}], ["jack", "john"]),
         (
             '$[key() = "bookA"]',
             {"bookA": {"price": 100}, "bookB": {}},
             [{"price": 100}],
         ),
-        ("$[key() = 0]", [{"price": 100}, {"price": 200}], [{"price": 100}],),
+        ("$[key() = 0]", [{"price": 100}, {"price": 200}], [{"price": 100}]),
         (
             '$[contains(key(), "book")]',
             {"bookA": {"price": 100}, "bookB": {"price": 200}, "pictureA": {}},
@@ -459,32 +458,17 @@ pytest.mark.parametrize(
         ),
         (
             "$.data[$.start:$.stop:$.step]",
-            {
-                "data": [0, 1, 2, 3, 4],
-                "start": "not integer",
-                "stop": 10,
-                "step": 2,
-            },
+            {"data": [0, 1, 2, 3, 4], "start": "not integer", "stop": 10, "step": 2},
             [],
         ),
         (
             "$.data[$.start:$.stop:$.step]",
-            {
-                "data": [0, 1, 2, 3, 4],
-                "start": 1,
-                "stop": "not integer",
-                "step": 2,
-            },
+            {"data": [0, 1, 2, 3, 4], "start": 1, "stop": "not integer", "step": 2},
             [],
         ),
         (
             "$.data[$.start:$.stop:$.step]",
-            {
-                "data": [0, 1, 2, 3, 4],
-                "start": 1,
-                "stop": 10,
-                "step": "not integer",
-            },
+            {"data": [0, 1, 2, 3, 4], "start": 1, "stop": 10, "step": "not integer"},
             [],
         ),
     ],

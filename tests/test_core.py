@@ -49,14 +49,12 @@ def test_name_find(name, data, expect):
 def test_name_chain_find(names, data, expect):
     jp = Name(names[0])
     for name in names[1:]:
-        jp = jp.Name(name)
+        jp = jp.Name(name)  # type: ignore
 
     assert_find(jp, data, expect)
 
 
-@pytest.mark.parametrize(
-    "data", [[], "abc", {"a": "b"}, 1, 1.0], ids=reprlib.repr
-)
+@pytest.mark.parametrize("data", [[], "abc", {"a": "b"}, 1, 1.0], ids=reprlib.repr)
 def test_root(data):
     assert_find(Root(), data, [data])
 
@@ -196,11 +194,7 @@ def test_comparison(expr, data, expect):
             [
                 {
                     "price": 200,
-                    "charpter": [
-                        {"price": 100},
-                        {"price": 200},
-                        {"price": 300},
-                    ],
+                    "charpter": [{"price": 100}, {"price": 200}, {"price": 300}],
                 },
                 {"price": 200},
                 {"price": 300},
@@ -215,11 +209,7 @@ def test_comparison(expr, data, expect):
             [
                 {
                     "price": 200,
-                    "charpter": [
-                        {"price": 100},
-                        {"price": 200},
-                        {"price": 300},
-                    ],
+                    "charpter": [{"price": 100}, {"price": 200}, {"price": 300}],
                 },
                 {"price": 100},
                 {"price": 200},
@@ -259,11 +249,7 @@ def test_comparison(expr, data, expect):
             [
                 {
                     "price": 200,
-                    "charpter": [
-                        {"price": 100},
-                        {"price": 200},
-                        {"price": 300},
-                    ],
+                    "charpter": [{"price": 100}, {"price": 200}, {"price": 300}],
                 },
                 {"price": 200},
                 {"price": 300},
@@ -279,11 +265,7 @@ def test_comparison_in_search(expr, data, expect):
 @pytest.mark.parametrize(
     "expr,data,expect",
     [
-        (
-            Root().Name(),
-            {"boo": [1, 2, 3], "bar": [2, 3, 4]},
-            [[1, 2, 3], [2, 3, 4]],
-        ),
+        (Root().Name(), {"boo": [1, 2, 3], "bar": [2, 3, 4]}, [[1, 2, 3], [2, 3, 4]]),
         (Root().Name().Array(0), {"boo": [1, 2, 3], "bar": [2, 3, 4]}, [1, 2]),
         (
             Root().Name().Array(),
@@ -405,9 +387,7 @@ test_get_expression = pytest.mark.parametrize(
             "list[abc or $.abc]",
         ),
         (
-            Name("list").Predicate(
-                Name("abc").Or(Root().Name("abc")).Or(Name("def"))
-            ),
+            Name("list").Predicate(Name("abc").Or(Root().Name("abc")).Or(Name("def"))),
             "list[abc or $.abc or def]",
         ),
         (Root().Predicate(Name("name") == "name"), '$[name = "name"]'),
@@ -445,15 +425,15 @@ def test_get_parent_object():
 
     assert TestName1("a").find(root) == [1]
 
-    root = {"a": {"b": 1}}
+    root_2 = {"a": {"b": 1}}
 
     class TestName2(Name):
         def find(self, element):
-            assert var_parent.get() == root
+            assert var_parent.get() == root_2
             assert element == {"b": 1}
             return super().find(element)
 
-    assert Name("a").chain(TestName2("b")).find(root) == [1]
+    assert Name("a").chain(TestName2("b")).find(root_2) == [1]
 
 
 def test_get_parent_array():

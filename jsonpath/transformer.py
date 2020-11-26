@@ -34,7 +34,6 @@ from .core import (
 )
 from .lark import Transformer, v_args
 
-
 T_OPERATOR = Literal["<=", ">=", "<", ">", "!=", "="]
 T_ARG = Union[Expr, T_VALUE]
 T_NO_ARG = Iterable
@@ -86,7 +85,10 @@ class JSONPathTransformer(Transformer[Expr]):
         return Value(value)
 
     def comparison_expr(
-        self, left: Expr, operator: T_OPERATOR, right: Expr,
+        self,
+        left: Expr,
+        operator: T_OPERATOR,
+        right: Expr,
     ) -> Compare:
         rv: Compare
         if operator == "<":
@@ -163,9 +165,7 @@ class JSONPathTransformer(Transformer[Expr]):
         elif name == "not":
             return Not(*args)
         else:
-            raise JSONPathUndefinedFunctionError(
-                f"Function {name!r} not exists"
-            )
+            raise JSONPathUndefinedFunctionError(f"Function {name!r} not exists")
 
     def multi_args(self, args: List[T_ARG], single_arg: T_ARG) -> List[T_ARG]:
         args.append(single_arg)
@@ -177,14 +177,10 @@ class JSONPathTransformer(Transformer[Expr]):
     def parenthesized_expr(self, expr: Expr) -> Brace:
         return Brace(expr)
 
-    def and_expr(
-        self, left_expr: Expr, and_: Literal["and"], right_expr: Expr
-    ) -> And:
+    def and_expr(self, left_expr: Expr, and_: Literal["and"], right_expr: Expr) -> And:
         return left_expr.chain(And(right_expr))
 
-    def or_expr(
-        self, left_expr: Expr, or_: Literal["or"], right_expr: Expr
-    ) -> Or:
+    def or_expr(self, left_expr: Expr, or_: Literal["or"], right_expr: Expr) -> Or:
         return left_expr.chain(Or(right_expr))
 
     def start(self, expr: Expr) -> Expr:

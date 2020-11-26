@@ -57,18 +57,14 @@ def build_readme():
 
     with mock.patch.object(
         docutils.statemachine, "string2lines", string2lines
-    ), mock.patch.object(
-        docutils.parsers.rst.directives.misc.Include, "run", run
-    ):
+    ), mock.patch.object(docutils.parsers.rst.directives.misc.Include, "run", run):
         source_file_path: Path = Path.cwd() / "README.template.rst"
         target_file_path: Path = Path.cwd() / "README.rst"
         parser = docutils.parsers.rst.Parser()
         default_settings = docutils.frontend.OptionParser(
             components=(docutils.parsers.rst.Parser,)
         ).get_default_values()
-        document = docutils.utils.new_document(
-            source_file_path.name, default_settings
-        )
+        document = docutils.utils.new_document(source_file_path.name, default_settings)
         parser.parse(source_file_path.read_text(encoding="utf-8"), document)
         text = text.rstrip() + "\n"
         text = translate_py_link(text)

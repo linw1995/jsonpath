@@ -6,7 +6,6 @@ import sybil
 import sybil.parsers.codeblock
 import sybil.parsers.doctest
 
-
 ignore_collect = sum(
     (
         [str(p.absolute()) for p in Path().glob(pattern)]
@@ -17,11 +16,12 @@ ignore_collect = sum(
 
 
 def pytest_ignore_collect(path, config):
-    """ return True to prevent considering this path for collection.
+    """return True to prevent considering this path for collection.
     This hook is consulted for all files and directories prior to calling
     more specific hooks.
     """
-    # https://docs.pytest.org/en/5.4.3/reference.html?highlight=pytest_ignore_collect#_pytest.hookspec.pytest_ignore_collect # noqa: B950
+    # https://docs.pytest.org/en/5.4.3/reference.html?highlight=pytest_ignore_collect#_pytest.hookspec.pytest_ignore_collect
+    # noqa: B950
     if str(path) in ignore_collect:
         return True
 

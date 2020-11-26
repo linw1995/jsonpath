@@ -25,9 +25,7 @@ def cli(args: argparse.Namespace) -> None:
     else:
         sys.exit("JSON file is needed.")
 
-    json.dump(
-        jp.find(data), sys.stdout, indent=2, ensure_ascii=args.ensure_ascii
-    )
+    json.dump(jp.find(data), sys.stdout, indent=2, ensure_ascii=args.ensure_ascii)
     sys.stdout.write("\n")
 
 

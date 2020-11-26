@@ -30,7 +30,6 @@ from weakref import ReferenceType
 # Third Party Library
 from typing_extensions import Literal
 
-
 var_root: ContextVar[Any] = ContextVar("root")
 var_parent: ContextVar[Union[List[Any], Dict[str, Any]]] = ContextVar("parent")
 T_SELF_VALUE = Union[Tuple[int, Any], Tuple[str, Any]]
@@ -519,9 +518,7 @@ class Array(Expr):
             return "[*]"
         else:
             idx_str = (
-                self.idx.get_expression()
-                if isinstance(self.idx, Expr)
-                else self.idx
+                self.idx.get_expression() if isinstance(self.idx, Expr) else self.idx
             )
             return f"[{idx_str}]"
 
@@ -649,9 +646,7 @@ class Slice(Expr):
 
         return ":".join(parts)
 
-    def _ensure_int_or_none(
-        self, value: Union[Expr, int, None]
-    ) -> Union[int, None]:
+    def _ensure_int_or_none(self, value: Union[Expr, int, None]) -> Union[int, None]:
         if isinstance(value, Expr):
             # set var_finding False to start new finding process for the nested expr
             with temporary_set(var_finding, False):
@@ -1025,9 +1020,7 @@ class Contains(Function):
         self._target = target
 
     def _get_partial_expression(self) -> str:
-        args_list = (
-            f"{_get_expression(self._expr)}, {_get_expression(self._target)}"
-        )
+        args_list = f"{_get_expression(self._expr)}, {_get_expression(self._target)}"
         return f"contains({args_list})"
 
     def find(self, element: Any) -> List[bool]:

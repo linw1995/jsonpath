@@ -20,7 +20,6 @@
 # Standard Library
 from datetime import date
 
-
 project = "JSONPath-Extractor"
 year = date.today().year
 copyright = f"{year}, 林玮"

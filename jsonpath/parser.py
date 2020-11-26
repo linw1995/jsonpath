@@ -8,9 +8,9 @@ from .core import Expr, JSONPathSyntaxError, JSONPathUndefinedFunctionError
 from .lark import UnexpectedToken, VisitError
 from .transformer import JSONPathTransformer
 
-
 transformer = JSONPathTransformer(visit_tokens=True)
 try:
+    # Local Folder
     from .lark import Lark
 
     parser = Lark.open(
@@ -22,7 +22,8 @@ try:
     )
 
 except NameError:
-    from .lark import Lark_StandAlone, DATA
+    # Local Folder
+    from .lark import DATA, Lark_StandAlone
 
     DATA["options"]["maybe_placeholders"] = True
     parser = Lark_StandAlone()

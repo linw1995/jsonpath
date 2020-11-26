@@ -32,7 +32,6 @@ from .core import (
 )
 from .parser import parse
 
-
 __all__ = (
     "Array",
     "Contains",

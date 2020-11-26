@@ -1,18 +1,20 @@
 # mypy: ignore-errors
 # Ignore variable already redefined error
 try:
-    from lark import Transformer, v_args, Lark
+    # Third Party Library
+    from lark import Lark, Transformer, v_args
     from lark.exceptions import UnexpectedToken, VisitError
 
 except ImportError:
+    # Local Folder
     from .lark_parser import (
-        Transformer,
-        v_args,
+        DATA,
         Lark,
+        Lark_StandAlone,
+        Transformer,
         UnexpectedToken,
         VisitError,
-        DATA,
-        Lark_StandAlone,
+        v_args,
     )
 
 
