@@ -134,3 +134,5 @@ dmypy.json
 .vscode
 ## Codegen
 lark_parser.py
+## Emacs Persp-mode
+.persp-confs
