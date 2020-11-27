@@ -13,20 +13,18 @@ jobs:
     - uses: actions/setup-python@v1
       with:
         python-version: 3.7
-    - name: Set PY  # Learn from https://github.com/pre-commit/action/commit/4d8b5b87890c365f52615ce79f3547640ab537f2
-      run: echo "::set-env name=PY::$(python -c 'import hashlib, sys;print(hashlib.sha256(sys.version.encode()+sys.executable.encode()).hexdigest())')"
     - name: Cache PIP
       uses: actions/cache@v1
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ env.PY }}-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-${{ env.PY }}-
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: ${{ runner.os }}-pip
     - name: Cache Poetry Virtualenvs
       uses: actions/cache@v1
       with:
         path: ~/.cache/pypoetry/virtualenvs
-        key: ${{ runner.os }}-poetry-${{ env.PY }}-${{ hashFiles('**/poetry.lock') }}
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: ${{ runner.os }}-poetry
     - name: Build release
       run: |
         python -m pip install --upgrade pip poetry
