@@ -63,7 +63,7 @@ flake8-bugbear==20.11.1
 isort==5.7.0
 lark-parser==0.8.9
 livereload==2.6.3
-mypy==0.790
+mypy==0.812
 nox==2019.11.9
 pexpect==4.8.0
 pre-commit==2.11.1

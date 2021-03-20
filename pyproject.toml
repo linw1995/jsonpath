@@ -31,10 +31,10 @@ lark-parser = {version = "^0.8.5", optional = true}
 typing_extensions = "^3.7"
 
 black = {version = "^20.8b1", optional = true}
-flake8 = {version = "^3.8.4", optional = true}
+flake8 = {version = "^3.9", optional = true}
 flake8-bugbear = {version = "^20.11.1", optional = true}
-isort = {version = "^5.6.4", optional = true}
-mypy = {version = "^0.790", optional = true}
+isort = {version = "^5.7", optional = true}
+mypy = {version = "^0.812", optional = true}
 
 pytest = {version = "^5.2.0", optional = true}
 pytest-cov = {version = "^2.7.1", optional = true}
