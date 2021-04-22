@@ -13,35 +13,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: actions/setup-python@v1
+    - name: Set up PDM
+      uses: pdm-project/setup-pdm@v1.1
       with:
         python-version: 3.7
-    - name: Cache PIP
+    - name: Cache Nox Virtualenvs
       uses: actions/cache@v1
       with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: ${{ runner.os }}-pip
-    - name: Cache Poetry Virtualenvs
-      uses: actions/cache@v1
-      with:
-        path: ~/.cache/pypoetry/virtualenvs
-        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: ${{ runner.os }}-poetry
-    - name: Cache pre-commit
-      uses: actions/cache@v1
-      with:
-        path: ~/.cache/pre-commit
-        key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
-        restore-keys: ${{ runner.os }}-pre-commit
-    - name: Install dependencies
+        path: .nox
+        key: ${{ runner.os }}-nox-${{ hashFiles('**/pdm.lock') }}
+        restore-keys: ${{ runner.os }}-nox
+    - name: Install nox
       run: |
-        python -m pip install --upgrade pip poetry
-        make POETRY_EXTRAS=lint init_by_poetry
-    - name: Lint
-      run: |
-        make check-all
-
+        pip install nox
+        pdm config use_venv true
+    - uses: pre-commit/action@v2.0.0
   test:
     needs: lint
     runs-on: ubuntu-latest
@@ -50,35 +36,23 @@ jobs:
         python-version: [3.7, 3.8, 3.9]
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+    - name: Set up PDM
+      uses: pdm-project/setup-pdm@v1.1
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Cache PIP
-      uses: actions/cache@v1
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: ${{ runner.os }}-pip
-    - name: Cache Poetry Virtualenvs
-      uses: actions/cache@v1
-      with:
-        path: ~/.cache/pypoetry/virtualenvs
-        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: ${{ runner.os }}-poetry
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip poetry
-        make POETRY_EXTRAS= init_by_poetry
     - name: Cache Nox Virtualenvs
       uses: actions/cache@v1
       with:
         path: .nox
-        key: ${{ runner.os }}-nox-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: ${{ runner.os }}-nox
-    - name: Test by nox
+        key: ${{ runner.os }}-${{ matrix.python-version }}-nox-${{ hashFiles('**/pdm.lock') }}
+        restore-keys: ${{ runner.os }}-${{ matrix.python-version }}-nox
+    - name: Install nox
       run: |
-        make nox
+        pip install nox
+        pdm config use_venv true
+    - name: Test with coverage
+      run: |
+        make PYTHON=${{ matrix.python-version }} cov
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1.0.5
       with:
