@@ -3,7 +3,7 @@ JSONPATH
 ========
 
 |license| |Pypi Status| |Python version| |Package version| |PyPI - Downloads|
-|GitHub last commit| |Code style: black| |Build Status| |codecov|
+|GitHub last commit| |Code style: black| |Build Status| |codecov| |PDM managed|
 
 A selector expression for extracting data from JSON.
 
@@ -52,9 +52,9 @@ How to parse and extract all the comic book data from the above JSON file.
     with open("example.json", "r") as f:
         data = json.load(f)
 
-    assert parse("$.goods[contains(@.category, $.targetCategory)]").find(
-        data
-    ) == [{"price": 100, "category": "Comic book"}]
+    assert parse("$.goods[contains(@.category, $.targetCategory)]").find(data) == [
+        {"price": 100, "category": "Comic book"}
+    ]
 
 Or use the `jsonpath.core <https://jsonpath.readthedocs.io/en/latest/api_core.html>`_ module to extract it.
 
@@ -145,3 +145,6 @@ Refactor
 
 .. |codecov| image:: https://codecov.io/gh/linw1995/jsonpath/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/linw1995/jsonpath
+
+.. |PDM managed| image:: https://img.shields.io/badge/pdm-managed-blueviolet
+    :target: https://pdm.fming.dev

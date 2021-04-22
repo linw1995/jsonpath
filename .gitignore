@@ -136,3 +136,6 @@ dmypy.json
 lark_parser.py
 ## Emacs Persp-mode
 .persp-confs
+## PDM
+__pypackages__
+.pdm.toml
