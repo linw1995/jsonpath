@@ -20,6 +20,13 @@ Changelog
     :start-line: 4
     :end-before: .. include:: history.rst
 
+
+Contributing
+<<<<<<<<<<<<
+
+.. include:: contributing.rst
+    :start-line: 4
+
 .. |license| image:: https://img.shields.io/github/license/linw1995/jsonpath.svg
     :target: https://github.com/linw1995/jsonpath/blob/master/LICENSE
 
