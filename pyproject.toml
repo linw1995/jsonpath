@@ -67,5 +67,6 @@ test = [
     "sybil ~= 2.0",
 ]
 build_readme = [
+    "pygments ~= 2.8",
     "docutils >= 0.16",
 ]

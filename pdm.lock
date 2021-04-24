@@ -157,8 +157,8 @@ version = "1.10.0"
 summary = "library with cross-python path, ini-parsing, io, code, log facilities"
 
 [[package]]
-name = "Pygments"
-sections = ["docs"]
+name = "pygments"
+sections = ["build_readme", "docs"]
 version = "2.8.1"
 summary = "Pygments is a syntax highlighting package written in Python."
 
@@ -332,7 +332,7 @@ summary = "Backport of pathlib-compatible object wrapper for zip files"
 
 [metadata]
 lock_version = "2"
-content_hash = "sha256:01c92c568816ccfac9a8a585900edc7627986473019051b2d8514c364ca41d3c"
+content_hash = "sha256:e161bb8ab3386f1da0a419a963edbb31d6459ab69fa951cf1d86f5c937da6db1"
 
 [metadata.files]
 "alabaster 0.7.12" = [
