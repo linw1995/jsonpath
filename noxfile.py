@@ -1,13 +1,15 @@
 # Standard Library
 import os
+import sys
 
 from pathlib import Path
 
 # Third Party Library
 import nox
 
+sys.path.insert(0, "")
 # First Party Library
-from jsonpath_build import build_lark_parser
+from jsonpath_build import build_lark_parser  # noqa: E402
 
 nox.options.stop_on_first_error = True
 
