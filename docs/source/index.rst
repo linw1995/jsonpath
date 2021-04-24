@@ -13,7 +13,9 @@ Contents
 
    quickstarts
    howto
+   contributing
    api_reference
+   changelog
 
 Indices and tables
 <<<<<<<<<<<<<<<<<<

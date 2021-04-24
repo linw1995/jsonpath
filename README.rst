@@ -3,7 +3,7 @@ JSONPATH
 ========
 
 |license| |Pypi Status| |Python version| |Package version| |PyPI - Downloads|
-|GitHub last commit| |Code style: black| |Build Status| |codecov|
+|GitHub last commit| |Code style: black| |Build Status| |codecov| |PDM managed|
 
 A selector expression for extracting data from JSON.
 
@@ -52,9 +52,9 @@ How to parse and extract all the comic book data from the above JSON file.
     with open("example.json", "r") as f:
         data = json.load(f)
 
-    assert parse("$.goods[contains(@.category, $.targetCategory)]").find(
-        data
-    ) == [{"price": 100, "category": "Comic book"}]
+    assert parse("$.goods[contains(@.category, $.targetCategory)]").find(data) == [
+        {"price": 100, "category": "Comic book"}
+    ]
 
 Or use the `jsonpath.core <https://jsonpath.readthedocs.io/en/latest/api_core.html>`_ module to extract it.
 
@@ -119,6 +119,79 @@ Refactor
 
 
 
+Contributing
+<<<<<<<<<<<<
+
+
+Environment Setup
+~~~~~~~~~~~~~~~~~
+
+Clone the source codes from Github.
+
+.. code-block:: shell
+
+    git clone https://github.com/linw1995/jsonpath.git
+    cd jsonpath
+
+Setup the development environment.
+Please make sure you install the pdm_,
+pre-commit_ and nox_ CLIs in your environment.
+
+.. code-block:: shell
+
+    make init
+    make PYTHON=3.7 init  # for specific python version
+
+Linting
+~~~~~~~
+
+Use pre-commit_ for installing linters to ensure a good code style.
+
+.. code-block:: shell
+
+    make pre-commit
+
+Run linters. Some linters run via CLI nox_, so make sure you install it.
+
+.. code-block:: shell
+
+    make check-all
+
+Testing
+~~~~~~~
+
+Run quick tests.
+
+.. code-block:: shell
+
+    make
+
+Run quick tests with verbose.
+
+.. code-block:: shell
+
+    make vtest
+
+Run tests with coverage.
+Testing in multiple Python environments is powered by CLI nox_.
+
+.. code-block:: shell
+
+    make cov
+
+Documentation
+~~~~~~~~~~~~~
+
+Run serving documents with live-reloading.
+
+.. code-block:: shell
+
+    make serve-docs
+
+.. _pdm: https://github.com/pdm-project/pdm
+.. _pre-commit: https://pre-commit.com/
+.. _nox: https://nox.thea.codes/en/stable/
+
 .. |license| image:: https://img.shields.io/github/license/linw1995/jsonpath.svg
     :target: https://github.com/linw1995/jsonpath/blob/master/LICENSE
 
@@ -145,3 +218,6 @@ Refactor
 
 .. |codecov| image:: https://codecov.io/gh/linw1995/jsonpath/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/linw1995/jsonpath
+
+.. |PDM managed| image:: https://img.shields.io/badge/pdm-managed-blueviolet
+    :target: https://pdm.fming.dev

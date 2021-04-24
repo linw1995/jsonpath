@@ -3,7 +3,7 @@ JSONPATH
 ========
 
 |license| |Pypi Status| |Python version| |Package version| |PyPI - Downloads|
-|GitHub last commit| |Code style: black| |Build Status| |codecov|
+|GitHub last commit| |Code style: black| |Build Status| |codecov| |PDM managed|
 
 A selector expression for extracting data from JSON.
 
@@ -19,6 +19,13 @@ Changelog
 .. include:: changelog.rst
     :start-line: 4
     :end-before: .. include:: history.rst
+
+
+Contributing
+<<<<<<<<<<<<
+
+.. include:: contributing.rst
+    :start-line: 4
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/jsonpath.svg
     :target: https://github.com/linw1995/jsonpath/blob/master/LICENSE
@@ -46,3 +53,6 @@ Changelog
 
 .. |codecov| image:: https://codecov.io/gh/linw1995/jsonpath/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/linw1995/jsonpath
+
+.. |PDM managed| image:: https://img.shields.io/badge/pdm-managed-blueviolet
+    :target: https://pdm.fming.dev

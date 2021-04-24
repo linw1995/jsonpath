@@ -36,9 +36,9 @@ How to parse and extract all the comic book data from the above JSON file.
     with open("example.json", "r") as f:
         data = json.load(f)
 
-    assert parse("$.goods[contains(@.category, $.targetCategory)]").find(
-        data
-    ) == [{"price": 100, "category": "Comic book"}]
+    assert parse("$.goods[contains(@.category, $.targetCategory)]").find(data) == [
+        {"price": 100, "category": "Comic book"}
+    ]
 
 Or use the :py:mod:`jsonpath.core` module to extract it.
 

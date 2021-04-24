@@ -9,7 +9,7 @@ from pathlib import Path
 import pexpect
 import pytest
 
-JP = f"{sys.prefix}/bin/jp"
+JP = f"{sys.executable} -m jsonpath.cli"
 
 common_testcases = [
     ("boo", {"boo": 1}, [1]),
