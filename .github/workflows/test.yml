@@ -27,6 +27,7 @@ jobs:
       run: |
         pip install nox
         pdm config use_venv true
+        eval `pdm --pep582`
     - uses: pre-commit/action@v2.0.0
   test:
     needs: lint
