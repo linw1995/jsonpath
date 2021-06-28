@@ -28,6 +28,8 @@ jobs:
         pip install nox
         pdm config use_venv true
     - uses: pre-commit/action@v2.0.0
+      env:
+        SKIP: export_requirements_txt
   test:
     needs: lint
     runs-on: ubuntu-latest
