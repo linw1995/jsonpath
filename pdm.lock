@@ -91,7 +91,7 @@ dependencies = [
 
 [[package]]
 name = "lark-parser"
-version = "0.8.9"
+version = "0.11.3"
 summary = "a modern parsing library"
 
 [[package]]
@@ -317,7 +317,7 @@ summary = "Backport of pathlib-compatible object wrapper for zip files"
 
 [metadata]
 lock_version = "3.1"
-content_hash = "sha256:e161bb8ab3386f1da0a419a963edbb31d6459ab69fa951cf1d86f5c937da6db1"
+content_hash = "sha256:ec323779d181a1d646c77b242e3a35ffb7fb3b6f1e94e3e986c81ebe301a69ad"
 
 [metadata.files]
 "alabaster 0.7.12" = [
@@ -426,8 +426,8 @@ content_hash = "sha256:e161bb8ab3386f1da0a419a963edbb31d6459ab69fa951cf1d86f5c93
     {file = "Jinja2-3.0.1-py3-none-any.whl", hash = "sha256:1f06f2da51e7b56b8f238affdd6b4e2c61e39598a378cc49345bc1bd42a978a4"},
     {file = "Jinja2-3.0.1.tar.gz", hash = "sha256:703f484b47a6af502e743c9122595cc812b0271f661722403114f71a79d0f5a4"},
 ]
-"lark-parser 0.8.9" = [
-    {file = "lark-parser-0.8.9.tar.gz", hash = "sha256:78915e9e59c7a3068830fd2d2cd733f7ab0cbea2d7928ebfaac4f8df10e4e989"},
+"lark-parser 0.11.3" = [
+    {file = "lark-parser-0.11.3.tar.gz", hash = "sha256:e29ca814a98bb0f81674617d878e5f611cb993c19ea47f22c80da3569425f9bd"},
 ]
 "livereload 2.6.3" = [
     {file = "livereload-2.6.3.tar.gz", hash = "sha256:776f2f865e59fde56490a56bcc6773b6917366bce0c267c60ee8aaf1a0959869"},

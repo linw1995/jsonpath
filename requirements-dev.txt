@@ -81,8 +81,8 @@ iniconfig==1.1.1 \
 Jinja2==3.0.1 \
     --hash=sha256:1f06f2da51e7b56b8f238affdd6b4e2c61e39598a378cc49345bc1bd42a978a4 \
     --hash=sha256:703f484b47a6af502e743c9122595cc812b0271f661722403114f71a79d0f5a4
-lark-parser==0.8.9 \
-    --hash=sha256:78915e9e59c7a3068830fd2d2cd733f7ab0cbea2d7928ebfaac4f8df10e4e989
+lark-parser==0.11.3 \
+    --hash=sha256:e29ca814a98bb0f81674617d878e5f611cb993c19ea47f22c80da3569425f9bd
 livereload==2.6.3 \
     --hash=sha256:776f2f865e59fde56490a56bcc6773b6917366bce0c267c60ee8aaf1a0959869
 MarkupSafe==2.0.1 \

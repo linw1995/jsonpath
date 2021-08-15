@@ -1,5 +1,5 @@
-lark-parser==0.8.9 \
-    --hash=sha256:78915e9e59c7a3068830fd2d2cd733f7ab0cbea2d7928ebfaac4f8df10e4e989
+lark-parser==0.11.3 \
+    --hash=sha256:e29ca814a98bb0f81674617d878e5f611cb993c19ea47f22c80da3569425f9bd
 typing-extensions==3.10.0.0 \
     --hash=sha256:0ac0f89795dd19de6b97debb0c6af1c70987fd80a2d62d1958f7e56fcc31b497 \
     --hash=sha256:779383f6086d90c99ae41cf0ff39aac8a7937a9283ce0a414e5dd782f4c94a84 \
