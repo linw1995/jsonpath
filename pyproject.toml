@@ -34,14 +34,14 @@ documentation = "https://jsonpath.rtfd.io/en/latest/"
 
 [project.optional-dependencies]
 parser = [
-    "lark-parser >= 0.8.5, < 0.9",
+    "lark-parser ~= 0.11.3",
 ]
 
 [project.scripts]
 jp = "jsonpath.cli:main"
 
 [build-system]
-requires = ["intreehooks","pdm-pep517", "lark-parser==0.8.9"]
+requires = ["intreehooks","pdm-pep517", "lark-parser ~= 0.11.3"]
 build-backend = "intreehooks:loader"
 
 [tool.intreehooks]
@@ -54,12 +54,15 @@ includes = [
     "jsonpath/lark_parser.py",
     "jsonpath/py.typed",
 ]
+excludes = [
+    "**/.mypy_cache"
+]
 
 [tool.pdm.dev-dependencies]
 docs = [
     "sphinx ~= 3.5",
     "livereload ~= 2.6",
-    "lark-parser >= 0.8.5, < 0.9",
+    "lark-parser ~= 0.11.3",
 ]
 test = [
     "pytest-cov ~= 2.11",

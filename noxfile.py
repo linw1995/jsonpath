@@ -38,9 +38,9 @@ def coverage_test(session, parser_backend):
         "pdm",
         "sync",
         "-v",
-        "-s",
+        "-G",
         "test",
-        "-s",
+        "-G",
         "parser",
         external=True,
     )
@@ -54,12 +54,12 @@ def coverage_test(session, parser_backend):
         if lark_parser_path.exists():
             lark_parser_path.unlink()
 
-    session.run("pytest", "-vv", "--cov=jsonpath", "--cov-append")
+    session.run("pytest", "-vv", "--cov=jsonpath", "--cov-append", *session.posargs)
 
 
 @nox.session(python=pythons, reuse_venv=True)
 def coverage_report(session):
-    session.run("pdm", "sync", "-v", "-s", "test", external=True)
+    session.run("pdm", "sync", "-v", "-G", "test", external=True)
     session.run("coverage", "report")
     session.run("coverage", "xml")
     session.run("coverage", "html")
@@ -77,7 +77,7 @@ def build(session):
 
 @nox.session(reuse_venv=True)
 def build_readme(session):
-    session.run("pdm", "sync", "-v", "-s", "build_readme", external=True)
+    session.run("pdm", "sync", "-v", "-G", "build_readme", external=True)
     session.run(
         "python", "scripts/build_readme.py", "README.template.rst", "README.rst"
     )

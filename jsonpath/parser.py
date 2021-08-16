@@ -13,12 +13,11 @@ try:
     # Local Folder
     from .lark import Lark
 
-    parser = Lark.open(
+    parser = Lark.open_from_package(
+        __name__,
         "grammar.lark",
-        rel_to=__file__,
         parser="lalr",
         maybe_placeholders=True,
-        # keep_all_tokens=True,
     )
 
 except NameError:
