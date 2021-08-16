@@ -61,7 +61,7 @@ vtest:
 
 cov:
 	rm -rf .coverage
-	nox -p $(PYTHON) -s coverage_test coverage_report
+	nox -p $(PYTHON) -s coverage_test coverage_report -- $(TARGET)
 
 # Docs
 serve-docs:

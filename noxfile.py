@@ -54,7 +54,7 @@ def coverage_test(session, parser_backend):
         if lark_parser_path.exists():
             lark_parser_path.unlink()
 
-    session.run("pytest", "-vv", "--cov=jsonpath", "--cov-append")
+    session.run("pytest", "-vv", "--cov=jsonpath", "--cov-append", *session.posargs)
 
 
 @nox.session(python=pythons, reuse_venv=True)
