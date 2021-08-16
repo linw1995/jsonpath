@@ -17,8 +17,8 @@ SPACE := $(EMPTY) $(EMPTY)
 PYTHON = 3.9
 EXTRAS = parser
 DEV_EXTRAS = test docs
-EXTRAS_ARGS = $(if $(EXTRAS),-s,) $(subst $(SPACE),$(SPACE)-s$(SPACE),$(EXTRAS))
-DEV_EXTRAS_ARGS = $(if $(DEV_EXTRAS),-s,) $(subst $(SPACE),$(SPACE)-s$(SPACE),$(DEV_EXTRAS))
+EXTRAS_ARGS = $(if $(EXTRAS),-G,) $(subst $(SPACE),$(SPACE)-G$(SPACE),$(EXTRAS))
+DEV_EXTRAS_ARGS = $(if $(DEV_EXTRAS),-G,) $(subst $(SPACE),$(SPACE)-G$(SPACE),$(DEV_EXTRAS))
 
 # Environment setup
 init:
