@@ -54,6 +54,9 @@ includes = [
     "jsonpath/lark_parser.py",
     "jsonpath/py.typed",
 ]
+excludes = [
+    "**/.mypy_cache"
+]
 
 [tool.pdm.dev-dependencies]
 docs = [
