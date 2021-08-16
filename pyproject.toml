@@ -41,7 +41,7 @@ parser = [
 jp = "jsonpath.cli:main"
 
 [build-system]
-requires = ["intreehooks","pdm-pep517", "lark-parser==0.8.9"]
+requires = ["intreehooks","pdm-pep517", "lark-parser ~= 0.11.3"]
 build-backend = "intreehooks:loader"
 
 [tool.intreehooks]
