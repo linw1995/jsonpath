@@ -23,15 +23,13 @@ first_path: CNAME
     | self
     | root
 
-LE: "<="
-GE: ">="
-LT: "<"
-GT: ">"
-NE: "!="
-EQ: "="
+COMPARE_OPERATOR: "<="
+    | ">="
+    | "<"
+    | ">"
+    | "!="
+    | "="
 
-
-COMPARE_OPERATOR: LE | GE | LT | GT | NE | EQ
 ?test_comparison: atom COMPARE_OPERATOR atom -> comparison_expr
     | atom
 
@@ -68,7 +66,6 @@ funccall: CNAME "(" args ")"
 
 ?expr: test
 
-%import common.SIGNED_INT    -> INT
 %import common.SIGNED_NUMBER -> NUMBER
 %import common.CNAME         -> CNAME
 %import common.WS_INLINE
