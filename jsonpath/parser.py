@@ -22,9 +22,8 @@ try:
 
 except NameError:
     # Local Folder
-    from .lark import DATA, Lark_StandAlone
+    from .lark import Lark_StandAlone
 
-    DATA["options"]["maybe_placeholders"] = True
     parser = Lark_StandAlone()
 
 
