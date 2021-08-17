@@ -8,7 +8,6 @@ try:
 except ImportError:
     # Local Folder
     from .lark_parser import (
-        DATA,
         Lark,
         Lark_StandAlone,
         Transformer,
@@ -23,7 +22,6 @@ __all__ = (
     "v_args",
     "Lark",
     "Lark_StandAlone",
-    "DATA",
     "UnexpectedToken",
     "VisitError",
 )
