@@ -12,6 +12,7 @@ def build_lark_parser(pybin_path=None) -> None:
             pybin_path or sys.executable,
             "-m",
             "lark.tools.standalone",
+            "--maybe_placeholders",
             "jsonpath/grammar.lark",
         ]
     )
