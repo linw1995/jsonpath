@@ -38,13 +38,13 @@ pdm_export(
 pdm_export(
     args=[
         "--prod",
-        "-s:all",
+        "-G:all",
     ],
     filename="requirements.txt",
     format=Format.requirements,
 )
-pdm_export(args=["-s:all"], filename="requirements-dev.txt", format=Format.requirements)
+pdm_export(args=["-G:all"], filename="requirements-dev.txt", format=Format.requirements)
 pdm_export(
-    args=["-s", "docs"], filename="requirements-docs.txt", format=Format.requirements
+    args=["-G", "docs"], filename="requirements-docs.txt", format=Format.requirements
 )
 # pdm_export(args=[], filename="setup.py", format=Format.setuppy)
