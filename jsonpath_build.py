@@ -1,5 +1,5 @@
 # Standard Library
-from typing import Any
+from typing import Any, Mapping, Optional
 
 
 def build_lark_parser(pybin_path=None) -> None:
@@ -28,9 +28,33 @@ def __getattr__(name: str) -> Any:
         # Third Party Library
         import pdm.pep517.api
 
-        if name in ("build_wheel", "build_sdist"):
-            build_lark_parser()
+        func = getattr(pdm.pep517.api, name)
 
-        return getattr(pdm.pep517.api, name)
+        if name == "build_wheel":
+
+            def build_wheel(
+                wheel_directory: str,
+                config_settings: Optional[Mapping[str, Any]] = None,
+                metadata_directory: Optional[str] = None,
+            ) -> str:
+                build_lark_parser()
+                return func(wheel_directory, config_settings, metadata_directory)
+
+            return build_wheel
+
+        elif name == "build_sdist":
+
+            def build_sdist(
+                sdist_directory: str,
+                config_settings: Optional[Mapping[str, Any]] = None,
+            ) -> str:
+                build_lark_parser()
+                return func(sdist_directory, config_settings)
+
+            return build_sdist
+
+        else:
+            return func
+
     except ImportError:
         return getattr(globals(), name)
