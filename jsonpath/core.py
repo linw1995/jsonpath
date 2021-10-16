@@ -23,7 +23,6 @@ from typing import (
     Type,
     TypeVar,
     Union,
-    cast,
 )
 from weakref import ReferenceType
 
@@ -164,9 +163,6 @@ def _create_expr_cls(
     attr_dict: Dict[str, Any],
 ) -> ExprMeta:
     cls = type.__new__(metacls, name, bases, attr_dict)
-    # cast for the type checker
-    # https://mypy.readthedocs.io/en/stable/casts.html
-    cls = cast(ExprMeta, cls)
     if name != "Expr":
         # not registers the base class
         metacls._classes[name] = cls
