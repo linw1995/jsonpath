@@ -14,7 +14,7 @@ help:
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
-PYTHON = 3.9
+PYTHON = 3.10
 EXTRAS = parser
 DEV_EXTRAS = test docs
 EXTRAS_ARGS = $(if $(EXTRAS),-G,) $(subst $(SPACE),$(SPACE)-G$(SPACE),$(EXTRAS))
