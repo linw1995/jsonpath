@@ -157,7 +157,7 @@ class JSONPathTransformer(Transformer[Expr]):
     ) -> Slice:
         return Slice(start=first_field, stop=second_field, step=third_field)
 
-    def funccall(self, name: str, args: T_ARGS = tuple()) -> Function:
+    def func_call(self, name: str, args: T_ARGS = tuple()) -> Function:
         if name == "key":
             return Key(*args)
         elif name == "contains":
