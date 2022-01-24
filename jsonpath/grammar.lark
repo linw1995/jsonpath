@@ -1,5 +1,5 @@
 start: path
-    | funccall
+    | func_call
 
 COLON: ":"
 slice: [expr] COLON [expr] COLON [expr] -> three_fields_slice
@@ -56,12 +56,12 @@ path_with_action: atom action_separate_with_dot
 
 args: args "," expr       -> multi_args
     | expr                -> single_arg
-funccall: CNAME "(" args ")"
+func_call: CNAME "(" args ")"
     | CNAME "()"
 
 ?atom: value
     | path
-    | funccall
+    | func_call
     | "(" expr ")"          -> parenthesized_expr
 
 ?expr: test
