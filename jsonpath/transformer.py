@@ -69,8 +69,15 @@ class JSONPathTransformer(Transformer[Expr]):
     def STRING(self, quoted_string: str) -> str:
         return quoted_string[1:-1]
 
-    def identifier(self, string: str) -> Name:
+    def identifier(self, name: Name) -> Name:
+        return name
+
+    def identifier_filtered(self, string: str) -> Name:
         return Name(string)
+
+    def identifier_unfiltered(self, questionMark: Literal["?"], name: Name) -> Name:
+        name.filtered = False
+        return name
 
     def STAR(self, star_: Literal["*"]) -> None:
         return None

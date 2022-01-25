@@ -450,9 +450,10 @@ class Name(Expr):
 
     """
 
-    def __init__(self, name: Optional[str] = None) -> None:
+    def __init__(self, name: Optional[str] = None, filtered: bool = True) -> None:
         super().__init__()
         self.name = name
+        self.filtered = filtered
 
     def _get_partial_expression(self) -> str:
         if self.name is None:
@@ -468,7 +469,10 @@ class Name(Expr):
             return list(element.values())
 
         if self.name not in element:
-            raise JSONPathFindError
+            if self.filtered:
+                raise JSONPathFindError
+            else:
+                return [None]
 
         return [element[self.name]]
 
