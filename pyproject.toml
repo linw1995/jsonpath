@@ -53,6 +53,7 @@ includes = [
     "jsonpath_build.py",
     "jsonpath/lark_parser.py",
     "jsonpath/py.typed",
+    "jsonpath/grammar.lark",
 ]
 excludes = [
     "**/.mypy_cache"
