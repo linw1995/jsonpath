@@ -458,7 +458,11 @@ class Name(Expr):
         if self.name is None:
             return "*"
 
-        return self.name
+        name = self.name
+        if name in ("*", "$", "@"):
+            name = repr(name)
+
+        return name
 
     def find(self, element: Any) -> List[Any]:
         if not isinstance(element, dict):
