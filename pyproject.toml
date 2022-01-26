@@ -1,6 +1,5 @@
 [project]
 name = "jsonpath-extractor"
-version = {use_scm = true}
 authors = [
     {name = "林玮 (Jade Lin)", email = "linw1995@icloud.com"},
 ]
@@ -54,10 +53,12 @@ includes = [
     "jsonpath_build.py",
     "jsonpath/lark_parser.py",
     "jsonpath/py.typed",
+    "jsonpath/grammar.lark",
 ]
 excludes = [
     "**/.mypy_cache"
 ]
+version = {use_scm = true}
 
 [tool.pdm.dev-dependencies]
 docs = [

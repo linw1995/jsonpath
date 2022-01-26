@@ -48,8 +48,14 @@ def test_parser_parse(expression, raises_what):
 
 
 parser_parse_not_raises_exception_testcases = [
+    "a",
+    "?a",
     "a.b",
+    "a.?b",
+    "a.?'b'",
     "a.b.c",
+    "a.?b.c",
+    "a.?b.?c",
     "a.b.c.d",
     "a[:3]",
     "a[:-3]",
@@ -62,6 +68,7 @@ parser_parse_not_raises_exception_testcases = [
     "a[b][c]",
     "(a[b])[c]",
     "a.*",
+    "a.'*'",
     "a.'b'",
     "a..[b]",
     "a..[0]",
@@ -102,6 +109,7 @@ parser_parse_raises_exception_testcases = [
     '"abc"',
     "'abc'",
     "`abc`",
+    "$..?abc",
 ]
 parser_parse_testcases = [
     *(
@@ -132,11 +140,33 @@ pytest.mark.parametrize(
     "expression, data, expect",
     [
         ("boo", {"boo": 1}, [1]),
+        ("boo", {}, []),
+        ("?boo", {}, [None]),
+        ("?boo", None, []),
         ("boo.bar", {"boo": {"bar": 1}}, [1]),
+        ("boo.bar", {"boo": {}}, []),
+        ("boo.?bar", {"boo": {}}, [None]),
         ("boo.bar.boo", {"boo": {"bar": {"boo": 1}}}, [1]),
+        ("boo.?bar.boo", {"boo": {"bar": {"boo": 1}}}, [1]),
+        ("boo.?bar.boo", {"boo": {}}, []),
+        ("boo.?bar.?boo", {"boo": {"bar": {"boo": 1}}}, [1]),
+        ("boo.bar.boo", {"boo": {"bar": {}}}, []),
+        ("boo.bar.boo", {"boo": {}}, []),
+        ("boo.?bar.?boo", {"boo": {"bar": {}}}, [None]),
+        ("boo.?bar.?boo", {"boo": {}}, [None]),
         ("$.*", {"boo": 1, "bar": 2}, [1, 2]),
+        ("$.'*'", {"boo": 1, "bar": 2, "*": 3}, [3]),
         ("boo.*", {"boo": {"boo": 1, "bar": 2}}, [1, 2]),
-        ("boo.*.boo", {"boo": {"boo": {"boo": 1}, "bar": {"boo": 2}}}, [1, 2]),
+        (
+            "boo.*.boo",
+            {"boo": {"boo": {"boo": 1}, "bar": {"boo": 2}, "oth": {}}},
+            [1, 2],
+        ),
+        (
+            "boo.*.?boo",
+            {"boo": {"boo": {"boo": 1}, "bar": {"boo": 2}, "oth": {}}},
+            [1, 2, None],
+        ),
         ("boo.*.boo", {"boo": {"boo": {"boo": 1}, "bar": {"bar": 2}}}, [1]),
         ("boo.*.boo", {"boo": {"boo": {"boo": 1}, "bar": 1}}, [1]),
         ("$[0]", [1, 2], [1]),

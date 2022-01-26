@@ -450,25 +450,40 @@ class Name(Expr):
 
     """
 
-    def __init__(self, name: Optional[str] = None) -> None:
+    def __init__(self, name: Optional[str] = None, filtered: bool = True) -> None:
         super().__init__()
         self.name = name
+        self.filtered = filtered
+        assert (name, filtered) != (None, False)
 
     def _get_partial_expression(self) -> str:
         if self.name is None:
             return "*"
 
-        return self.name
+        name = self.name
+        if name in ("*", "$", "@"):
+            name = repr(name)
+
+        if self.filtered:
+            return name
+        else:
+            return f"?{name}"
 
     def find(self, element: Any) -> List[Any]:
         if not isinstance(element, dict):
-            raise JSONPathFindError
+            if not self.filtered and self.left is not None:
+                return [None]
+            else:
+                raise JSONPathFindError
 
         if self.name is None:
             return list(element.values())
 
         if self.name not in element:
-            raise JSONPathFindError
+            if self.filtered:
+                raise JSONPathFindError
+            else:
+                return [None]
 
         return [element[self.name]]
 

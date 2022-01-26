@@ -69,8 +69,15 @@ class JSONPathTransformer(Transformer[Expr]):
     def STRING(self, quoted_string: str) -> str:
         return quoted_string[1:-1]
 
-    def identifier(self, string: str) -> Name:
+    def identifier(self, name: Name) -> Name:
+        return name
+
+    def identifier_filtered(self, string: str) -> Name:
         return Name(string)
+
+    def identifier_unfiltered(self, question_mark: Literal["?"], name: Name) -> Name:
+        name.filtered = False
+        return name
 
     def STAR(self, star_: Literal["*"]) -> None:
         return None
@@ -107,6 +114,11 @@ class JSONPathTransformer(Transformer[Expr]):
             raise AssertionError(f"Opertor {operator!r} is not supported")
 
         return left.chain(rv)
+
+    cname_filterable = identifier
+
+    def cname_unfiltered(self, question_mark: Literal["?"], string: str) -> Name:
+        return Name(string, filtered=False)
 
     def first_path(self, expr_or_str: Union[Expr, str]) -> Expr:
         if isinstance(expr_or_str, str):
@@ -157,7 +169,7 @@ class JSONPathTransformer(Transformer[Expr]):
     ) -> Slice:
         return Slice(start=first_field, stop=second_field, step=third_field)
 
-    def funccall(self, name: str, args: T_ARGS = tuple()) -> Function:
+    def func_call(self, name: str, args: T_ARGS = tuple()) -> Function:
         if name == "key":
             return Key(*args)
         elif name == "contains":

@@ -1,5 +1,5 @@
 start: path
-    | funccall
+    | func_call
 
 COLON: ":"
 slice: [expr] COLON [expr] COLON [expr] -> three_fields_slice
@@ -16,10 +16,15 @@ STAR: "*"
 DOT: "."
 DOUBLE_DOT.2: ".."
 
-identifier: CNAME | STRING
+identifier_filtered: CNAME | STRING
+QUESTION_MARK: "?"
+identifier_unfiltered: QUESTION_MARK identifier_filtered
+identifier: identifier_unfiltered | identifier_filtered
 self: "@"
 root: "$"
-first_path: CNAME
+cname_unfiltered: QUESTION_MARK CNAME
+cname_filterable: CNAME | cname_unfiltered
+first_path: cname_filterable
     | self
     | root
 
@@ -44,7 +49,7 @@ OR: "or"
 predicate: "[" (expr | slice | STAR) "]"
 
 action_separate_with_dot: DOUBLE_DOT predicate  -> search_with_predicate
-    | DOUBLE_DOT identifier                     -> search_with_identifier
+    | DOUBLE_DOT identifier_filtered            -> search_with_identifier
     | DOT identifier                            -> chain_with_identifier
     | DOT STAR                                  -> chain_with_star
 
@@ -56,12 +61,12 @@ path_with_action: atom action_separate_with_dot
 
 args: args "," expr       -> multi_args
     | expr                -> single_arg
-funccall: CNAME "(" args ")"
+func_call: CNAME "(" args ")"
     | CNAME "()"
 
 ?atom: value
     | path
-    | funccall
+    | func_call
     | "(" expr ")"          -> parenthesized_expr
 
 ?expr: test
