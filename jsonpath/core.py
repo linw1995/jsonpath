@@ -461,6 +461,8 @@ class Name(Expr):
             return "*"
 
         name = self.name
+        if name in ("*", "$", "@"):
+            name = repr(name)
 
         if self.filtered:
             return name

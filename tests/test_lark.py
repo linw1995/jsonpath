@@ -68,6 +68,7 @@ parser_parse_not_raises_exception_testcases = [
     "a[b][c]",
     "(a[b])[c]",
     "a.*",
+    "a.'*'",
     "a.'b'",
     "a..[b]",
     "a..[0]",
@@ -154,6 +155,7 @@ pytest.mark.parametrize(
         ("boo.?bar.?boo", {"boo": {"bar": {}}}, [None]),
         ("boo.?bar.?boo", {"boo": {}}, [None]),
         ("$.*", {"boo": 1, "bar": 2}, [1, 2]),
+        ("$.'*'", {"boo": 1, "bar": 2, "*": 3}, [3]),
         ("boo.*", {"boo": {"boo": 1, "bar": 2}}, [1, 2]),
         (
             "boo.*.boo",
