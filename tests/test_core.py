@@ -25,31 +25,44 @@ from .utils import assert_find
 
 
 @pytest.mark.parametrize(
-    "name,data,expect",
-    [("boo", {"boo": 1}, [1]), (None, {"boo": 1, "bar": 2}, [1, 2])],
+    "name,filtered,data,expect",
+    [
+        ("boo", True, {"boo": 1}, [1]),
+        (None, True, {"boo": 1, "bar": 2}, [1, 2]),
+        ("boo", False, {}, [None]),
+        ("boo", True, None, []),
+        ("boo", False, None, []),
+    ],
     ids=reprlib.repr,
 )
-def test_name_find(name, data, expect):
-    assert_find(Name(name), data, expect)
+def test_name_find(name, filtered, data, expect):
+    assert_find(Name(name, filtered), data, expect)
 
 
 @pytest.mark.parametrize(
-    "names,data,expect",
+    "args_list,data,expect",
     [
-        (["boo", "bar"], {"boo": {"bar": 1}}, [1]),
-        (["boo", "bar", "boo"], {"boo": {"bar": {"boo": 1}}}, [1]),
+        ([("boo",), ("bar",)], {"boo": {"bar": 1}}, [1]),
+        ([("boo",), ("bar",)], {"boo": {}}, []),
+        ([("boo",), ("bar", False)], {"boo": {}}, [None]),
+        ([("boo",), ("bar",), ("boo",)], {"boo": {"bar": {"boo": 1}}}, [1]),
         (
-            ["boo", None, "boo"],
-            {"boo": {"boo": {"boo": 1}, "bar": {"boo": 2}}},
+            [("boo",), (None,), ("boo",)],
+            {"boo": {"boo": {"boo": 1}, "bar": {"boo": 2}, "cc": {}}},
             [1, 2],
+        ),
+        (
+            [("boo",), (None,), ("boo", False)],
+            {"boo": {"boo": {"boo": 1}, "bar": {"boo": 2}, "cc": {}}},
+            [1, 2, None],
         ),
     ],
     ids=reprlib.repr,
 )
-def test_name_chain_find(names, data, expect):
-    jp = Name(names[0])
-    for name in names[1:]:
-        jp = jp.Name(name)  # type: ignore
+def test_name_chain_find(args_list, data, expect):
+    jp = Name(*args_list[0])
+    for args in args_list[1:]:
+        jp = jp.Name(*args)  # type: ignore
 
     assert_find(jp, data, expect)
 

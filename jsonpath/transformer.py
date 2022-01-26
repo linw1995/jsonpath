@@ -75,7 +75,7 @@ class JSONPathTransformer(Transformer[Expr]):
     def identifier_filtered(self, string: str) -> Name:
         return Name(string)
 
-    def identifier_unfiltered(self, questionMark: Literal["?"], name: Name) -> Name:
+    def identifier_unfiltered(self, question_mark: Literal["?"], name: Name) -> Name:
         name.filtered = False
         return name
 
@@ -114,6 +114,11 @@ class JSONPathTransformer(Transformer[Expr]):
             raise AssertionError(f"Opertor {operator!r} is not supported")
 
         return left.chain(rv)
+
+    cname_filterable = identifier
+
+    def cname_unfiltered(self, question_mark: Literal["?"], string: str) -> Name:
+        return Name(string, filtered=False)
 
     def first_path(self, expr_or_str: Union[Expr, str]) -> Expr:
         if isinstance(expr_or_str, str):

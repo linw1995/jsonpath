@@ -22,7 +22,9 @@ identifier_unfiltered: QUESTION_MARK identifier_filtered
 identifier: identifier_unfiltered | identifier_filtered
 self: "@"
 root: "$"
-first_path: CNAME
+cname_unfiltered: QUESTION_MARK CNAME
+cname_filterable: CNAME | cname_unfiltered
+first_path: cname_filterable
     | self
     | root
 
