@@ -1,6 +1,5 @@
 [project]
 name = "jsonpath-extractor"
-version = {use_scm = true}
 authors = [
     {name = "林玮 (Jade Lin)", email = "linw1995@icloud.com"},
 ]
@@ -58,6 +57,7 @@ includes = [
 excludes = [
     "**/.mypy_cache"
 ]
+version = {use_scm = true}
 
 [tool.pdm.dev-dependencies]
 docs = [
