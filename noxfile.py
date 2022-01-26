@@ -37,6 +37,7 @@ def coverage_test(session, parser_backend):
     session.run(
         "pdm",
         "sync",
+        "--no-editable",
         "-v",
         "-G",
         "test",
@@ -59,7 +60,7 @@ def coverage_test(session, parser_backend):
 
 @nox.session(python=pythons, reuse_venv=True)
 def coverage_report(session):
-    session.run("pdm", "sync", "-v", "-G", "test", external=True)
+    session.run("pdm", "sync", "--no-editable", "-v", "-G", "test", external=True)
     session.run("coverage", "report")
     session.run("coverage", "xml")
     session.run("coverage", "html")
@@ -77,7 +78,9 @@ def build(session):
 
 @nox.session(reuse_venv=True)
 def build_readme(session):
-    session.run("pdm", "sync", "-v", "-G", "build_readme", external=True)
+    session.run(
+        "pdm", "sync", "--no-editable", "-v", "-G", "build_readme", external=True
+    )
     session.run(
         "python", "scripts/build_readme.py", "README.template.rst", "README.rst"
     )

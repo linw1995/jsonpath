@@ -25,7 +25,7 @@ init:
 	@echo ">> installing $(if $(EXTRAS),\"$(EXTRAS)\" ,)dependencies by pdm"
 	$(if $(PYTHON),pdm use -f $(PYTHON),)
 	pdm info && pdm info --env
-	pdm sync -v $(EXTRAS_ARGS) $(DEV_EXTRAS_ARGS)
+	pdm sync --no-editable -v $(EXTRAS_ARGS) $(DEV_EXTRAS_ARGS)
 	pdm config -l use_venv true
 
 deinit:
