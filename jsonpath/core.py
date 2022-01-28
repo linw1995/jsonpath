@@ -692,7 +692,7 @@ class Brace(Expr):
 
     It seems to be useless but makes chaining filtering become possible.
     The expressions like `"$[@ < 100][@ >= 50]"` can not perform chaining filtering.
-    Because the Preidcate (and Array) class always unarrays the found elements to
+    Because the Predicate (and Array) class always unpacks the found elements to
     avoid the found result looking like `[[[[[[[...]]]]]]]`.
     So the right way to do chaining filter is that it should use with Brace class.
 
