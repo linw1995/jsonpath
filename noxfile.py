@@ -50,7 +50,7 @@ def coverage_test(session, parser_backend):
             pybin_path = get_nox_session_pybin(session)
             build_lark_parser(pybin_path)
 
-        session.run("pip", "uninstall", "lark-parser", "-y")
+        session.run("pip", "uninstall", "lark", "-y")
     else:
         if lark_parser_path.exists():
             lark_parser_path.unlink()
