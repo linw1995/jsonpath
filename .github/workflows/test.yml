@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - release/*
   pull_request:
     branches:
       - "*"
@@ -14,9 +15,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Set up PDM
-      uses: pdm-project/setup-pdm@v2.5
+      uses: pdm-project/setup-pdm@v3
       with:
-        python-version: 3.7
+        python-version: 3.11
     - name: Cache Nox Virtualenvs
       uses: actions/cache@v1
       with:
@@ -26,7 +27,7 @@ jobs:
     - name: Install nox
       run: |
         pip install nox
-        pdm config use_venv true
+        pdm config python.use_venv true
     - uses: pre-commit/action@v2.0.0
       env:
         SKIP: export_requirements_txt
@@ -35,11 +36,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.7, 3.8, 3.9, "3.10", "3.11"]
     steps:
     - uses: actions/checkout@v1
     - name: Set up PDM
-      uses: pdm-project/setup-pdm@v2.5
+      uses: pdm-project/setup-pdm@v3
       with:
         python-version: ${{ matrix.python-version }}
     - name: Cache Nox Virtualenvs
@@ -51,14 +52,13 @@ jobs:
     - name: Install nox
       run: |
         pip install nox
-        pdm config use_venv true
+        pdm config python.use_venv true
     - name: Test with coverage
       run: |
         make PYTHON=${{ matrix.python-version }} cov
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1.0.5
+      uses: codecov/codecov-action@v2
       with:
-        # Repository upload token - get it from codecov.io
         token: ${{ secrets.CODECOV_TOKEN }}
-        # Specify whether or not CI build should fail if Codecov runs into an error during upload
+        flags: main,unittest,${{ matrix.python-version }}
         fail_ci_if_error: false
