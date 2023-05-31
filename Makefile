@@ -1,6 +1,6 @@
 help:
 	@echo "PYTHON=X.Y init	setup development environemnt with specific Python version"
-	@echo "init		setup development environment with defualt Python version 3.9"
+	@echo "init		setup development environment with defualt Python version 3.11"
 	@echo "update-dev	update devepoment dependencies via pdm and via pre-commit"
 	@echo "update		update all dependencies via pdm and via pre-commit"
 	@echo "pre-commit	setup git hooks"
@@ -8,13 +8,13 @@ help:
 	@echo "test		run quick tests"
 	@echo "vtest		run quick tests with verbose"
 	@echo "PYTHON=X.Y cov	run tests with coverage and with specific Python version"
-	@echo "cov		run tests with coverage and with default Python version 3.9"
+	@echo "cov		run tests with coverage and with default Python version 3.11"
 	@echo "serve-docs	serve documents with live-reloading"
 
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
-PYTHON = 3.10
+PYTHON = 3.11
 EXTRAS = parser
 DEV_EXTRAS = test docs
 EXTRAS_ARGS = $(if $(EXTRAS),-G,) $(subst $(SPACE),$(SPACE)-G$(SPACE),$(EXTRAS))
@@ -26,7 +26,7 @@ init:
 	$(if $(PYTHON),pdm use -f $(PYTHON),)
 	pdm info && pdm info --env
 	pdm sync --no-editable -v $(EXTRAS_ARGS) $(DEV_EXTRAS_ARGS)
-	pdm config -l use_venv true
+	pdm config -l python.use_venv true
 
 deinit:
 	rm -rf .nox

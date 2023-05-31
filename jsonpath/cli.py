@@ -14,7 +14,7 @@ def cli(args: argparse.Namespace) -> None:
     try:
         jp = parse(args.expression)
     except JSONPathError as exc:
-        sys.exit(exc)
+        sys.exit(str(exc))
 
     if args.file:
         file_path = Path(args.file)

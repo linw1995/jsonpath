@@ -13,7 +13,6 @@ def fix_end_of_file(text):
 
 
 def pdm_export(args, filename, format: Format):
-
     output = subprocess.check_output(
         shlex.split(f"pdm export -f {format.name} {' '.join(args)}"), encoding="utf-8"
     )

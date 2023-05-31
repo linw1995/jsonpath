@@ -16,7 +16,7 @@ from typing import (
     Callable,
     Dict,
     Generator,
-    Iterable,
+    Iterator,
     List,
     Optional,
     Tuple,
@@ -132,7 +132,6 @@ class ExprMeta(type):
     def __new__(
         metacls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]
     ) -> "ExprMeta":
-
         if "find" not in attr_dict:
             return _create_expr_cls(metacls, name, bases, attr_dict)
 
@@ -573,13 +572,13 @@ class Predicate(Expr):
     def _get_partial_expression(self) -> str:
         return f"[{self.expr.get_expression()}]"
 
-    def find(self, element: Any) -> List[Any]:
+    def find(self, element: Union[List[Any], Dict[str, Any]]) -> List[Any]:
         filtered_items = []
-        items: Union[Iterable[Tuple[int, Any]], Iterable[Tuple[str, Any]]]
+        items: Union[Iterator[tuple[str, Any]], Iterator[tuple[int, Any]]]
         if isinstance(element, list):
-            items = enumerate(element)
+            items = iter(enumerate(element))
         elif isinstance(element, dict):
-            items = element.items()
+            items = iter(element.items())
         else:
             raise JSONPathFindError
 
@@ -702,7 +701,7 @@ class Brace(Expr):
     >>> p.find([100, 99, 50, 1])
     [99, 50]
 
-    Generally, we will use And expresion do that. e.g. `"$[@ < 100 and @ >= 50]"`
+    Generally, we will use And expression do that. e.g. `"$[@ < 100 and @ >= 50]"`
 
     >>> p = Brace(
     ...     Root().Array().Name("a")
