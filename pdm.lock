@@ -269,7 +269,7 @@ summary = "A lil' TOML parser"
 
 [[package]]
 name = "tornado"
-version = "6.3"
+version = "6.3.2"
 requires_python = ">= 3.8"
 summary = "Tornado is a Python web framework and asynchronous networking library, originally developed at FriendFeed."
 
@@ -289,7 +289,7 @@ summary = "HTTP library with thread-safe connection pooling, file post, and more
 lock_version = "4.2"
 cross_platform = true
 groups = ["default", "build_readme", "docs", "parser", "test"]
-content_hash = "sha256:866f7cec0a10228180108991e2d0bb52b23cfbcd9b65021a90dbde506575ab63"
+content_hash = "sha256:83f8dd0b4a34a8075e4a756628538ae0f592887dd4258e146ccc2d5ea1b6a2cf"
 
 [metadata.files]
 "alabaster 0.7.13" = [
@@ -619,18 +619,18 @@ content_hash = "sha256:866f7cec0a10228180108991e2d0bb52b23cfbcd9b65021a90dbde506
     {url = "https://files.pythonhosted.org/packages/97/75/10a9ebee3fd790d20926a90a2547f0bf78f371b2f13aa822c759680ca7b9/tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {url = "https://files.pythonhosted.org/packages/c0/3f/d7af728f075fb08564c5949a9c95e44352e23dee646869fa104a3b2060a3/tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
 ]
-"tornado 6.3" = [
-    {url = "https://files.pythonhosted.org/packages/00/47/51366fdc68fbd552150f5e36582875c8c8cd14623f946ce37730418e3580/tornado-6.3-cp38-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:912df5712024564e362ecce43c8d5862e14c78c8dd3846c9d889d44fbd7f4951"},
-    {url = "https://files.pythonhosted.org/packages/15/e6/88afe8318b6aaff1e6c60b3d4b94c9b68708cc0a5ba2f6dae5cbc288ce69/tornado-6.3.tar.gz", hash = "sha256:d68f3192936ff2c4add04dc21a436a43b4408d466746b78bb2b9d0a53a18683f"},
-    {url = "https://files.pythonhosted.org/packages/45/b7/e3e828f0cf11e4cca5e51badf3dcaf8a370e31e59fb8759a8ba877af9720/tornado-6.3-cp38-abi3-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c659ab04d5aa477dbe44152c67d93f3ad3243b992d94f795ca1d5c73c37337ce"},
-    {url = "https://files.pythonhosted.org/packages/4a/1d/d00c7bcb9b710015c395273348f72abb54b62494a209dd85481c748c58cd/tornado-6.3-cp38-abi3-macosx_10_9_universal2.whl", hash = "sha256:6cfff1e9c15c79e106b8352269d201f8fc0815914a6260f3893ca18b724ea94b"},
-    {url = "https://files.pythonhosted.org/packages/96/84/561d26caf2ced0404fddfb977642e56a3ca2f1e87b8b134ba08e88eb7c7e/tornado-6.3-cp38-abi3-macosx_10_9_x86_64.whl", hash = "sha256:6164571f5b9f73143d1334df4584cb9ac86d20c461e17b6c189a19ead8bb93c1"},
-    {url = "https://files.pythonhosted.org/packages/98/8c/0e3ad77e931ddcd1696b093f34e1007852043ffad2e151064964315c33ed/tornado-6.3-cp38-abi3-musllinux_1_1_x86_64.whl", hash = "sha256:4d349846931557b7ec92f224b5d598b160e2ba26ae1812480b42e9622c884bf7"},
-    {url = "https://files.pythonhosted.org/packages/9d/70/ccf601ddd8c7cdfc358aa186943290444318dbedc7dbd0e36f8c648b9a2a/tornado-6.3-cp38-abi3-musllinux_1_1_aarch64.whl", hash = "sha256:c37b6a384d54ce6a31168d40ab21ad2591ddaf34973075cc0cad154402ecd9e8"},
-    {url = "https://files.pythonhosted.org/packages/ad/c5/020793aab4933c7ab03cf8ac1eb6d5c627426739b5e6d4fe7acc94ef7528/tornado-6.3-cp38-abi3-win32.whl", hash = "sha256:d7b737e18f701de3e4a3b0824260b4d740e4d60607b8089bb80e80ffd464780e"},
-    {url = "https://files.pythonhosted.org/packages/ce/a9/585f530840efe17539ab6d985c2989d6952c1fd5e57e0e8605348d808b4d/tornado-6.3-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4546003dc8b5733489139d3bff5fa6a0211be505faf819bd9970e7c2b32e8122"},
-    {url = "https://files.pythonhosted.org/packages/e1/c3/b8156e72343136cdf661993c60fed85c77d30052c0ec776da33482b18c42/tornado-6.3-cp38-abi3-musllinux_1_1_i686.whl", hash = "sha256:c9114a61a4588c09065b9996ae05462350d17160b92b9bf9a1e93689cc0424dc"},
-    {url = "https://files.pythonhosted.org/packages/ed/6b/453e9026ffbc53282fbc502a2ad33a9687643d998b08d6ce3deafaf948b9/tornado-6.3-cp38-abi3-win_amd64.whl", hash = "sha256:720f53e6367b38190ae7fa398c25c086c69d88b3c6535bd6021a126b727fb5cd"},
+"tornado 6.3.2" = [
+    {url = "https://files.pythonhosted.org/packages/30/3c/68e9896ce47dd4acdb7e27945046f139db2862d3b990c655a5c0627c9a05/tornado-6.3.2-cp38-abi3-macosx_10_9_universal2.whl", hash = "sha256:c367ab6c0393d71171123ca5515c61ff62fe09024fa6bf299cd1339dc9456829"},
+    {url = "https://files.pythonhosted.org/packages/30/6c/710fcafd1acbdafd80465a8107a08e88233a3a6588e414716be37236c97a/tornado-6.3.2-cp38-abi3-musllinux_1_1_x86_64.whl", hash = "sha256:6a0848f1aea0d196a7c4f6772197cbe2abc4266f836b0aac76947872cd29b411"},
+    {url = "https://files.pythonhosted.org/packages/30/f0/6e5d85d422a26fd696a1f2613ab8119495c1ebb8f49e29f428d15daf79cc/tornado-6.3.2.tar.gz", hash = "sha256:4b927c4f19b71e627b13f3db2324e4ae660527143f9e1f2e2fb404f3a187e2ba"},
+    {url = "https://files.pythonhosted.org/packages/31/51/894f260c1380853cc268f661fe599a4523a47d07e867386abb58f1f11278/tornado-6.3.2-cp38-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5b17b1cf5f8354efa3d37c6e28fdfd9c1c1e5122f2cb56dac121ac61baa47cbe"},
+    {url = "https://files.pythonhosted.org/packages/35/79/3237fab5374abea5473c1a4f850bf24168053d05dba002d4bbf14f86243c/tornado-6.3.2-cp38-abi3-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:05615096845cf50a895026f749195bf0b10b8909f9be672f50b0fe69cba368e4"},
+    {url = "https://files.pythonhosted.org/packages/66/15/a69a97136df081414ffb8e923c8a17c3761e7d8ff665e0a7b428fefe09e3/tornado-6.3.2-cp38-abi3-musllinux_1_1_aarch64.whl", hash = "sha256:29e71c847a35f6e10ca3b5c2990a52ce38b233019d8e858b755ea6ce4dcdd19d"},
+    {url = "https://files.pythonhosted.org/packages/8d/e6/9627d4baa9db97b6b8757a42513e89b06410eae82a9bd7e2f298bb38a616/tornado-6.3.2-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c2de14066c4a38b4ecbbcd55c5cc4b5340eb04f1c5e81da7451ef555859c833f"},
+    {url = "https://files.pythonhosted.org/packages/be/95/a4d0b991b64e910516d856c6c936df9e1f63dcc22eaaabfcef56d3af1a25/tornado-6.3.2-cp38-abi3-win32.whl", hash = "sha256:7efcbcc30b7c654eb6a8c9c9da787a851c18f8ccd4a5a3a95b05c7accfa068d2"},
+    {url = "https://files.pythonhosted.org/packages/de/fa/b8b2ee2f528eedd03d98d49c76822f065f18e99f6f58c1e18fe5ed893098/tornado-6.3.2-cp38-abi3-win_amd64.whl", hash = "sha256:0c325e66c8123c606eea33084976c832aa4e766b7dff8aedd7587ea44a604cdf"},
+    {url = "https://files.pythonhosted.org/packages/f0/84/0227a83ce4b3742f81b85f9f28e5942590ad79adafe5c75cc663267c3df2/tornado-6.3.2-cp38-abi3-musllinux_1_1_i686.whl", hash = "sha256:834ae7540ad3a83199a8da8f9f2d383e3c3d5130a328889e4cc991acc81e87a0"},
+    {url = "https://files.pythonhosted.org/packages/f4/56/99038d89642cdee805805cf2e86a28ecdddafb69be9cbb04214abb995082/tornado-6.3.2-cp38-abi3-macosx_10_9_x86_64.whl", hash = "sha256:b46a6ab20f5c7c1cb949c72c1994a4585d2eaa0be4853f50a03b5031e964fc7c"},
 ]
 "typing-extensions 4.7.1" = [
     {url = "https://files.pythonhosted.org/packages/3c/8b/0111dd7d6c1478bf83baa1cab85c686426c7a6274119aceb2bd9d35395ad/typing_extensions-4.7.1.tar.gz", hash = "sha256:b75ddc264f0ba5615db7ba217daeb99701ad295353c45f9e95963337ceeeffb2"},
