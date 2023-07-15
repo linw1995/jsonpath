@@ -13,7 +13,7 @@ from jsonpath_build import build_lark_parser  # noqa: E402
 
 nox.options.stop_on_first_error = True
 
-pythons = ["3.7", "3.8", "3.9", "3.10", "3.11"]
+pythons = ["3.8", "3.9", "3.10", "3.11"]
 
 os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
 os.environ.pop("PYTHONPATH", None)
