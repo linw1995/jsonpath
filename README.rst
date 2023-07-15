@@ -155,7 +155,7 @@ pre-commit_ and nox_ CLIs in your environment.
 .. code-block:: shell
 
     make init
-    make PYTHON=3.7 init  # for specific python version
+    make PYTHON=3.8 init  # for specific python version
 
 Linting
 ~~~~~~~

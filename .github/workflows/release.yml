@@ -13,7 +13,7 @@ jobs:
     - name: Set up PDM
       uses: pdm-project/setup-pdm@v2.5
       with:
-        python-version: 3.7
+        python-version: 3.8
     - name: Build release
       run: |
         pdm build
