@@ -56,6 +56,7 @@ docs = [
     "livereload ~= 2.6",
     "lark ~= 1.1.0",
     "tornado>=6.3.2",
+    "certifi==2023.7.22",
 ]
 test = ["pytest-cov ~= 2.11", "pexpect ~= 4.8", "sybil ~= 2.0"]
 build_readme = ["pygments ~= 2.8", "docutils >= 0.16"]
