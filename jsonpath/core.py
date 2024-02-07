@@ -3,6 +3,7 @@
 :mod:`core` -- JSONPath Core
 ============================
 """
+
 # Standard Library
 import functools
 import json

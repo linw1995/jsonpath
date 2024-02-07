@@ -1,6 +1,7 @@
 """
 Watch related files, build and serve Sphinx documentation automatically.
 """
+
 # Standard Library
 import os
 import shlex

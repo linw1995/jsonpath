@@ -36,7 +36,7 @@ from .lark import Transformer, v_args
 
 T_OPERATOR = Literal["<=", ">=", "<", ">", "!=", "="]
 T_ARG = Union[Expr, T_VALUE]
-T_NO_ARG = Iterable
+T_NO_ARG = Iterable[Any]
 T_ARGS = Union[T_NO_ARG, List[T_ARG]]
 
 

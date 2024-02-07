@@ -3,6 +3,7 @@
 :mod:`parser` -- Translate expression into executable
 =====================================================
 """
+
 # Local Folder
 from .core import Expr, JSONPathSyntaxError, JSONPathUndefinedFunctionError
 from .lark import UnexpectedToken, VisitError
