@@ -67,10 +67,3 @@ repos:
     language: system
     pass_filenames: false
     types: [rst]
-  - id: export_requirements_txt
-    name: export_requirements_txt
-    description: create requirement file for python
-    entry: python3 scripts/export_requirements_txt.py
-    language: system
-    files: pdm.lock
-    pass_filenames: false
