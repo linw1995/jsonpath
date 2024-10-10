@@ -139,3 +139,9 @@ lark_parser.py
 ## PDM
 __pypackages__
 .pdm.toml
+.dream2nix/
+.pdm-python
+pdm.toml
+result
+.envrc
+.direnv

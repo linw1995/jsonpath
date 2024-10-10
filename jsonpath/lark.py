@@ -2,7 +2,7 @@
 # Ignore variable already redefined error
 try:
     # Third Party Library
-    from lark import Lark, Transformer, v_args
+    from lark import Lark, Token, Transformer, v_args
     from lark.exceptions import UnexpectedToken, VisitError
 
 except ImportError:
@@ -10,6 +10,7 @@ except ImportError:
     from .lark_parser import (
         Lark,
         Lark_StandAlone,
+        Token,
         Transformer,
         UnexpectedToken,
         VisitError,
@@ -18,6 +19,7 @@ except ImportError:
 
 
 __all__ = (
+    "Token",
     "Transformer",
     "v_args",
     "Lark",

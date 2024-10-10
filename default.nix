@@ -32,4 +32,6 @@
       "jsonpath"
     ];
   };
+
+  pdm.editables = lib.mkForce {};
 }

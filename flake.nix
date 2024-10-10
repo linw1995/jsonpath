@@ -29,5 +29,22 @@
         ];
       };
     });
+    devShells = eachSystem (system: let
+      pkgs = import nixpkgs {inherit system;};
+    in {
+      default = pkgs.mkShell {
+        inputsFrom = [self.packages.${system}.default.devShell];
+        buildInputs = with pkgs; [
+          python39
+          python310
+          python311
+          python312
+        ];
+        packages = with pkgs; [
+          pre-commit
+          python312Packages.nox
+        ];
+      };
+    });
   };
 }

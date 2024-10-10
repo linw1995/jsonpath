@@ -13,7 +13,7 @@ from jsonpath_build import build_lark_parser  # noqa: E402
 
 nox.options.stop_on_first_error = True
 
-pythons = ["3.8", "3.9", "3.10", "3.11"]
+pythons = ["3.9", "3.10", "3.11", "3.12"]
 
 os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
 os.environ.pop("PYTHONPATH", None)
@@ -25,7 +25,7 @@ def get_nox_session_pybin(session):
     return session.bin + "/python"
 
 
-@nox.session(python=pythons, reuse_venv=True)
+@nox.session(python=pythons, venv_backend="venv")
 @nox.parametrize(
     "parser_backend",
     [
@@ -50,7 +50,7 @@ def coverage_test(session, parser_backend):
             pybin_path = get_nox_session_pybin(session)
             build_lark_parser(pybin_path)
 
-        session.run("pip", "uninstall", "lark", "-y")
+        session.run("python", "-m", "pip", "uninstall", "lark", "-y")
     else:
         if lark_parser_path.exists():
             lark_parser_path.unlink()
@@ -58,7 +58,7 @@ def coverage_test(session, parser_backend):
     session.run("pytest", "-vv", "--cov=jsonpath", "--cov-append", *session.posargs)
 
 
-@nox.session(python=pythons, reuse_venv=True)
+@nox.session(python=pythons, venv_backend="venv")
 def coverage_report(session):
     session.run("pdm", "sync", "--no-editable", "-v", "-G", "test", external=True)
     session.run("coverage", "report")
@@ -69,14 +69,14 @@ def coverage_report(session):
     )
 
 
-@nox.session(reuse_venv=True)
+@nox.session(venv_backend="venv")
 def build(session):
     if not lark_parser_path.exists():
         build_lark_parser()
     session.run("pdm", "build", external=True)
 
 
-@nox.session(reuse_venv=True)
+@nox.session(python=pythons[-1:], venv_backend="venv")
 def build_readme(session):
     session.run(
         "pdm", "sync", "--no-editable", "-v", "-G", "build_readme", external=True
