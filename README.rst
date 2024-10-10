@@ -96,13 +96,13 @@ The output of the above commands.
 Changelog
 <<<<<<<<<
 
-v0.9.0
+v0.9.1
 ~~~~~~
 
 Build
 *****
 
-- Remove support for Python 3.7
+- Remove support for Python 3.8
 
 
 Contributing
