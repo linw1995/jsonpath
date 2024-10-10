@@ -13,52 +13,52 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up PDM
-      uses: pdm-project/setup-pdm@v3
-      with:
-        python-version: 3.11
-    - name: Cache Nox Virtualenvs
-      uses: actions/cache@v1
-      with:
-        path: .nox
-        key: ${{ runner.os }}-nox-${{ hashFiles('**/pdm.lock') }}
-        restore-keys: ${{ runner.os }}-nox
-    - name: Install nox
-      run: |
-        pip install nox
-        pdm config python.use_venv true
-    - uses: pre-commit/action@v2.0.0
-      env:
-        SKIP: export_requirements_txt
+      - uses: actions/checkout@v1
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: 3.12
+      - name: Cache Nox Virtualenvs
+        uses: actions/cache@v1
+        with:
+          path: .nox
+          key: ${{ runner.os }}-nox-${{ hashFiles('**/pdm.lock') }}
+          restore-keys: ${{ runner.os }}-nox
+      - name: Install nox
+        run: |
+          pip install nox
+          pdm config python.use_venv true
+      - uses: pre-commit/action@v2.0.0
+        env:
+          SKIP: export_requirements_txt
   test:
     needs: lint
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10", "3.11"]
+        python-version: [3.9, "3.10", "3.11", "3.12"]
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up PDM
-      uses: pdm-project/setup-pdm@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Cache Nox Virtualenvs
-      uses: actions/cache@v1
-      with:
-        path: .nox
-        key: ${{ runner.os }}-${{ matrix.python-version }}-nox-${{ hashFiles('**/pdm.lock') }}
-        restore-keys: ${{ runner.os }}-${{ matrix.python-version }}-nox
-    - name: Install nox
-      run: |
-        pip install nox
-        pdm config python.use_venv true
-    - name: Test with coverage
-      run: |
-        make PYTHON=${{ matrix.python-version }} cov
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        flags: main,unittest,${{ matrix.python-version }}
-        fail_ci_if_error: false
+      - uses: actions/checkout@v1
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Cache Nox Virtualenvs
+        uses: actions/cache@v1
+        with:
+          path: .nox
+          key: ${{ runner.os }}-${{ matrix.python-version }}-nox-${{ hashFiles('**/pdm.lock') }}
+          restore-keys: ${{ runner.os }}-${{ matrix.python-version }}-nox
+      - name: Install nox
+        run: |
+          pip install nox
+          pdm config python.use_venv true
+      - name: Test with coverage
+        run: |
+          make PYTHON=${{ matrix.python-version }} cov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: main,unittest,${{ matrix.python-version }}
+          fail_ci_if_error: false

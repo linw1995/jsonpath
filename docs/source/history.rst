@@ -2,6 +2,14 @@
 History
 =======
 
+v0.9.0
+~~~~~~
+
+Build
+*****
+
+- Remove support for Python 3.7
+
 v0.8.0
 ~~~~~~
 
