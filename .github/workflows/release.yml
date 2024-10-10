@@ -3,32 +3,32 @@ name: Release
 on:
   push:
     tags:
-    - '*'
+      - "*"
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up PDM
-      uses: pdm-project/setup-pdm@v2.5
-      with:
-        python-version: 3.8
-    - name: Build release
-      run: |
-        pdm build
-    - name: Upload release
-      uses: actions/upload-artifact@v1
-      with:
-        name: dist
-        path: dist
-    - name: Publish release to PYPI
-      run: |
-        pip install twine
-        twine upload -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }} --verbose dist/*
-    - name: Publish release to GitHub Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: dist/*
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v1
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v2.5
+        with:
+          python-version: 3.9
+      - name: Build release
+        run: |
+          pdm build
+      - name: Upload release
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Publish release to PYPI
+        run: |
+          pip install twine
+          twine upload -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }} --verbose dist/*
+      - name: Publish release to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
