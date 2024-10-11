@@ -6,6 +6,7 @@ import subprocess
 from pathlib import Path
 
 Format = enum.Enum("Format", "requirements setuppy")
+BASE_DIR = Path(__file__).parent
 
 
 def fix_end_of_file(text):
@@ -30,18 +31,26 @@ def pdm_export(args, filename, format: Format):
 
 
 pdm_export(
-    args=["--prod"], filename="requirements-mini.txt", format=Format.requirements
+    args=["--prod"],
+    filename=BASE_DIR / "requirements-mini.txt",
+    format=Format.requirements,
 )
 pdm_export(
     args=[
         "--prod",
         "-G:all",
     ],
-    filename="requirements.txt",
+    filename=BASE_DIR / "requirements.txt",
     format=Format.requirements,
 )
-pdm_export(args=["-G:all"], filename="requirements-dev.txt", format=Format.requirements)
 pdm_export(
-    args=["-G", "docs"], filename="requirements-docs.txt", format=Format.requirements
+    args=["-G:all"],
+    filename=BASE_DIR / "requirements-dev.txt",
+    format=Format.requirements,
 )
-# pdm_export(args=[], filename="setup.py", format=Format.setuppy)
+pdm_export(
+    args=["-G", "docs"],
+    filename=BASE_DIR / "requirements-docs.txt",
+    format=Format.requirements,
+)
+# pdm_export(args=[], filename=BASE_DIR / "setup.py", format=Format.setuppy)
