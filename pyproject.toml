@@ -60,3 +60,6 @@ docs = [
 ]
 test = ["pytest-cov ~= 2.11", "pytest < 8", "pexpect ~= 4.8", "sybil ~= 2.0"]
 build_readme = ["pygments ~= 2.8", "docutils >= 0.16"]
+
+[tool.pdm.options]
+lock = ["-S", "inherit_metadata,no_cross_platform"]

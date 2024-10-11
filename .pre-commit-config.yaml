@@ -1,69 +1,76 @@
 repos:
-- repo: https://github.com/commitizen-tools/commitizen
-  rev: v3.27.0
-  hooks:
-  - id: commitizen
-    stages:
-    - commit-msg
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.6.0
-  hooks:
-  - id: check-symlinks
-  - id: check-toml
-  - id: check-yaml
-    args: [--unsafe]
-  - id: detect-private-key
-  - id: end-of-file-fixer
-  - id: trailing-whitespace
-  - id: check-added-large-files
-  - id: mixed-line-ending
-    args: [--fix=lf]
-- repo: https://github.com/pre-commit/pygrep-hooks
-  rev: v1.10.0
-  hooks:
-  - id: python-check-blanket-noqa
-  - id: python-check-mock-methods
-  - id: python-no-eval
-  - id: python-no-log-warn
-  - id: python-use-type-annotations
-  - id: rst-backticks
-- repo: https://github.com/psf/black
-  rev: 24.4.2
-  hooks:
-  - id: black
-- repo: https://github.com/asottile/blacken-docs
-  rev: 1.16.0
-  hooks:
-  - id: blacken-docs
-    additional_dependencies: [black==23.3.*]
-- repo: https://github.com/PyCQA/flake8
-  rev: 7.0.0
-  hooks:
-  - id: flake8
-    additional_dependencies: ["flake8-bugbear==23.5.*"]
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.10.0
-  hooks:
-  - id: mypy
-    files: (jsonpath|tests)/.+\.py$
-    pass_filenames: false
-    args:
-    - jsonpath
-    - tests
-- repo: https://github.com/pre-commit/mirrors-isort
-  rev: v5.10.1
-  hooks:
-  - id: isort
-- repo: https://github.com/PyCQA/doc8
-  rev: v1.1.1
-  hooks:
-  - id: doc8
-- repo: local
-  hooks:
-  - id: build_readme
-    name: build_readme
-    description: Build README.rst
-    entry: nox -s build_readme
-    language: system
-    pass_filenames: false
-    types: [rst]
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.27.0
+    hooks:
+      - id: commitizen
+        stages:
+          - commit-msg
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-yaml
+        args: [--unsafe]
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+      - id: mixed-line-ending
+        args: [--fix=lf]
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: python-check-blanket-noqa
+      - id: python-check-mock-methods
+      - id: python-no-eval
+      - id: python-no-log-warn
+      - id: python-use-type-annotations
+      - id: rst-backticks
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+  - repo: https://github.com/asottile/blacken-docs
+    rev: 1.16.0
+    hooks:
+      - id: blacken-docs
+        additional_dependencies: [black==23.3.*]
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        additional_dependencies: ["flake8-bugbear==23.5.*"]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.10.0
+    hooks:
+      - id: mypy
+        files: (jsonpath|tests)/.+\.py$
+        pass_filenames: false
+        args:
+          - jsonpath
+          - tests
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: v5.10.1
+    hooks:
+      - id: isort
+  - repo: https://github.com/PyCQA/doc8
+    rev: v1.1.1
+    hooks:
+      - id: doc8
+  - repo: local
+    hooks:
+      - id: build_readme
+        name: build_readme
+        description: Build README.rst
+        entry: nox -s build_readme
+        language: system
+        pass_filenames: false
+        types: [rst]
+      - id: export_requirements_txt
+        name: export_requirements_txt
+        description: create requirement file for python
+        entry: python3 scripts/export_requirements_txt.py
+        language: system
+        files: pdm.lock
+        pass_filenames: false
