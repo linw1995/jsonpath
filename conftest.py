@@ -3,8 +3,8 @@ from pathlib import Path
 
 # Third Party Library
 import sybil
-import sybil.parsers.codeblock
-import sybil.parsers.doctest
+
+from sybil.parsers.rest import DocTestParser, PythonCodeBlockParser
 
 ignore_collect = sum(
     (
@@ -30,8 +30,8 @@ def pytest_ignore_collect(path, config):
 
 pytest_collect_file = sybil.Sybil(
     parsers=[
-        sybil.parsers.doctest.DocTestParser(),
-        sybil.parsers.codeblock.CodeBlockParser(),
+        DocTestParser(),
+        PythonCodeBlockParser(),
     ],
     pattern="*.rst",
     fixtures=[],
