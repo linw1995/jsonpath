@@ -56,9 +56,10 @@ def build_readme():
         rv = old_run(self)
         return rv
 
-    with mock.patch.object(
-        docutils.statemachine, "string2lines", string2lines
-    ), mock.patch.object(docutils.parsers.rst.directives.misc.Include, "run", run):
+    with (
+        mock.patch.object(docutils.statemachine, "string2lines", string2lines),
+        mock.patch.object(docutils.parsers.rst.directives.misc.Include, "run", run),
+    ):
         source_file_path: Path = Path.cwd() / "README.template.rst"
         target_file_path: Path = Path.cwd() / "README.rst"
         parser = docutils.parsers.rst.Parser()
