@@ -175,9 +175,9 @@ iniconfig==2.0.0 \
 jinja2==3.1.4 \
     --hash=sha256:4a3aee7acbbe7303aede8e9648d13b8bf88a429282aa6122a993f0ac800cb369 \
     --hash=sha256:bc5dd2abb727a5319567b7a813e6a2e7318c39f4f487cfe6c89c6f9c7d25197d
-lark==1.1.9 \
-    --hash=sha256:15fa5236490824c2c4aba0e22d2d6d823575dcaf4cdd1848e34b6ad836240fba \
-    --hash=sha256:a0dd3a87289f8ccbb325901e4222e723e7d745dbfc1803eaf5f3d2ace19cf2db
+lark==1.2.2 \
+    --hash=sha256:c2276486b02f0f1b90be155f2c8ba4a8e194d42775786db622faccd652d8e80c \
+    --hash=sha256:ca807d0162cd16cef15a8feecb862d7319e7a09bdb13aef927968e45040fed80
 livereload==2.7.0 \
     --hash=sha256:19bee55aff51d5ade6ede0dc709189a0f904d3b906d3ea71641ed548acff3246 \
     --hash=sha256:f4ba199ef93248902841e298670eebfe1aa9e148e19b343bc57dbf1b74de0513
