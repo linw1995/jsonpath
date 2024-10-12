@@ -7,11 +7,6 @@
     dream2nix.modules.dream2nix.WIP-python-pdm
   ];
 
-  deps = {nixpkgs, ...}: {
-    pkgs = nixpkgs;
-    python = nixpkgs.python3;
-  };
-
   mkDerivation = {
     src = lib.cleanSourceWith {
       src = lib.cleanSource ./.;

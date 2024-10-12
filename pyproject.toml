@@ -12,6 +12,7 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Development Status :: 5 - Production/Stable",
   "Operating System :: POSIX",
   "Operating System :: MacOS :: MacOS X",
@@ -54,6 +55,3 @@ version = { use_scm = true }
 docs = ["sphinx~=7.4", "livereload ~= 2.6", "lark ~= 1.2", "tornado>=6.3.2"]
 test = ["pytest-cov ~= 5.0", "pytest ~= 8.0", "pexpect ~= 4.8", "sybil ~= 8.0"]
 build_readme = ["pygments ~= 2.8", "docutils >= 0.16"]
-
-[tool.pdm.options]
-lock = ["-S", "inherit_metadata,no_cross_platform"]
