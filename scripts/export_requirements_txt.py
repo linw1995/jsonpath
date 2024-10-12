@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 
 Format = enum.Enum("Format", "requirements setuppy")
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path(__file__).parent / "requirements"
 
 
 def fix_end_of_file(text):
@@ -23,6 +23,8 @@ def pdm_export(args, filename, format: Format):
             ['# This a dummy setup.py to enable GitHub "Used By" stats', output]
         )
     p = Path(filename)
+    if not p.parent.exists():
+        p.parent.mkdir(parents=True)
     is_new = not p.exists()
     if is_new or p.read_text() != output:
         p.write_text(output)
