@@ -18,6 +18,7 @@ jobs:
         uses: pdm-project/setup-pdm@v3
         with:
           python-version: 3.13
+          version: 2.19.2
       - name: Cache Nox Virtualenvs
         uses: actions/cache@v1
         with:

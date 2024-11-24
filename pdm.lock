@@ -5,7 +5,7 @@
 groups = ["default", "build_readme", "docs", "parser", "test"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:ec5eb196a205eebd7abb09f10de6b85affa0f0aca3450ee5ac4815a44fbf3842"
+content_hash = "sha256:fcbc4831dd3986a9cd5e09289f95ec76cffd10b2e4ae2dac54e22ce54e9d1a58"
 
 [[metadata.targets]]
 requires_python = ">=3.9"
@@ -712,7 +712,7 @@ files = [
 [[package]]
 name = "tornado"
 version = "6.4.2"
-requires_python = ">=3.8"
+requires_python = ">= 3.8"
 summary = "Tornado is a Python web framework and asynchronous networking library, originally developed at FriendFeed."
 groups = ["docs"]
 files = [

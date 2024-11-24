@@ -27,6 +27,7 @@ init:
 	pdm info && pdm info --env
 	pdm sync --no-editable -v $(EXTRAS_ARGS) $(DEV_EXTRAS_ARGS)
 	pdm config -l python.use_venv true
+	pdm config -l strategy.inherit_metadata true
 
 deinit:
 	rm -rf .nox
