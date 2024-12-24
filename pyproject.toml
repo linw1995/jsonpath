@@ -29,7 +29,9 @@ repository = "https://github.com/linw1995/jsonpath"
 documentation = "https://jsonpath.rtfd.io/en/latest/"
 
 [project.optional-dependencies]
-parser = ["lark~=1.2"]
+parser = [
+    "lark~=1.2",
+]
 
 [project.scripts]
 jp = "jsonpath.cli:main"
