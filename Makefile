@@ -16,7 +16,7 @@ SPACE := $(EMPTY) $(EMPTY)
 
 PYTHON = 3.13
 EXTRAS = parser
-DEV_EXTRAS = test docs
+DEV_EXTRAS = test docs build_readme
 EXTRAS_ARGS = $(if $(EXTRAS),-G,) $(subst $(SPACE),$(SPACE)-G$(SPACE),$(EXTRAS))
 DEV_EXTRAS_ARGS = $(if $(DEV_EXTRAS),-G,) $(subst $(SPACE),$(SPACE)-G$(SPACE),$(DEV_EXTRAS))
 
@@ -39,7 +39,7 @@ deinit:
 
 
 update-dev:
-	pdm update $(DEV_EXTRAS_ARGS)
+	pdm update $(DEV_EXTRAS_ARGS) $(EXTRAS_ARGS)
 	pre-commit autoupdate
 
 update:

@@ -43,7 +43,6 @@
           pre-commit
           python3Packages.nox
 
-          python39
           python310
           python311
           python312
