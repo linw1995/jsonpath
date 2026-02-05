@@ -7,6 +7,7 @@
 # Standard Library
 import functools
 import json
+import operator
 import weakref
 
 from abc import abstractmethod
@@ -828,6 +829,9 @@ class Compare(Expr):
 
     """
 
+    _symbol: str = ""
+    _operator: Callable[[Any, Any], bool] = staticmethod(lambda a, b: False)
+
     def __init__(self, target: Any) -> None:
         super().__init__()
         self.target = target
@@ -837,6 +841,9 @@ class Compare(Expr):
             return self.target.get_expression()
         else:
             return json.dumps(self.target)
+
+    def _get_partial_expression(self) -> str:
+        return f" {self._symbol} {self._get_target_expression()}"
 
     def get_target_value(self) -> Any:
         if isinstance(self.target, Expr):
@@ -854,53 +861,38 @@ class Compare(Expr):
         else:
             return self.target
 
+    def find(self, element: Any) -> List[bool]:
+        return [self._operator(element, self.get_target_value())]
+
 
 class LessThan(Compare):
-    def _get_partial_expression(self) -> str:
-        return f" < {self._get_target_expression()}"
-
-    def find(self, element: Any) -> List[bool]:
-        return [element < self.get_target_value()]
+    _symbol = "<"
+    _operator = staticmethod(operator.lt)
 
 
 class LessEqual(Compare):
-    def _get_partial_expression(self) -> str:
-        return f" <= {self._get_target_expression()}"
-
-    def find(self, element: Any) -> List[bool]:
-        return [element <= self.get_target_value()]
+    _symbol = "<="
+    _operator = staticmethod(operator.le)
 
 
 class Equal(Compare):
-    def _get_partial_expression(self) -> str:
-        return f" = {self._get_target_expression()}"
-
-    def find(self, element: Any) -> List[bool]:
-        return [element == self.get_target_value()]
+    _symbol = "="
+    _operator = staticmethod(operator.eq)
 
 
 class GreaterEqual(Compare):
-    def _get_partial_expression(self) -> str:
-        return f" >= {self._get_target_expression()}"
-
-    def find(self, element: Any) -> List[bool]:
-        return [element >= self.get_target_value()]
+    _symbol = ">="
+    _operator = staticmethod(operator.ge)
 
 
 class GreaterThan(Compare):
-    def _get_partial_expression(self) -> str:
-        return f" > {self._get_target_expression()}"
-
-    def find(self, element: Any) -> List[bool]:
-        return [element > self.get_target_value()]
+    _symbol = ">"
+    _operator = staticmethod(operator.gt)
 
 
 class NotEqual(Compare):
-    def _get_partial_expression(self) -> str:
-        return f" != {self._get_target_expression()}"
-
-    def find(self, element: Any) -> List[bool]:
-        return [element != self.get_target_value()]
+    _symbol = "!="
+    _operator = staticmethod(operator.ne)
 
 
 class And(Compare):
@@ -909,8 +901,7 @@ class And(Compare):
 
     """
 
-    def _get_partial_expression(self) -> str:
-        return f" and {self._get_target_expression()}"
+    _symbol = "and"
 
     def find(self, element: Any) -> List[bool]:
         return [element and self.get_target_value()]
@@ -922,8 +913,7 @@ class Or(Compare):
 
     """
 
-    def _get_partial_expression(self) -> str:
-        return f" or {self._get_target_expression()}"
+    _symbol = "or"
 
     def find(self, element: Any) -> List[bool]:
         return [element or self.get_target_value()]
