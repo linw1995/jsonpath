@@ -48,6 +48,12 @@ COMPARISON_OPERATORS: Dict[T_OPERATOR, Type[Compare]] = {
     "!=": NotEqual,
 }
 
+FUNCTIONS: Dict[str, Type[Function]] = {
+    "key": Key,
+    "contains": Contains,
+    "not": Not,
+}
+
 
 @v_args(inline=True)
 class JSONPathTransformer(Transformer[Token, Expr]):
@@ -125,8 +131,7 @@ class JSONPathTransformer(Transformer[Token, Expr]):
         return prev_path.chain(action)
 
     def predicate(self, expr: Union[Expr, None]) -> Union[Array, Predicate]:
-        if isinstance(expr, Value):
-            assert isinstance(expr.value, int)
+        if isinstance(expr, Value) and isinstance(expr.value, int):
             return Array(expr.value)
         elif isinstance(expr, Slice):
             return Array(expr)
@@ -155,14 +160,10 @@ class JSONPathTransformer(Transformer[Token, Expr]):
         return Slice(start=first_field, stop=second_field, step=third_field)
 
     def func_call(self, name: str, args: T_ARGS = tuple()) -> Function:
-        if name == "key":
-            return Key(*args)
-        elif name == "contains":
-            return Contains(*args)
-        elif name == "not":
-            return Not(*args)
-        else:
+        func_cls = FUNCTIONS.get(name)
+        if func_cls is None:
             raise JSONPathUndefinedFunctionError(f"Function {name!r} not exists")
+        return func_cls(*args)
 
     def multi_args(self, args: List[T_ARG], single_arg: T_ARG) -> List[T_ARG]:
         args.append(single_arg)

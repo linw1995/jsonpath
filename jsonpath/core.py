@@ -293,10 +293,11 @@ class Expr(metaclass=ExprMeta):
         if self.ref_begin is None:
             # the unchained expr's ref_begin is None
             return self
-        else:
-            begin = self.ref_begin()
-            assert begin, "the chained expr must have a beginning expr"
-            return begin
+
+        begin = self.ref_begin()
+        if begin is None:
+            raise RuntimeError("the chained expr must have a beginning expr")
+        return begin
 
     def get_next(self) -> Optional["Expr"]:
         """
@@ -525,16 +526,16 @@ class Array(Expr):
             return f"[{idx_str}]"
 
     def find(self, element: Any) -> List[Any]:
-        if isinstance(element, list):
-            if self.idx is None:
-                return element
-            elif isinstance(self.idx, int):
-                with suppress(IndexError):
-                    return [element[self.idx]]
-            elif isinstance(self.idx, Slice):
-                return self.idx.find(element)
-            else:
-                raise AssertionError(f"self.idx={self.idx!r} is not valid")
+        if not isinstance(element, list):
+            raise JSONPathFindError
+
+        if self.idx is None:
+            return element
+        elif isinstance(self.idx, int):
+            with suppress(IndexError):
+                return [element[self.idx]]
+        elif isinstance(self.idx, Slice):
+            return self.idx.find(element)
 
         raise JSONPathFindError
 
