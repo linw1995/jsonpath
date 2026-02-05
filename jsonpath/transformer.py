@@ -107,7 +107,7 @@ class JSONPathTransformer(Transformer[Token, Expr]):
     ) -> Compare:
         compare_cls = COMPARISON_OPERATORS.get(operator)
         if compare_cls is None:
-            raise AssertionError(f"Operator {operator!r} is not supported")
+            raise ValueError(f"Operator {operator!r} is not supported")
 
         return left.chain(compare_cls(right))
 

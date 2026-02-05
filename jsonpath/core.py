@@ -85,10 +85,10 @@ def temporary_set(
     """
     Set the context variable temporarily via the 'with' statement.
 
-    >>> var_boo = ContextVar("boo")
-    >>> with temporary_set(var_boo, True):
-    ...     assert var_boo.get() is True
-    >>> var_boo.get()
+    >>> ctx_boo = ContextVar("boo")
+    >>> with temporary_set(ctx_boo, True):
+    ...     assert ctx_boo.get() is True
+    >>> ctx_boo.get()
     Traceback (most recent call last):
         ...
     LookupError: ...
@@ -616,7 +616,7 @@ class Slice(Expr):
     ) -> None:
         super().__init__()
         self.start = start
-        self.end = stop
+        self.stop = stop
         self.step = step
 
     def _get_partial_expression(self) -> str:
@@ -630,11 +630,11 @@ class Slice(Expr):
         else:
             parts.append("")
 
-        if self.end:
+        if self.stop:
             parts.append(
-                self.end.get_expression()
-                if isinstance(self.end, Expr)
-                else str(self.end)
+                self.stop.get_expression()
+                if isinstance(self.stop, Expr)
+                else str(self.stop)
             )
         else:
             parts.append("")
@@ -664,7 +664,7 @@ class Slice(Expr):
             raise JSONPathFindError("Slice.find apply on list only.")
 
         start = self._ensure_int_or_none(self.start) or 0
-        end = self._ensure_int_or_none(self.end)
+        end = self._ensure_int_or_none(self.stop)
         step = self._ensure_int_or_none(self.step) or 1
 
         if end is None:
