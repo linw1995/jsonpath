@@ -1,5 +1,5 @@
 # Standard Library
-from typing import Any, Iterable, List, Optional, Union
+from typing import Any, Dict, Iterable, List, Optional, Type, Union
 
 # Third Party Library
 from typing_extensions import Literal
@@ -38,6 +38,15 @@ T_OPERATOR = Literal["<=", ">=", "<", ">", "!=", "="]
 T_ARG = Union[Expr, T_VALUE]
 T_NO_ARG = Iterable[Any]
 T_ARGS = Union[T_NO_ARG, List[T_ARG]]
+
+COMPARISON_OPERATORS: Dict[T_OPERATOR, Type[Compare]] = {
+    "<": LessThan,
+    "<=": LessEqual,
+    "=": Equal,
+    ">=": GreaterEqual,
+    ">": GreaterThan,
+    "!=": NotEqual,
+}
 
 
 @v_args(inline=True)
@@ -90,23 +99,11 @@ class JSONPathTransformer(Transformer[Token, Expr]):
         operator: T_OPERATOR,
         right: Expr,
     ) -> Compare:
-        rv: Compare
-        if operator == "<":
-            rv = LessThan(right)
-        elif operator == "<=":
-            rv = LessEqual(right)
-        elif operator == "=":
-            rv = Equal(right)
-        elif operator == ">=":
-            rv = GreaterEqual(right)
-        elif operator == ">":
-            rv = GreaterThan(right)
-        elif operator == "!=":
-            rv = NotEqual(right)
-        else:
-            raise AssertionError(f"Opertor {operator!r} is not supported")
+        compare_cls = COMPARISON_OPERATORS.get(operator)
+        if compare_cls is None:
+            raise AssertionError(f"Operator {operator!r} is not supported")
 
-        return left.chain(rv)
+        return left.chain(compare_cls(right))
 
     def first_path(self, expr_or_str: Union[Expr, str]) -> Expr:
         if isinstance(expr_or_str, str):
