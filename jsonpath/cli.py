@@ -14,16 +14,22 @@ def cli(args: argparse.Namespace) -> None:
     try:
         jp = parse(args.expression)
     except JSONPathError as exc:
-        sys.exit(str(exc))
+        raise SystemExit(str(exc)) from exc
 
     if args.file:
         file_path = Path(args.file)
-        with file_path.open() as f:
-            data = json.load(f)
+        try:
+            with file_path.open() as f:
+                data = json.load(f)
+        except (OSError, json.JSONDecodeError) as exc:
+            raise SystemExit(f"Error reading {file_path}: {exc}") from exc
     elif not sys.stdin.isatty():
-        data = json.load(sys.stdin)
+        try:
+            data = json.load(sys.stdin)
+        except json.JSONDecodeError as exc:
+            raise SystemExit(f"Invalid JSON from stdin: {exc}") from exc
     else:
-        sys.exit("JSON file is needed.")
+        raise SystemExit("JSON file is needed.")
 
     json.dump(jp.find(data), sys.stdout, indent=2, ensure_ascii=args.ensure_ascii)
     sys.stdout.write("\n")
