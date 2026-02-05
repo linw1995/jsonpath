@@ -658,18 +658,15 @@ class Slice(Expr):
             return value
 
     def find(self, element: List[Any]) -> List[Any]:
-        assert isinstance(element, list), "Slice.find apply on list only."
+        if not isinstance(element, list):
+            raise JSONPathFindError("Slice.find apply on list only.")
 
-        start = self._ensure_int_or_none(self.start)
+        start = self._ensure_int_or_none(self.start) or 0
         end = self._ensure_int_or_none(self.end)
-        step = self._ensure_int_or_none(self.step)
+        step = self._ensure_int_or_none(self.step) or 1
 
-        if start is None:
-            start = 0
         if end is None:
             end = len(element)
-        if step is None:
-            step = 1
 
         return element[start:end:step]
 
