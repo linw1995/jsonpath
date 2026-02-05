@@ -17,7 +17,7 @@ from jsonpath.core import (
     Self,
     Slice,
     Value,
-    var_parent,
+    ctx_parent,
 )
 
 # Local Folder
@@ -418,7 +418,7 @@ def test_get_parent_object():
     class TestName1(Name):
         def find(self, element):
             with pytest.raises(LookupError):
-                var_parent.get()
+                ctx_parent.get()
 
             assert element == root
             return super().find(element)
@@ -429,7 +429,7 @@ def test_get_parent_object():
 
     class TestName2(Name):
         def find(self, element):
-            assert var_parent.get() == root_2
+            assert ctx_parent.get() == root_2
             assert element == {"b": 1}
             return super().find(element)
 
@@ -441,7 +441,7 @@ def test_get_parent_array():
 
     class TestName(Name):
         def find(self, element):
-            assert var_parent.get() == root
+            assert ctx_parent.get() == root
             assert element in root
             return super().find(element)
 
@@ -456,7 +456,7 @@ def test_get_parent_while_searching():
 
     class TestName(Name):
         def find(self, element):
-            parents.append(var_parent.get())
+            parents.append(ctx_parent.get())
             history.append(element)
             return super().find(element)
 
