@@ -508,10 +508,11 @@ class Array(Expr):
 
     def __init__(self, idx: Optional[Union[int, "Slice"]] = None) -> None:
         super().__init__()
-        assert idx is None or isinstance(idx, (int, Slice)), (
-            '"idx" parameter must be an instance of the "int" or "Slice" class,'
-            ' or "None" value'
-        )
+        if idx is not None and not isinstance(idx, (int, Slice)):
+            raise TypeError(
+                '"idx" parameter must be an instance of the "int" or "Slice" class,'
+                ' or "None" value'
+            )
         self.idx = idx
 
     def _get_partial_expression(self) -> str:
@@ -566,9 +567,8 @@ class Predicate(Expr):
 
     def __init__(self, expr: Union["Compare", Expr]) -> None:
         super().__init__()
-        assert isinstance(
-            expr, Expr
-        ), '"expr" parameter must be an instance of the "Expr" class.'
+        if not isinstance(expr, Expr):
+            raise TypeError('"expr" parameter must be an instance of the "Expr" class.')
         self.expr = expr
 
     def _get_partial_expression(self) -> str:
@@ -714,9 +714,8 @@ class Brace(Expr):
 
     def __init__(self, expr: Expr) -> None:
         super().__init__()
-        assert isinstance(
-            expr, Expr
-        ), '"expr" parameter must be an instance of the "Expr" class.'
+        if not isinstance(expr, Expr):
+            raise TypeError('"expr" parameter must be an instance of the "Expr" class.')
         self._expr = expr
 
     def _get_partial_expression(self) -> str:
@@ -764,9 +763,8 @@ class Search(Expr):
 
     def __init__(self, expr: Expr) -> None:
         super().__init__()
-        assert isinstance(
-            expr, Expr
-        ), '"expr" parameter must be an instance of the "Expr" class.'
+        if not isinstance(expr, Expr):
+            raise TypeError('"expr" parameter must be an instance of the "Expr" class.')
         # TODO: Not accepts mixed expr
         self._expr = expr
 
@@ -961,7 +959,8 @@ class Key(Function):
 
     def __init__(self, *args: List[Any]) -> None:
         super().__init__(*args)
-        assert not self.args
+        if self.args:
+            raise TypeError("Key() takes no arguments")
 
     def _get_partial_expression(self) -> str:
         return "key()"
@@ -999,10 +998,10 @@ class Contains(Function):
 
     def __init__(self, expr: Expr, target: Any, *args: List[Any]) -> None:
         super().__init__(expr, target, *args)
-        assert isinstance(
-            expr, Expr
-        ), '"expr" parameter must be an instance of the "Expr" class.'
-        assert not args
+        if not isinstance(expr, Expr):
+            raise TypeError('"expr" parameter must be an instance of the "Expr" class.')
+        if args:
+            raise TypeError("Contains() takes exactly 2 arguments")
         self._expr = expr
         self._target = target
 
@@ -1042,10 +1041,10 @@ class Not(Function):
 
     def __init__(self, expr: Expr, *args: List[Any]) -> None:
         super().__init__(expr, *args)
-        assert not args
-        assert isinstance(
-            expr, Expr
-        ), '"expr" parameter must be an instance of the "Expr" class.'
+        if args:
+            raise TypeError("Not() takes exactly 1 argument")
+        if not isinstance(expr, Expr):
+            raise TypeError('"expr" parameter must be an instance of the "Expr" class.')
         self._expr = expr
 
     def _get_partial_expression(self) -> str:
