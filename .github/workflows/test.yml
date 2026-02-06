@@ -50,7 +50,7 @@ jobs:
       - uses: ./.github/actions/setup-nix
 
       - name: Cache Nox Virtualenvs
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: .nox
           key: ${{ runner.os }}-${{ matrix.python-version }}-nox-${{ hashFiles('**/pdm.lock') }}
