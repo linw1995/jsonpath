@@ -5,7 +5,6 @@ import logging
 from contextlib import nullcontext
 
 # Third Party Library
-import _pytest.python_api
 import pytest
 
 # First Party Library
@@ -35,8 +34,10 @@ def test_no_conflict(caplog):
 def ids(x):
     if x is does_not_raise:
         return "does not raise"
-    elif isinstance(x, _pytest.python_api.RaisesContext):
+    elif hasattr(x, "expected_exception"):
         return f"raise {x.expected_exception.__name__}"
+    elif hasattr(x, "expected_exceptions"):
+        return f"raise {x.expected_exceptions[0].__name__}"
     else:
         return json.dumps(x)
 

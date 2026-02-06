@@ -7,11 +7,11 @@
         "pyproject-nix": "pyproject-nix"
       },
       "locked": {
-        "lastModified": 1734729217,
-        "narHash": "sha256-UaBik0h7veLw+VqsK5EP2ucC68BEkHLDJkcfmY+wEuY=",
+        "lastModified": 1765953015,
+        "narHash": "sha256-5FBZbbWR1Csp3Y2icfRkxMJw/a/5FGg8hCXej2//bbI=",
         "owner": "nix-community",
         "repo": "dream2nix",
-        "rev": "98c1c2e934995a2c6ce740d4ff43ce0daa19b79f",
+        "rev": "69eb01fa0995e1e90add49d8ca5bcba213b0416f",
         "type": "github"
       },
       "original": {
@@ -38,11 +38,27 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1729850857,
-        "narHash": "sha256-WvLXzNNnnw+qpFOmgaM3JUlNEH+T4s22b5i2oyyCpXE=",
+        "lastModified": 1750215678,
+        "narHash": "sha256-Rc/ytpamXRf6z8UA2SGa4aaWxUXRbX2MAWIu2C8M+ok=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "41dea55321e5a999b17033296ac05fe8a8b5a257",
+        "rev": "5395fb3ab3f97b9b7abca147249fa2e8ed27b192",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1770169770,
+        "narHash": "sha256-awR8qIwJxJJiOmcEGgP2KUqYmHG4v/z8XpL9z8FnT1A=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "aa290c9891fa4ebe88f8889e59633d20cc06a5f2",
         "type": "github"
       },
       "original": {
@@ -76,18 +92,22 @@
       }
     },
     "pyproject-nix": {
-      "flake": false,
+      "inputs": {
+        "nixpkgs": [
+          "dream2nix",
+          "nixpkgs"
+        ]
+      },
       "locked": {
-        "lastModified": 1702448246,
-        "narHash": "sha256-hFg5s/hoJFv7tDpiGvEvXP0UfFvFEDgTdyHIjDVHu1I=",
-        "owner": "davhau",
+        "lastModified": 1763017646,
+        "narHash": "sha256-Z+R2lveIp6Skn1VPH3taQIuMhABg1IizJd8oVdmdHsQ=",
+        "owner": "pyproject-nix",
         "repo": "pyproject.nix",
-        "rev": "5a06a2697b228c04dd2f35659b4b659ca74f7aeb",
+        "rev": "47bd6f296502842643078d66128f7b5e5370790c",
         "type": "github"
       },
       "original": {
-        "owner": "davhau",
-        "ref": "dream2nix",
+        "owner": "pyproject-nix",
         "repo": "pyproject.nix",
         "type": "github"
       }
@@ -95,10 +115,7 @@
     "root": {
       "inputs": {
         "dream2nix": "dream2nix",
-        "nixpkgs": [
-          "dream2nix",
-          "nixpkgs"
-        ]
+        "nixpkgs": "nixpkgs_2"
       }
     },
     "slimlock": {
