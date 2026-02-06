@@ -61,7 +61,7 @@ def test_parse_json_from_stdin_and_extract(spawn, expression, data, expect, tmpd
         json.dump(data, f)
 
     p = spawn(
-        "/bin/bash",
+        "bash",
         ["-c", f"cat {json_file_path} | {JP} {expression}"],
     )
     p.expect_exact(json.dumps(expect, indent=2).split("\n"))

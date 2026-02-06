@@ -1,7 +1,7 @@
 {
   inputs = {
     dream2nix.url = "github:nix-community/dream2nix";
-    nixpkgs.follows = "dream2nix/nixpkgs";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
 
   outputs = {
@@ -40,13 +40,14 @@
         inputsFrom = [self.packages.${system}.default.devShell];
 
         packages = with pkgs; [
-          pre-commit
+          prek
           python3Packages.nox
 
           python310
           python311
           python312
           python313
+          python314
         ];
       };
     });
