@@ -6,23 +6,19 @@ import sybil
 
 from sybil.parsers.rest import DocTestParser, PythonCodeBlockParser
 
-ignore_collect = sum(
-    (
-        [str(p.absolute()) for p in Path().glob(pattern)]
-        for pattern in ["jsonpath/lark_parser.py"]
-    ),
-    [],
-)
+ignore_collect = {
+    p.absolute()
+    for pattern in ["jsonpath/lark_parser.py"]
+    for p in Path().glob(pattern)
+}
 
 
-def pytest_ignore_collect(path, config):
+def pytest_ignore_collect(collection_path, config):
     """return True to prevent considering this path for collection.
     This hook is consulted for all files and directories prior to calling
     more specific hooks.
     """
-    # https://docs.pytest.org/en/5.4.3/reference.html?highlight=pytest_ignore_collect#_pytest.hookspec.pytest_ignore_collect
-    # noqa: B950
-    if str(path) in ignore_collect:
+    if collection_path.absolute() in ignore_collect:
         return True
 
     return False
