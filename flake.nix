@@ -41,6 +41,7 @@
 
         packages = with pkgs; [
           prek
+          pre-commit
           python3Packages.nox
 
           python310
