@@ -55,10 +55,10 @@ check-all:
 	pre-commit run --all-files
 
 test:
-	pdm run pytest -q -x --ff --nf
+	env -u PYTHONPATH pdm run pytest -q -x --ff --nf
 
 vtest:
-	pdm run pytest -vv -x --ff --nf
+	env -u PYTHONPATH pdm run pytest -vv -x --ff --nf
 
 cov:
 	rm -rf .coverage
